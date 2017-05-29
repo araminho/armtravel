@@ -3,3 +3,8 @@
  Description:  CityTours Child Theme
  Template:     citytours
 */
+
+.post img.wp-post-image{
+    width: 300px;
+    height: auto;
+}
