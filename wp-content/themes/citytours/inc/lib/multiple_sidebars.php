@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class sidebar_generator {
 
-    function sidebar_generator(){
+    function __construct(){
         add_action('init',array('sidebar_generator','init'));
         add_action('admin_menu',array('sidebar_generator','admin_menu'));
         add_action('admin_enqueue_scripts', array('sidebar_generator','admin_enqueue_scripts'));
