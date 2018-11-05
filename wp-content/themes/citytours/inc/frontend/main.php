@@ -3,6 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 require_once( CT_INC_DIR . '/frontend/hotel/main.php');
 require_once( CT_INC_DIR . '/frontend/tour/main.php');
+require_once( CT_INC_DIR . '/frontend/car/main.php');
 require_once( CT_INC_DIR . '/frontend/custom_style.php');
 
 add_action( 'ct_order_conf_mail_not_sent', 'ct_order_conf_send_mail' );
@@ -16,38 +17,43 @@ add_action( 'wp_ajax_nopriv_add_to_wishlist', 'ct_ajax_add_to_wishlist' );
  */
 if ( ! function_exists( 'ct_order_default_order_data' ) ) {
 	function ct_order_default_order_data( $type='new' ) {
-		$default_order_data = array(  'first_name'        => '',
-										'last_name'         => '',
-										'email'             => '',
-										'phone'             => '',
-										'address1'           => '',
-										'address2'           => '',
-										'city'              => '',
-										'state'              => '',
-										'zip'               => '',
-										'country'           => '',
-										'special_requirements' => '',
-										'post_id'  => '',
-										'total_adults'            => '',
-										'total_kids'              => '',
-										'total_price'       => '',
-										'deposit_price'     => 0,
-										'currency_code'     => '',
-										'exchange_rate'     => 1,
-										'deposit_price'      => 0,
-										'deposit_paid'      => 1,
-										'date_from'         => '',
-										'date_to'           => '',
-										'booking_no'        => '',
-										'pin_code'          => '',
-										'status'            => 'new',
-										'updated'           => date( 'Y-m-d H:i:s' ),
-									);
+		$default_order_data = array( 
+			'first_name'			=> '',
+			'last_name'				=> '',
+			'email'					=> '',
+			'phone'					=> '',
+			'address1'				=> '',
+			'address2'				=> '',
+			'city'					=> '',
+			'state'					=> '',
+			'zip'					=> '',
+			'country'				=> '',
+			'special_requirements'	=> '',
+			'post_id'				=> '',
+			'total_adults'			=> '',
+			'total_kids'			=> '',
+			'total_price'			=> '',
+			'deposit_price'			=> 0,
+			'currency_code'			=> '',
+			'exchange_rate'			=> 1,
+			'deposit_price'			=> 0,
+			'deposit_paid'			=> 1,
+			'date_from'				=> '',
+			'date_to'				=> '',
+			'booking_no'			=> '',
+			'pin_code'				=> '',
+			'status'				=> 'new',
+			'updated'				=> date( 'Y-m-d H:i:s' ),
+		);
+
 		if ( $type == 'new' ) {
-			$temp = array( 'created' => date( 'Y-m-d H:i:s' ),
-						'mail_sent' => '',
-						'other' => '',
-						'id' => '' );
+			$temp = array( 
+				'created'	=> date( 'Y-m-d H:i:s' ),
+				'mail_sent'	=> '',
+				'other'		=> '',
+				'id'		=> '' 
+			);
+
 			$default_order_data = array_merge( $default_order_data, $temp );
 		}
 
@@ -103,18 +109,26 @@ if ( ! function_exists( 'ct_order_send_email' ) ) {
  */
 if ( ! function_exists( 'ct_ajax_add_to_wishlist' ) ) {
 	function ct_ajax_add_to_wishlist() {
-		$result_json = array( 'success' => 0, 'result' => '' );
+		$result_json = array( 
+			'success'	=> 0, 
+			'result'	=> '' 
+		);
+
 		if ( ! is_user_logged_in() ) {
 			$result_json['success'] = 0;
 			$result_json['result'] = esc_html__( 'Please login to update your wishlist.', 'citytours' );
+
 			wp_send_json( $result_json );
 		}
+
 		$user_id = get_current_user_id();
 		$new_item_id = sanitize_text_field( ct_post_org_id( $_POST['post_id'] ) );
 		$wishlist = get_user_meta( $user_id, 'wishlist', true );
+
 		if ( isset( $_POST['remove'] ) ) {
 			//remove
 			$wishlist = array_diff( $wishlist, array( $new_item_id ) );
+
 			if ( update_user_meta( $user_id, 'wishlist', $wishlist ) ) {
 				$result_json['success'] = 1;
 				$result_json['result'] = esc_html__( 'This post has removed from your wishlist successfully.', 'citytours' );
@@ -124,9 +138,13 @@ if ( ! function_exists( 'ct_ajax_add_to_wishlist' ) ) {
 			}
 		} else {
 			//add
-			if ( empty( $wishlist ) ) $wishlist = array();
+			if ( empty( $wishlist ) ) {
+				$wishlist = array();
+			}
+
 			if ( ! in_array( $new_item_id, $wishlist) ) {
 				array_push( $wishlist, $new_item_id );
+
 				if ( update_user_meta( $user_id, 'wishlist', $wishlist ) ) {
 					$result_json['success'] = 1;
 					$result_json['result'] = esc_html__( 'This post has added to your wishlist successfully.', 'citytours' );
@@ -139,6 +157,7 @@ if ( ! function_exists( 'ct_ajax_add_to_wishlist' ) ) {
 				$result_json['result'] = esc_html__( 'Already exists in your wishlist.', 'citytours' );
 			}
 		}
+		
 		wp_send_json( $result_json );
 	}
 }

@@ -5,7 +5,7 @@
  * @see 	    https://docs.woocommerce.com/document/template-structure/
  * @author      WooThemes
  * @package     WooCommerce/Templates
- * @version     2.3.2
+ * @version     3.1.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $product;
 
-if ( get_option( 'woocommerce_enable_review_rating' ) === 'no' ) {
+if ( 'no' === get_option( 'woocommerce_enable_review_rating' ) ) {
 	return;
 }
 
@@ -25,12 +25,12 @@ $average      = $product->get_average_rating();
 if ( $rating_count > 0 ) : ?>
 
 	<div class="woocommerce-product-rating" itemprop="aggregateRating" itemscope itemtype="http://schema.org/AggregateRating">
-		<div class="star-rating" title="<?php printf( __( 'Rated %s out of 5', 'woocommerce' ), $average ); ?>">
+		<div class="star-rating" title="<?php printf( __( 'Rated %s out of 5', 'citytours' ), $average ); ?>">
 			<span style="width:<?php echo ( ( $average / 5 ) * 100 ); ?>%">
-				<strong itemprop="ratingValue" class="rating"><?php echo esc_html( $average ); ?></strong> <?php printf( __( 'out of %s5%s', 'woocommerce' ), '<span itemprop="bestRating">', '</span>' ); ?>
+				<strong itemprop="ratingValue" class="rating"><?php echo esc_html( $average ); ?></strong> <?php printf( __( 'out of %s5%s', 'citytours' ), '<span itemprop="bestRating">', '</span>' ); ?>
 			</span>
 		</div>
-		<?php if ( comments_open() ) : ?><a href="#reviews" class="woocommerce-review-link" rel="nofollow">(<?php printf( _n( '%s customer review', '%s customer reviews', $review_count, 'woocommerce' ), '<span itemprop="reviewCount" class="count">' . $review_count . '</span>' ); ?>)</a><?php endif ?>
+		<?php if ( comments_open() ) : ?><a href="#reviews" class="woocommerce-review-link" rel="nofollow">(<?php printf( _n( '%s customer review', '%s customer reviews', $review_count, 'citytours' ), '<span itemprop="reviewCount" class="count">' . $review_count . '</span>' ); ?>)</a><?php endif ?>
 	</div>
 
 <?php endif; ?>

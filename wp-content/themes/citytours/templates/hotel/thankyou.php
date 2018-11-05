@@ -1,8 +1,14 @@
 <?php 
+/* Hotel Thank-you Page Template */
+if ( ! defined( 'ABSPATH' ) ) { 
+    exit; 
+}
+
 if ( ! isset( $_REQUEST['booking_no'] ) || ! isset( $_REQUEST['pin_code'] ) ) {
 	do_action('ct_hotel_thankyou_wrong_data');
 	exit;
 }
+
 global $wpdb, $ct_options;
 
 $order = new CT_Hotel_Order( $_REQUEST['booking_no'], $_REQUEST['pin_code'] );
@@ -10,7 +16,10 @@ if ( ! $order_data = $order->get_order_info() ) {
 	do_action('ct_hotel_thankyou_wrong_data');
 	exit;
 }
-$deposit_rate = get_post_meta( $order_data['post_id'], '_hotel_security_deposit', true ); $deposit_rate = empty( $deposit_rate ) ? 0 : $deposit_rate;
+
+$deposit_rate = get_post_meta( $order_data['post_id'], '_hotel_security_deposit', true ); 
+$deposit_rate = empty( $deposit_rate ) ? 0 : $deposit_rate;
+
 if ( empty( $order_data['deposit_paid'] ) ) {
 	// init payment variables
 	if ( $deposit_rate < 100 ) {
@@ -63,16 +72,17 @@ if ( empty( $order_data['mail_sent'] ) ) {
 }
 
 $order_rooms = $order->get_rooms();
- ?>
+?>
+
 <div class="row">
 	<div class="col-md-8">
 
 		<div class="form_title">
 			<h3><strong><i class="icon-ok"></i></strong><?php echo esc_html__( 'Thank you!', 'citytours' ) ?></h3>
-			<p><?php echo esc_html__( 'Your Booking Order is Confirmed Now.', 'citytours' ) ?></p>
+			<p><?php echo esc_html__( 'Your Booking Order is Now Confirmed.', 'citytours' ) ?></p>
 		</div>
+
 		<div class="step">
-			<!-- <p><?php echo esc_html__( 'Lorem ipsum dolor sit amet, nostrud nominati vis ex, essent conceptam eam ad. Cu etiam comprehensam nec. Cibo delicata mei an, eum porro legere no. Te usu decore omnium, quem brute vis at, ius esse officiis legendos cu. Dicunt voluptatum at cum. Vel et facete equidem deterruisset, mei graeco cetero labores et. Accusamus inciderint eu mea.', 'citytours' ) ?></p> -->
 			<?php if ( ! empty( $ct_options['hotel_thankyou_text_1'] ) ) : ?>
 			<p><?php echo esc_html__( $ct_options['hotel_thankyou_text_1'] , 'citytours' ) ?></p>
 			<?php endif; ?>
@@ -80,75 +90,82 @@ $order_rooms = $order->get_rooms();
 
 		<div class="form_title">
 			<h3><strong><i class="icon-tag-1"></i></strong><?php echo esc_html__( 'Booking summary', 'citytours' ) ?></h3>
-			<p><?php echo esc_html__( 'Mussum ipsum cacilds, vidis litro abertis.', 'citytours' ) ?></p>
+			<p><?php echo esc_html__( 'Followings are Summary of Your Booking.', 'citytours' ) ?></p>
 		</div>
+
 		<div class="step">
 			<table class="table confirm">
-			<tbody>
-			<tr>
-				<td><strong><?php echo esc_html__( 'Name', 'citytours' ) ?></strong></td>
-				<td><?php echo esc_html( $order_data['first_name'] . ' ' . $order_data['last_name'] ) ?></td>
-			</tr>
-			<tr>
-				<td><strong><?php echo esc_html__( 'Check in', 'citytours' ) ?></strong></td>
-				<td><?php echo date_i18n( 'j F Y', strtotime( $order_data['date_from'] ) ) ?></td>
-			</tr>
-			<tr>
-				<td><strong><?php echo esc_html__( 'Check out', 'citytours' ) ?></strong></td>
-				<td><?php echo date_i18n( 'j F Y', strtotime( $order_data['date_to'] ) ) ?></td>
-			</tr>
-			<tr>
-				<td><strong><?php echo esc_html__( 'Hotel Name', 'citytours' ) ?></strong></td>
-				<td><?php echo get_the_title( $order_data['post_id'] ) ?></td>
-			</tr>
-			<tr>
-				<td><strong><?php echo esc_html__( 'Rooms', 'citytours' ) ?></strong></td>
-				<td>
-					<?php if ( ! empty( $order_rooms ) ) {
-						foreach ($order_rooms as $room ) {
-							echo esc_html( $room['rooms'] . ' ' . get_the_title( $room['room_type_id'] ) ) . '<br>';
-						}
-					}?>
-				</td>
-			</tr>
-			<tr>
-				<td><strong><?php echo esc_html__( 'Nights', 'citytours' ) ?></strong></td>
-				<td><?php echo ct_get_day_interval( $order_data['date_from'], $order_data['date_to'] ) ?></td>
-			</tr>
-			<tr>
-				<td><strong><?php echo esc_html__( 'Adults', 'citytours' ) ?></strong></td>
-				<td><?php echo esc_html( $order_data['total_adults'] ) ?></td>
-			</tr>
-			<tr>
-				<td><strong><?php echo esc_html__( 'Children', 'citytours' ) ?></strong></td>
-				<td><?php echo esc_html( $order_data['total_kids'] ) ?></td>
-			</tr>
-			<?php if ( ! empty( $deposit_rate ) && $deposit_rate < 100 ) : ?>
-				<tr>
-					<td><strong><?php echo sprintf( esc_html__( 'Security Deposit(%d%%)', 'citytours' ), $deposit_rate ) ?></strong></td>
-					<td ><?php echo ct_price( $order_data['deposit_price'], "", $order_data['currency_code'], 0 ) ?></td>
-				</tr>
-			<?php endif; ?>
-			<tr>
-				<td><strong><?php echo esc_html__( 'TOTAL COST', 'citytours' ) ?></strong></td>
-				<td ><?php echo ct_price( $order_data['total_price'] ) ?></td>
-			</tr>
-			</tbody>
+				<tbody>
+					<tr>
+						<td><strong><?php echo esc_html__( 'Name', 'citytours' ) ?></strong></td>
+						<td><?php echo esc_html( $order_data['first_name'] . ' ' . $order_data['last_name'] ) ?></td>
+					</tr>
+					<tr>
+						<td><strong><?php echo esc_html__( 'Check in', 'citytours' ) ?></strong></td>
+						<td><?php echo date_i18n( 'j F Y', strtotime( $order_data['date_from'] ) ) ?></td>
+					</tr>
+					<tr>
+						<td><strong><?php echo esc_html__( 'Check out', 'citytours' ) ?></strong></td>
+						<td><?php echo date_i18n( 'j F Y', strtotime( $order_data['date_to'] ) ) ?></td>
+					</tr>
+					<tr>
+						<td><strong><?php echo esc_html__( 'Hotel Name', 'citytours' ) ?></strong></td>
+						<td><?php echo get_the_title( $order_data['post_id'] ) ?></td>
+					</tr>
+					<tr>
+						<td><strong><?php echo esc_html__( 'Rooms', 'citytours' ) ?></strong></td>
+						<td>
+							<?php if ( ! empty( $order_rooms ) ) {
+								foreach ($order_rooms as $room ) {
+									echo esc_html( $room['rooms'] . ' ' . get_the_title( $room['room_type_id'] ) ) . '<br>';
+								}
+							}?>
+						</td>
+					</tr>
+					<tr>
+						<td><strong><?php echo esc_html__( 'Nights', 'citytours' ) ?></strong></td>
+						<td><?php echo ct_get_day_interval( $order_data['date_from'], $order_data['date_to'] ) ?></td>
+					</tr>
+					<tr>
+						<td><strong><?php echo esc_html__( 'Adults', 'citytours' ) ?></strong></td>
+						<td><?php echo esc_html( $order_data['total_adults'] ) ?></td>
+					</tr>
+					<tr>
+						<td><strong><?php echo esc_html__( 'Children', 'citytours' ) ?></strong></td>
+						<td><?php echo esc_html( $order_data['total_kids'] ) ?></td>
+					</tr>
+					<?php if ( ! empty( $deposit_rate ) && $deposit_rate < 100 ) : ?>
+						<tr>
+							<td><strong><?php echo sprintf( esc_html__( 'Security Deposit(%d%%)', 'citytours' ), $deposit_rate ) ?></strong></td>
+							<td ><?php echo ct_price( $order_data['deposit_price'], "", $order_data['currency_code'], 0 ) ?></td>
+						</tr>
+					<?php endif; ?>
+					<tr>
+						<td><strong><?php echo esc_html__( 'TOTAL COST', 'citytours' ) ?></strong></td>
+						<td ><?php echo ct_price( $order_data['total_price'] ) ?></td>
+					</tr>
+				</tbody>
 			</table>
 		</div><!--End step -->
+
 	</div><!--End col-md-8 -->
 
 	<aside class="col-md-4">
-	<div class="box_style_1">
-		<h3 class="inner"><?php echo esc_html__( 'Thank you!', 'citytours' ) ?></h3>
-		<!-- <p><?php echo esc_html__( 'Nihil inimicus ex nam, in ipsum dignissim duo. Tale principes interpretaris vim ei, has posidonium definitiones ut. Duis harum fuisset ut his, duo an dolor epicuri appareat.', 'citytours' ) ?></p> -->
-		<?php if ( ! empty( $ct_options['hotel_thankyou_text_2'] ) ) : ?>
-		<p><?php echo esc_html__( $ct_options['hotel_thankyou_text_2'], 'citytours' ) ?></p>
-		<?php endif; ?>
-		<hr>
-		<?php if ( ! empty( $ct_options['hotel_invoice_page'] ) ) : ?>
-			<a class="btn_full_outline" target="_blank" href="<?php echo esc_url( add_query_arg( array( 'booking_no' => $order_data['booking_no'], 'pin_code' => $order_data['pin_code'] ) ,ct_get_permalink_clang( $ct_options['hotel_invoice_page'] ) ) ) ?>" target="_blank"><?php echo esc_html__( 'View your invoice', 'citytours' ) ?></a>
-		<?php endif; ?>
-	</div>
+		<div class="box_style_1">
+			<h3 class="inner"><?php echo esc_html__( 'Thank you!', 'citytours' ) ?></h3>
+
+			<!-- <p><?php echo esc_html__( 'Nihil inimicus ex nam, in ipsum dignissim duo. Tale principes interpretaris vim ei, has posidonium definitiones ut. Duis harum fuisset ut his, duo an dolor epicuri appareat.', 'citytours' ) ?></p> -->
+
+			<?php if ( ! empty( $ct_options['hotel_thankyou_text_2'] ) ) : ?>
+			<p><?php echo esc_html__( $ct_options['hotel_thankyou_text_2'], 'citytours' ) ?></p>
+			<?php endif; ?>
+
+			<hr>
+
+			<?php if ( ! empty( $ct_options['hotel_invoice_page'] ) ) : ?>
+				<a class="btn_full_outline" target="_blank" href="<?php echo esc_url( add_query_arg( array( 'booking_no' => $order_data['booking_no'], 'pin_code' => $order_data['pin_code'] ) ,ct_get_permalink_clang( $ct_options['hotel_invoice_page'] ) ) ) ?>" target="_blank"><?php echo esc_html__( 'View your invoice', 'citytours' ) ?></a>
+			<?php endif; ?>
+		</div>
 	</aside>
+	
 </div><!--End row -->

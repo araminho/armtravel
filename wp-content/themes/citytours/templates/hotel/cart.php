@@ -1,4 +1,8 @@
 <?php
+/* Hotel Cart Template */
+if ( ! defined( 'ABSPATH' ) ) { 
+    exit; 
+}
 
 // validation
 $required_params = array( 'hotel_id', 'date_from', 'date_to' );
@@ -34,15 +38,20 @@ if ( ! $ct_hotel_checkout_page_url ) { ?>
 		<div class="row">
 			<div class="col-md-8">
 				<?php do_action( 'hotel_cart_main_before' ); ?>
+
 				<div class="alert alert-info" role="alert"><?php echo __( '<strong>Rooms available</strong> for the selected dates.<br>PLEASE SELECT YOUR QUANTITY.', 'citytours' ) ?></div>
+
 				<table class="table table-striped cart-list hotel add_bottom_30">
-					<thead><tr>
-						<th><?php echo esc_html__( 'Room Type', 'citytours' ) ?></th>
-						<th><?php echo esc_html__( 'Quantity', 'citytours' ) ?></th>
-						<th><?php echo esc_html__( 'Adults', 'citytours' ) ?></th>
-						<th><?php echo esc_html__( 'Children', 'citytours' ) ?></th>
-						<th><?php echo esc_html__( 'Total', 'citytours' ) ?></th>
-					</tr></thead>
+					<thead>
+						<tr>
+							<th><?php echo esc_html__( 'Room Type', 'citytours' ) ?></th>
+							<th><?php echo esc_html__( 'Quantity', 'citytours' ) ?></th>
+							<th><?php echo esc_html__( 'Adults', 'citytours' ) ?></th>
+							<th><?php echo esc_html__( 'Children', 'citytours' ) ?></th>
+							<th><?php echo esc_html__( 'Total', 'citytours' ) ?></th>
+						</tr>
+					</thead>
+
 					<tbody>
 						<?php foreach ( $room_ids as $room_id => $available_rooms ) :
 							$max_adults = get_post_meta( $room_id, '_room_max_adults', true );
@@ -51,37 +60,50 @@ if ( ! $ct_hotel_checkout_page_url ) { ?>
 							if ( empty( $max_kids ) || ! is_numeric( $max_kids ) ) $max_kids = 0;
 						?>
 							<tr>
-								<td>
+								<td data-title="<?php esc_attr_e( 'Room Type', 'citytours' ) ?>">
 									<div class="thumb_cart">
 										<a href="#" data-toggle="modal" data-target="#room-<?php echo esc_attr( $room_id ) ?>"><?php echo get_the_post_thumbnail( $room_id, 'thumbnail' ); ?></a>
 									</div>
-									 <span class="item_cart"><a href="#" data-toggle="modal" data-target="#room-<?php echo esc_attr( $room_id ) ?>"><?php echo esc_html( get_the_title( $room_id ) ); ?></a></span>
-									 <input type="hidden" name="room_type_id[]" value="<?php echo esc_attr( $room_id ) ?>">
+									<span class="item_cart">
+										<a href="#" data-toggle="modal" data-target="#room-<?php echo esc_attr( $room_id ) ?>"><?php echo esc_html( get_the_title( $room_id ) ); ?></a>
+									</span>
+									<input type="hidden" name="room_type_id[]" value="<?php echo esc_attr( $room_id ) ?>">
 								</td>
-								<td>
+								<td data-title="<?php esc_attr_e( 'Quantity', 'citytours' ) ?>">
 									<div class="numbers-row" data-min="0" data-max="<?php echo esc_attr( $available_rooms ) ?>">
 										<input type="text" class="qty2 form-control room-quantity" name="rooms[<?php echo esc_attr( $room_id ) ?>]" value="<?php echo esc_attr( $cart->get_room_field( $uid, $room_id, 'rooms' ) ) ?>">
+
+										<div class="inc button_inc">+</div>
+										<div class="dec button_inc">-</div>
 									</div>
 								</td>
-								<td>
+								<td data-title="<?php esc_attr_e( 'Adults', 'citytours' ) ?>">
 									<div class="numbers-row" data-min="0" <?php if ( ! empty( $max_adults ) ) echo 'data-max="' . esc_attr( $max_adults * $available_rooms ) . '" data-per-room="' . esc_attr( $max_adults ) . '"'; ?>>
 										<input type="text" class="qty2 form-control room-adults" name="adults[<?php echo esc_attr( $room_id ) ?>]" value="<?php echo esc_attr( $cart->get_room_field( $uid, $room_id, 'adults' ) ) ?>">
+
+										<div class="inc button_inc">+</div>
+										<div class="dec button_inc">-</div>
 									</div>
 								</td>
-								<td>
+								<td data-title="<?php esc_attr_e( 'Children', 'citytours' ) ?>">
 									<?php if ( ! empty( $max_kids ) ) : ?>
 									<div class="numbers-row" data-min="0" data-max="<?php echo esc_attr( $available_rooms * $max_kids ) ?>" data-per-room="<?php echo esc_attr( $max_kids ) ?>">
 										<input type="text" class="qty2 form-control room-kids" name="kids[<?php echo esc_attr( $room_id ) ?>]" value="<?php echo esc_attr( $cart->get_room_field( $uid, $room_id, 'kids' ) ) ?>">
+
+										<div class="inc button_inc">+</div>
+										<div class="dec button_inc">-</div>
 									</div>
 									<?php endif; ?>
 								</td>
-								<td><strong><?php $total = $cart->get_room_field( $uid, $room_id, 'total' ); if ( ! empty( $total ) ) echo ct_price( $cart->get_room_field( $uid, $room_id, 'total' ) ) ?></strong></td>
+								<td data-title="<?php esc_attr_e( 'Total', 'citytours' ) ?>">
+									<strong><?php $total = $cart->get_room_field( $uid, $room_id, 'total' ); if ( ! empty( $total ) ) echo ct_price( $cart->get_room_field( $uid, $room_id, 'total' ) ) ?></strong>
+								</td>
 							</tr>
 						<?php endforeach; ?>
 					</tbody>
-					</table>
+				</table>
 
-					<?php if ( ! empty( $add_services ) ) : ?>
+				<?php if ( ! empty( $add_services ) ) : ?>
 					<table class="table table-striped options_cart">
 						<thead><tr><th colspan="4"><?php echo esc_html__( 'Add options / Services', 'citytours' ) ?></th></tr></thead>
 						<tbody>
@@ -92,39 +114,24 @@ if ( ! $ct_hotel_checkout_page_url ) { ?>
 									</td>
 									<td>
 										<?php echo esc_attr( $service->title ); ?> 
-										<strong>+<?php echo ct_price( $service->price );
-										if ( ! empty( $service->per_person ) && ! empty( $service->inc_child ) ) {
-												echo '*';
-										} else { 
-										if ( ! empty( $service->per_person ) ) {
-												echo '**';
-											} else if ( ! empty( $service->inc_child ) ) { 
-												echo '***';
-											}
-										} ?></strong>
+										<strong>+<?php echo ct_price( $service->price ); ?></strong>
 									</td>
 									<td>
-										<?php if ( ! empty( $service->per_person ) && ! empty( $service->inc_child ) ) { ?>
-											<input type="hidden" class="add_service_type" value="1">
-										<?php } else { 
-											if ( ! empty( $service->per_person ) ) { ?>
-												<input type="hidden" class="add_service_type" value="2">
-											<?php } else if ( ! empty( $service->inc_child ) ) { ?>
-												<input type="hidden" class="add_service_type" value="3">
-											<?php } else { ?>
-												<input type="hidden" class="add_service_type" value="0">
-											<?php }
-										}
-
+										<?php
 										$field_name = 'add_service_' . esc_attr( $service->id );
+
 										if ( ! empty( $cart_service ) && ! empty( $cart_service[ $service->id ] ) ) {
 											$temp_value = isset( $cart_service[$service->id]['qty'] ) ? $cart_service[$service->id]['qty'] : 1;
-											} else {
+										} else {
 											$temp_value = isset( $_REQUEST[ $field_name ] ) ? $_REQUEST[ $field_name ] : 1;
-											}
-										 ?>
+										}
+										?>
+										
 										<div class="numbers-row post-right <?php if ( empty( $cart_service ) || empty( $cart_service[ $service->id ] ) ) echo 'hide-row';  ?>" data-min="1">
-											<input type="text" class="qty2 form-control <?php echo $field_name ?>" name="<?php echo $field_name ?>" value="<?php echo $temp_value ?>">
+											<input type="text" class="qty2 form-control <?php echo esc_attr( $field_name ); ?>" name="<?php echo esc_attr( $field_name ); ?>" value="<?php echo esc_attr( $temp_value ); ?>">
+
+											<div class="inc button_inc">+</div>
+											<div class="dec button_inc">-</div>
 										</div>
 									</td>
 									<td>
@@ -141,10 +148,8 @@ if ( ! $ct_hotel_checkout_page_url ) { ?>
 							<?php endforeach ?>
 						</tbody>
 					</table>
-					<small><?php echo esc_html__( '* Prices per person including child.', 'citytours' ) ?></small><br/>
-					<small><?php echo esc_html__( '** Prices per person.', 'citytours' ) ?></small><br/>
-					<small><?php echo esc_html__( '*** Prices per child.', 'citytours' ) ?></small>
-					<?php endif; ?>
+				<?php endif; ?>
+
 				<?php do_action( 'hotel_cart_main_after' ); ?>
 			</div><!-- End col-md-8 -->
 
@@ -200,10 +205,10 @@ if ( ! $ct_hotel_checkout_page_url ) { ?>
 							<td><?php echo esc_html__( 'Total cost', 'citytours' ) ?></td>
 							<td class="text-right"><?php $total_price = $cart->get_field( $uid, 'total_price' ); if ( ! empty( $total_price ) ) echo ct_price( $total_price ) ?></td>
 						</tr>
-							<tr>
-								<td><?php echo sprintf( esc_html__( 'Security Deposit (%d%%)', 'citytours' ), $deposit_rate ) ?></td>
-								<td class="text-right"><?php if ( ! empty( $total_price ) ) echo ct_price( $total_price * $deposit_rate / 100 ) ?></td>
-							</tr>
+						<tr>
+							<td><?php echo sprintf( esc_html__( 'Security Deposit (%d%%)', 'citytours' ), $deposit_rate ) ?></td>
+							<td class="text-right"><?php if ( ! empty( $total_price ) ) echo ct_price( $total_price * $deposit_rate / 100 ) ?></td>
+						</tr>
 					</tbody>
 					</table>
 					<a class="btn_full book-now-btn" href="#"><?php echo esc_html__( 'Book now', 'citytours' ) ?></a>
@@ -219,68 +224,50 @@ if ( ! $ct_hotel_checkout_page_url ) { ?>
 			</aside><!-- End aside -->
 		</div><!--End row -->
 	</form>
-	<script>
+
+	<script type="text/javascript">
 		var ajaxurl = '<?php echo esc_js( admin_url( 'admin-ajax.php' ) ) ?>';
 		var is_woocommerce_enabled = '<?php if ( ct_is_woocommerce_integration_enabled() ) echo "true"; else echo "false" ?>';
 
 		$ = jQuery.noConflict();
-		$('.room-quantity').change(function(){
-			var $adults = $(this).closest('tr').find('.room-adults');
-			var $kids = $(this).closest('tr').find('.room-kids');
-			var max_adults = 0, max_kids = 0;
-			if ( $adults.parent('.numbers-row').attr('data-per-room') ) max_adults = $adults.parent('.numbers-row').data('per-room');
-			if ( $kids.parent('.numbers-row').attr('data-per-room') ) max_kids = $kids.parent('.numbers-row').data('per-room');
-			var rooms = parseInt($(this).val(),10);
-			if ( max_adults > 0 && ( max_adults * rooms < parseInt($adults.val(),10) ) ) $adults.val( max_adults * rooms );
-			if ( max_kids > 0 && ( max_kids * rooms < parseInt($kids.val(),10) ) ) $kids.val( max_kids * rooms );
-		});
-		$('.room-adults').change(function(){
-			var $quantity = $(this).closest('tr').find('.room-quantity');
-			var adults = parseInt($(this).val(),10);
-			var max_adults = 0;
-			if ( $(this).parent('.numbers-row').attr('data-per-room') ) {
-				max_adults = $(this).parent('.numbers-row').data('per-room');
-				if ( ( max_adults * $quantity.val() < adults ) ) $quantity.val( Math.ceil(adults / max_adults) );
-			}
-		});
-		$('.room-kids').change(function(){
-			var $quantity = $(this).closest('tr').find('.room-quantity');
-			var kids = parseInt($(this).val(),10);
-			var max_kids = 0;
-			if ( $(this).parent('.numbers-row').attr('data-per-room') ) {
-				max_kids = $(this).parent('.numbers-row').data('per-room');
-				if ( ( max_kids * $quantity.val() < kids ) ) $quantity.val( Math.ceil(kids / max_kids) );
-			}
-		});
-		$('#hotel-cart input').change(function(){
-			$('.update-cart-btn').css('display', 'inline-block');
-			$('.book-now-btn').hide();
-		});
-		$('.update-cart-btn').click(function(e){
-			e.preventDefault();
-			$('input[name="action"]').val('ct_hotel_update_cart');
-			$('#overlay').fadeIn();
-			$.ajax({
-				url: ajaxurl,
-				type: "POST",
-				data: $('#hotel-cart').serialize(),
-				success: function(response){
-					$('#overlay').fadeOut();
-					if (response.success == 1) {
-						location.reload();
-					} else {
-						alert(response.message);
-					}
+
+		$(document).ready( function() { 
+			$('.room-quantity').change(function(){
+				var $adults = $(this).closest('tr').find('.room-adults');
+				var $kids = $(this).closest('tr').find('.room-kids');
+				var max_adults = 0, max_kids = 0;
+				if ( $adults.parent('.numbers-row').attr('data-per-room') ) max_adults = $adults.parent('.numbers-row').data('per-room');
+				if ( $kids.parent('.numbers-row').attr('data-per-room') ) max_kids = $kids.parent('.numbers-row').data('per-room');
+				var rooms = parseInt($(this).val(),10);
+				if ( max_adults > 0 && ( max_adults * rooms < parseInt($adults.val(),10) ) ) $adults.val( max_adults * rooms );
+				if ( max_kids > 0 && ( max_kids * rooms < parseInt($kids.val(),10) ) ) $kids.val( max_kids * rooms );
+			});
+			$('.room-adults').change(function(){
+				var $quantity = $(this).closest('tr').find('.room-quantity');
+				var adults = parseInt($(this).val(),10);
+				var max_adults = 0;
+				if ( $(this).parent('.numbers-row').attr('data-per-room') ) {
+					max_adults = $(this).parent('.numbers-row').data('per-room');
+					if ( ( max_adults * $quantity.val() < adults ) ) $quantity.val( Math.ceil(adults / max_adults) );
 				}
 			});
-			return false;
-		});
-		$('.book-now-btn').click(function(e){
-			e.preventDefault();
-			if ( is_woocommerce_enabled == "true" ) { 
+			$('.room-kids').change(function(){
+				var $quantity = $(this).closest('tr').find('.room-quantity');
+				var kids = parseInt($(this).val(),10);
+				var max_kids = 0;
+				if ( $(this).parent('.numbers-row').attr('data-per-room') ) {
+					max_kids = $(this).parent('.numbers-row').data('per-room');
+					if ( ( max_kids * $quantity.val() < kids ) ) $quantity.val( Math.ceil(kids / max_kids) );
+				}
+			});
+			$('#hotel-cart input').change(function(){
+				$('.update-cart-btn').css('display', 'inline-block');
+				$('.book-now-btn').hide();
+			});
+			$('.update-cart-btn').click(function(e){
+				e.preventDefault();
+				$('input[name="action"]').val('ct_hotel_update_cart');
 				$('#overlay').fadeIn();
-				$('input[name="action"]').val('ct_add_hotel_to_woo_cart');
-
 				$.ajax({
 					url: ajaxurl,
 					type: "POST",
@@ -288,49 +275,46 @@ if ( ! $ct_hotel_checkout_page_url ) { ?>
 					success: function(response){
 						$('#overlay').fadeOut();
 						if (response.success == 1) {
-			document.location.href=$("#hotel-cart").attr('action');
-							// alert(response.message);
+							location.reload();
 						} else {
 							alert(response.message);
 						}
 					}
 				});
-			} else { 
-				document.location.href=$("#hotel-cart").attr('action');
-			}
-		});
-		$('.options_cart input[type="checkbox"]').change(function(){
-			var qty_display = $(this).parent().parent().parent().find('.numbers-row');
-			if ( qty_display.hasClass("hide-row") ) {
-				qty_display.removeClass("hide-row");
+				return false;
+			});
+			$('.book-now-btn').click(function(e){
+				e.preventDefault();
+				if ( is_woocommerce_enabled == "true" ) { 
+					$('#overlay').fadeIn();
+					$('input[name="action"]').val('ct_add_hotel_to_woo_cart');
 
-				var add_service_type = qty_display.parent().find(".add_service_type").val();
-
-				var total = 0;
-				var total_adults = 0;
-				$(".room-adults").each(function(){ 
-					total_adults += parseInt($(this).val());
-				});
-				var total_kids = 0;
-				if ( $(".room-kids").length > 0 ) { 
-					$(".room-kids").each(function(){ 
-						total_kids += parseInt($(this).val());
+					$.ajax({
+						url: ajaxurl,
+						type: "POST",
+						data: $('#hotel-cart').serialize(),
+						success: function(response){
+							$('#overlay').fadeOut();
+							if (response.success == 1) {
+								document.location.href=$("#hotel-cart").attr('action');
+							} else {
+								alert(response.message);
+							}
+						}
 					});
+				} else { 
+					document.location.href=$("#hotel-cart").attr('action');
 				}
-
-				if ( add_service_type == 0 ) { 
-					total = 1;
-				} else if ( add_service_type == 1 ) { 
-					total = total_adults + total_kids;
-				} else if ( add_service_type == 2 ) { 
-					total = total_adults;
-				} else if ( add_service_type == 3 ) { 
-					total = total_kids;
+			});
+			$('.options_cart input[type="checkbox"]').change(function(){
+				var qty_display = $(this).parent().parent().parent().find('.numbers-row');
+				
+				if ( qty_display.hasClass("hide-row") ) {
+					qty_display.removeClass("hide-row");
+				} else { 
+					qty_display.addClass("hide-row");
 				}
-				qty_display.find("input[type='text']").val(total);
-			} else { 
-				qty_display.addClass("hide-row");
-			}
+			});
 		});
 	</script>
 

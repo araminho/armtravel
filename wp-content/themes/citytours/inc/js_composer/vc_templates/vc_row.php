@@ -168,4 +168,4 @@ if ( $is_container ) {
 $output .= '</div>';
 $output .= $after_output;
 
-echo $output;
+echo ( $output );

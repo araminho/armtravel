@@ -1,4 +1,8 @@
 <?php
+/* Hotel Checkout Template */
+if ( ! defined( 'ABSPATH' ) ) { 
+    exit; 
+}
 
 // validation
 global $ct_options;
@@ -23,18 +27,30 @@ if ( isset( $_REQUEST['uid'] ) ) {
 	$deposit_rate = empty( $deposit_rate ) ? 0 : $deposit_rate;
 
 	// function
-	if ( ! ct_get_hotel_thankyou_page() ) { ?>
-		<h5 class="alert alert-warning"><?php echo esc_html__( 'Please set booking confirmation page in theme options panel.', 'citytours' ) ?></h5>
-	<?php } else { ?>
+	if ( ! ct_get_hotel_thankyou_page() ) { 
+		?>
+
+		<h5 class="alert alert-warning">
+			<?php echo esc_html__( 'Please set booking confirmation page in theme options panel.', 'citytours' ) ?>
+		</h5>
+
+		<?php 
+	} else { 
+		?>
 
 		<form id="booking-form" action="<?php echo esc_url( ct_get_hotel_thankyou_page() ); ?>">
 			<div class="row">
+
 				<div class="col-md-8">
+
 					<?php do_action( 'hotel_checkout_main_before' ); ?>
+
 					<div class="form_title">
 						<h3><strong>1</strong><?php echo esc_html__( 'Your Details', 'citytours' ) ?></h3>
+
 						<p><?php echo esc_html__( 'Please fill your detail.', 'citytours' ) ?></p>
 					</div>
+
 					<div class="step">
 						<div class="row">
 							<div class="col-md-6 col-sm-6">
@@ -43,6 +59,7 @@ if ( isset( $_REQUEST['uid'] ) ) {
 									<input type="text" class="form-control" name="first_name" value="<?php echo esc_attr( $user_info['first_name'] ) ?>">
 								</div>
 							</div>
+
 							<div class="col-md-6 col-sm-6">
 								<div class="form-group">
 									<label><?php echo esc_html__( 'Last name', 'citytours' ) ?></label>
@@ -50,6 +67,7 @@ if ( isset( $_REQUEST['uid'] ) ) {
 								</div>
 							</div>
 						</div>
+
 						<div class="row">
 							<div class="col-md-6 col-sm-6">
 								<div class="form-group">
@@ -57,6 +75,7 @@ if ( isset( $_REQUEST['uid'] ) ) {
 									<input type="email" name="email" class="form-control" value="<?php echo esc_attr( $user_info['email'] ) ?>">
 								</div>
 							</div>
+
 							<div class="col-md-6 col-sm-6">
 								<div class="form-group">
 									<label><?php echo esc_html__( 'Confirm email', 'citytours' ) ?></label>
@@ -64,7 +83,8 @@ if ( isset( $_REQUEST['uid'] ) ) {
 								</div>
 							</div>
 						</div>
-						 <div class="row">
+
+						<div class="row">
 							<div class="col-md-6 col-sm-6">
 								<div class="form-group">
 									<label><?php echo esc_html__( 'Telephone', 'citytours' ) ?></label>
@@ -76,8 +96,10 @@ if ( isset( $_REQUEST['uid'] ) ) {
 
 					<div class="form_title">
 						<h3><strong>2</strong><?php echo esc_html__( 'Your Address', 'citytours' ) ?></h3>
+
 						<p><?php echo esc_html__( 'Please write your address detail', 'citytours' ) ?></p>
 					</div>
+
 					<div class="step">
 						<div class="row">
 							<div class="col-md-6 col-sm-6">
@@ -92,6 +114,7 @@ if ( isset( $_REQUEST['uid'] ) ) {
 								</div>
 							</div>
 						</div>
+
 						<div class="row">
 							<div class="col-md-6 col-sm-6">
 								<div class="form-group">
@@ -99,6 +122,7 @@ if ( isset( $_REQUEST['uid'] ) ) {
 									<input type="text" name="address1" class="form-control" value="<?php echo esc_attr( $user_info['address1'] ) ?>">
 								</div>
 							</div>
+
 							<div class="col-md-6 col-sm-6">
 								<div class="form-group">
 									<label><?php echo esc_html__( 'Street line 2', 'citytours' ) ?></label>
@@ -106,6 +130,7 @@ if ( isset( $_REQUEST['uid'] ) ) {
 								</div>
 							</div>
 						</div>
+
 						<div class="row">
 							<div class="col-md-6">
 								<div class="form-group">
@@ -113,40 +138,46 @@ if ( isset( $_REQUEST['uid'] ) ) {
 									<input type="text" name="city" class="form-control" value="<?php echo esc_attr( $user_info['city'] ) ?>">
 								</div>
 							</div>
+
 							<div class="col-md-3">
 								<div class="form-group">
 									<label><?php echo esc_html__( 'State', 'citytours' ) ?></label>
 									<input type="text" name="state" class="form-control" value="<?php echo esc_attr( $user_info['state'] ) ?>">
 								</div>
 							</div>
+
 							<div class="col-md-3">
 								<div class="form-group">
 									<label><?php echo esc_html__( 'Postal code', 'citytours' ) ?></label>
 									<input type="text" name="zip" class="form-control" value="<?php echo esc_attr( $user_info['zip'] ) ?>">
 								</div>
 							</div>
-						</div><!--End row -->
+						</div>
 					</div><!--End step -->
 
 				<?php if ( ! empty( $ct_options['pay_paypal'] ) ) : ?>
 					<div class="form_title">
 						<h3><strong>3</strong><?php echo esc_html__( 'Payment Information', 'citytours' ) ?></h3>
+
 						<?php if ( ! empty( $ct_options['credit_card'] ) ) { ?>
-						<p><?php echo esc_html__( 'Please select payment type', 'citytours' ) ?></p>
+							<p><?php echo esc_html__( 'Please select payment type', 'citytours' ) ?></p>
 						<?php } else { ?>
-						<p><?php echo esc_html__( 'You"ll be redirected to paypal to pay for this tour', 'citytours' ) ?></p>
+							<p><?php echo esc_html__( 'You"ll be redirected to paypal to pay for this tour', 'citytours' ) ?></p>
 						<?php } ?>
 					</div>
+
 					<div class="step">
 						<div class="row">
 							<div class="col-md-12">
 								<div class="form-group">
 									<?php if ( ! empty( $ct_options['credit_card'] ) ) { ?>
-									<input class="form-radio-control" type="radio" name="payment_info" id="paypal_payment" value="paypal" checked>
-									<label for="paypal_payment"><?php echo esc_html__( 'Paypal', 'citytours' ) ?></label>
-									<br/>
+										<input class="form-radio-control" type="radio" name="payment_info" id="paypal_payment" value="paypal" checked>
+										<label for="paypal_payment"><?php echo esc_html__( 'Paypal', 'citytours' ) ?></label>
+										<br/>
 									<?php } ?>
+
 									<img src="https://www.paypalobjects.com/webstatic/mktg/Logo/AM_SbyPP_mc_vs_ms_ae_UK.png" alt="PayPal Acceptance Mark">
+
 									<a href="https://www.paypal.com/us/webapps/mpp/paypal-popup" class="about_paypal" onclick="javascript:window.open('https://www.paypal.com/us/webapps/mpp/paypal-popup','WIPaypal','toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=1060, height=700'); return false;" title="What is PayPal?"><?php echo esc_html__( 'What is PayPal?', 'citytours' ) ?></a>
 								</div>
 
@@ -156,7 +187,7 @@ if ( isset( $_REQUEST['uid'] ) ) {
 
 								<?php 
 								if ( ! empty( $ct_options['credit_card'] ) ) { 
-								 ?>
+								?>
 
 								<div class="form-group">
 									<input class="form-radio-control" type="radio" name="payment_info" id="cc_payment" value="cc">
@@ -170,9 +201,10 @@ if ( isset( $_REQUEST['uid'] ) ) {
 										<div class="col-md-6 col-sm-6">
 											<div class="form-group">
 												<label><?php echo esc_html__( 'Card Number', 'citytours' ) ?></label>
-												<input class="form-control" type="text" size="19" maxlength="19" name="billing_credircard" value="<?php echo $billing_credircard; ?>" />
+												<input class="form-control" type="text" size="19" maxlength="19" name="billing_credircard" value="<?php echo esc_attr( $billing_credircard ); ?>" />
 											</div>
 										</div>
+
 										<div class="col-md-6 col-sm-6">
 											<div class="form-group">
 												<label><?php echo esc_html__( 'Card Type', 'citytours' ) ?></label>
@@ -185,10 +217,12 @@ if ( isset( $_REQUEST['uid'] ) ) {
 											</div>
 										</div>
 									</div>
+
 									<div class="row">
 										<div class="col-md-6 col-sm-6">
 											<div class="form-group">
 												<label><?php echo esc_html__( 'Expiration Date', 'citytours' ) ?></label>
+
 												<div class="row">
 													<div class="col-md-6 col-sm-6">
 														<select name="billing_expdatemonth" class="form-control">
@@ -206,13 +240,14 @@ if ( isset( $_REQUEST['uid'] ) ) {
 															<option value=12>12</option>
 														</select>
 													</div>
+
 													<div class="col-md-6 col-sm-6">
 														<select name="billing_expdateyear" class="form-control">
 															<?php
 															$today = (int)date('Y', time());
 															for($i = 0; $i < 8; $i++) {
 															?>
-																<option value="<?php echo $today; ?>"><?php echo $today; ?></option>
+																<option value="<?php echo esc_attr( $today ); ?>"><?php echo esc_html( $today ); ?></option>
 															<?php
 																$today++;
 															} ?>
@@ -221,6 +256,7 @@ if ( isset( $_REQUEST['uid'] ) ) {
 												</div>
 											</div>
 										</div>
+
 										<div class="col-md-6 col-sm-6">
 											<div class="form-group">
 												<label><?php echo esc_html__( 'Card Verification Number (CVV)', 'citytours' ) ?></label>
@@ -231,29 +267,37 @@ if ( isset( $_REQUEST['uid'] ) ) {
 								</div>
 								<?php 
 								}
-								 ?>
+								?>
 								<!-- End Credit Card Payment -->
 							</div>
 						</div>
 					</div><!--End step -->
 				<?php endif; ?>
+
 					<div id="policy">
 
-						<?php
-						if ( ! empty( $ct_options['hotel_terms_page'] ) ) : ?>
+						<?php if ( ! empty( $ct_options['hotel_terms_page'] ) ) : ?>
 							<h4><?php echo esc_html__( 'Cancellation policy', 'citytours' ) ?></h4>
+
 							<div class="form-group">
 								<label><input name="agree" value="agree" type="checkbox" checked><?php printf( __('By continuing, you agree to the <a href="%s" target="_blank"><span class="skin-color">Terms and Conditions</span></a>.', 'citytours' ), ct_get_permalink_clang( $ct_options['hotel_terms_page'] ) ) ?></label>
 							</div>
 						<?php endif; ?>
+
 						<button type="submit" class="btn_1 green medium book-now-btn book-now-btn1"><?php echo esc_html__( 'Book now', 'citytours' ) ?></button>
 					</div>
+
 					<?php do_action( 'hotel_checkout_main_after' ); ?>
+
 				</div>
+
 				<aside class="col-md-4">
+				
 					<?php do_action( 'hotel_checkout_sidebar_before' ); ?>
+
 					<div class="box_style_1">
 						<h3 class="inner"><?php echo esc_html__( '- Summary -', 'citytours' ) ?></h3>
+
 						<table class="table table_summary">
 						<tbody>
 							<tr>
@@ -290,6 +334,7 @@ if ( isset( $_REQUEST['uid'] ) ) {
 								<td><?php echo esc_html__( 'Children', 'citytours' ) ?></td>
 								<td class="text-right"><?php echo ct_get_cart_field( $uid, 'total_kids' ) ?></td>
 							</tr>
+
 							<?php if ( ! empty( $cart_service ) ) {
 								foreach ( $cart_service as $key => $service ) { ?>
 									<tr>
@@ -297,35 +342,46 @@ if ( isset( $_REQUEST['uid'] ) ) {
 										<td class="text-right"><?php echo ct_price( $service['total'] ); ?></td>
 									</tr>
 							<?php }} ?>
+
 							<tr class="total">
 								<td><?php echo esc_html__( 'Total cost', 'citytours' ) ?></td>
 								<td class="text-right"><?php $total_price = ct_get_cart_field( $uid, 'total_price' ); if ( ! empty( $total_price ) ) echo ct_price( $total_price ) ?></td>
 							</tr>
+
 							<?php if ( ! empty( $deposit_rate ) && $deposit_rate < 100 ) : ?>
 								<tr>
 									<td><?php echo sprintf( esc_html__( 'Security Deposit (%d%%)', 'citytours' ), $deposit_rate ) ?></td>
 									<td class="text-right"><?php if ( ! empty( $total_price ) ) echo ct_price( $total_price * $deposit_rate / 100 ) ?></td>
 								</tr>
 							<?php endif; ?>
+
 						</tbody>
 						</table>
+
 						<button type="submit" class="btn_full book-now-btn"><?php echo esc_html__( 'Book now', 'citytours' ) ?></button>
-						<a class="btn_full_outline" href="<?php echo esc_url( get_permalink( $hotel_id ) ) ?>"><i class="icon-right"></i> <?php echo esc_html__( 'Modify your search', 'citytours' ) ?></a>
+
+						<a class="btn_full_outline" href="<?php echo esc_url( get_permalink( $hotel_id ) ) ?>">
+							<i class="icon-right"></i> <?php echo esc_html__( 'Modify your search', 'citytours' ) ?>
+						</a>
+
 						<input type="hidden" name="action" value="ct_hotel_submit_booking">
 						<input type="hidden" name="order_id" id="order_id" value="0">
 						<input type="hidden" name="uid" value="<?php echo esc_attr( $uid ) ?>">
+
 						<?php wp_nonce_field( 'checkout' ); ?>
 					</div>
+
 					<?php do_action( 'hotel_checkout_sidebar_after' ); ?>
+
 				</aside>
+
 			</div><!--End row -->
 		</form>
 
-		<script>
-			$ = jQuery.noConflict();
+		<script type="text/javascript">
 			var ajaxurl = '<?php echo esc_js( admin_url( 'admin-ajax.php' ) ) ?>';
 
-			$(document).ready(function(){
+			jQuery(document).ready( function($){
 				var validation_rules = {
 						first_name: { required: true},
 						last_name: { required: true},
@@ -336,6 +392,7 @@ if ( isset( $_REQUEST['uid'] ) ) {
 						city: { required: true},
 						zip: { required: true},
 					};
+
 				//validation form
 				$('#booking-form').validate({
 					rules: validation_rules,
@@ -343,17 +400,18 @@ if ( isset( $_REQUEST['uid'] ) ) {
 						if ( $('input[name="agree"]').length ) {
 							if ( $('input[name="agree"]:checked').length == 0 ) {
 								alert("<?php echo esc_html__( 'Agree to terms&conditions is required' ,'citytours' ); ?>");
+								
 								return false;
 							}
 						}
-						var booking_data = $('#booking-form').serialize();
+
 						$('#overlay').fadeIn();
+
 						$.ajax({
 							type: "POST",
 							url: ajaxurl,
-							data: booking_data,
+							data: $('#booking-form').serialize(),
 							success: function ( response ) {
-								console.log( response );
 								if ( response.success == 1 ) {
 									if ( response.result.payment == 'woocommerce' ) {
 										<?php if ( function_exists( 'ct_woo_get_cart_page_url' ) && ct_woo_get_cart_page_url() ) { ?>

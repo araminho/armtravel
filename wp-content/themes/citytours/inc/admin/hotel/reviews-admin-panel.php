@@ -67,7 +67,9 @@ class CT_Review_List_Table extends WP_List_Table {
 				'delete'    => '<a href="' . esc_url( sprintf( $link_pattern, 'reviews', 'delete', $item['id'] ) ) . '">' . esc_html__( 'Delete Permanently', 'citytours' ) . '</a>',
 			);
 		}
+
 		$str .= $this->row_actions( $actions );
+
 		return $str;
 	}
 
@@ -81,26 +83,29 @@ class CT_Review_List_Table extends WP_List_Table {
 
 	function get_columns() {
 		$columns = array(
-			'cb'        => '<input type="checkbox" />', //Render a checkbox instead of text
-			'author_info'     => esc_html__( 'Author', 'citytours' ),
-			'review'=> esc_html__( 'Review', 'citytours' ),
-			'post_title'=> esc_html__( 'Post Title', 'citytours' ),
-			'date'=> esc_html__( 'Review Date (UTC)', 'citytours' )
+			'cb'			=> '<input type="checkbox" />', //Render a checkbox instead of text
+			'author_info'	=> esc_html__( 'Author', 'citytours' ),
+			'review'		=> esc_html__( 'Review', 'citytours' ),
+			'post_title'	=> esc_html__( 'Post Title', 'citytours' ),
+			'date'			=> esc_html__( 'Review Date (UTC)', 'citytours' )
 		);
+
 		return $columns;
 	}
 
 	function get_sortable_columns() {
 		$sortable_columns = array(
-			'date'            => array( 'date', false ),
+			'date'       => array( 'date', false ),
 			'post_title' => array( 'post_title', false ),
 		);
+
 		return $sortable_columns;
 	}
 
 	function get_bulk_actions() {
 		$actions = array();
-		$status = isset( $_GET['status'] )?$_GET['status']:'pending';
+		$status = isset( $_GET['status'] ) ? $_GET['status'] : 'pending';
+
 		if ( $status == 'all' ) {
 			$actions = array(
 				'bulk_movetrash'    => esc_html__( 'Move to Trash', 'citytours' )
@@ -113,12 +118,12 @@ class CT_Review_List_Table extends WP_List_Table {
 		} elseif ( $status == 'trashed' ) {
 			$actions = array(
 				'bulk_untrash'    => esc_html__( 'Restore', 'citytours' ),
-				'bulk_delete'    => esc_html__( 'Delete Permanently', 'citytours' )
+				'bulk_delete'     => esc_html__( 'Delete Permanently', 'citytours' )
 			);
 		} else {
 			$actions = array(
-				'bulk_approve'    => esc_html__( 'Approve', 'citytours' ),
-				'bulk_movetrash'    => esc_html__( 'Move to Trash', 'citytours' )
+				'bulk_approve'     => esc_html__( 'Approve', 'citytours' ),
+				'bulk_movetrash'   => esc_html__( 'Move to Trash', 'citytours' )
 			);
 		}
 		return $actions;
@@ -138,18 +143,19 @@ class CT_Review_List_Table extends WP_List_Table {
 
 		}
 
-		$sql = '';
-		$status = 'pending';
 		switch( $this->current_action() ) {
-				//wp_redirect( admin_url( 'admin.php?page=reviews&bulk_delete=true') );
-			case 'bulk_movetrash': //status will be 2
+			case 'bulk_movetrash':
 				$status = 'trashed';
-			case 'bulk_approve': //status will be 1
+				break;
+			case 'bulk_approve':
 				$status = 'approved';
-			case 'bulk_unapprove':
-			case 'bulk_untrash': //status will be 0
+				break;
+			default:
 				$status = 'pending';
-			case 'bulk_delete':
+				break;
+		}
+		
+		if ( $this->current_action() ) {
 				$selected_ids = $_GET[ $this->_args['singular'] ];
 				$how_many = count($selected_ids);
 				$placeholders = array_fill(0, $how_many, '%d');
@@ -168,12 +174,13 @@ class CT_Review_List_Table extends WP_List_Table {
 				foreach ( $post_ids as $post_id ) {
 					ct_review_calculate_rating( $post_id );
 				}
-				wp_redirect( $_SERVER[HTTP_REFERER] );
+				wp_redirect( filter_input( INPUT_SERVER, 'HTTP_REFERER' ) );
 		}
 	}
 
 	function prepare_items() {
 		global $wpdb;
+
 		$per_page = 10;
 		$columns = $this->get_columns();
 		$hidden = array();
@@ -190,13 +197,13 @@ class CT_Review_List_Table extends WP_List_Table {
 		$where = "1=1";
 		if ( ! empty( $_REQUEST['post_id'] ) ) $where .= " AND CT_Reviews.post_id = '" . esc_sql( ct_hotel_org_id( $_REQUEST['post_id'] ) ) . "'";
 		if ( ! empty( $_REQUEST['reviewer_ip'] ) ) $where .= " AND CT_Reviews.reviewer_ip = '" . esc_sql( $_REQUEST['reviewer_ip'] ) . "'";
-		$status = ( isset( $_REQUEST['status'] ) ) ? esc_sql( $_REQUEST['status'] ) : 0;
+		$status = ( isset( $_REQUEST['status'] ) ) ? esc_sql( $_REQUEST['status'] ) : 'all';
 		if ( $status != 'all' ) $where .= " AND CT_Reviews.status = '" . esc_sql( $status ) . "'";
 
 		$sql = $wpdb->prepare( 'SELECT CT_Reviews.* , hotel.post_title as post_title FROM %1$s as CT_Reviews
 						INNER JOIN %2$s as hotel ON CT_Reviews.post_id=hotel.ID
-						WHERE ' . $where . ' ORDER BY %4$s %5$s
-						LIMIT %6$s, %7$s' , CT_REVIEWS_TABLE, $post_table_name, '', $orderby, $order, ( $per_page * ( $current_page - 1 ) ), $per_page );
+						WHERE ' . $where . ' ORDER BY %3$s %4$s
+						LIMIT %5$s, %6$s' , CT_REVIEWS_TABLE, $post_table_name, $orderby, $order, ( $per_page * ( $current_page - 1 ) ), $per_page );
 
 		$data = $wpdb->get_results( $sql, ARRAY_A );
 
@@ -228,7 +235,6 @@ if ( ! function_exists( 'ct_review_add_menu_items' ) ) {
  */
 if ( ! function_exists( 'ct_review_render_pages' ) ) {
 	function ct_review_render_pages() {
-
 		$action = isset( $_REQUEST['action'] ) ? sanitize_text_field( $_REQUEST['action'] ) : '';
 
 		if ( ( 'add' == $action ) || ( 'edit' == $action ) ) {
@@ -263,22 +269,25 @@ if ( ! function_exists( 'ct_review_render_list_page' ) ) {
 
 		<div class="wrap">
 			
-			<h2><?php esc_html_e(  'Reviews', 'citytours' )?><a href="<?php echo esc_url( $page_url ); ?>&amp;action=add" class="add-new-h2">Add New</a></h2>
-			<?php if ( isset( $_REQUEST['bulk_delete'] ) ) echo '<div id="message" class="updated below-h2"><p>Reviews deleted</p></div>'?>
+			<h2><?php esc_html_e( 'Reviews', 'citytours' ); ?><a href="<?php echo esc_url( $page_url ); ?>&amp;action=add" class="add-new-h2"><?php _e( 'Add New', 'citytours' ); ?></a></h2>
+			<?php if ( isset( $_REQUEST['bulk_delete'] ) ) {
+					echo '<div id="message" class="updated below-h2"><p>' . __( 'Reviews deleted', 'citytours' ) . '</p></div>';
+				}
+			 ?>
 			<ul class="subsubsub">
 				<?php
 					$status_filters = array(
-										'all' => esc_html__( 'All', 'citytours' ),
-										'pending' => esc_html__( 'Pending', 'citytours' ),
-										'approved' => esc_html__( 'Approved', 'citytours' ),
-										'trashed' => esc_html__( 'Trash', 'citytours' )
-						);
-					$status = ( isset( $_REQUEST['status'] ) ) ? sanitize_text_field( $_REQUEST['status'] ) : 0;
+						'all' => esc_html__( 'All', 'citytours' ),
+						'pending' => esc_html__( 'Pending', 'citytours' ),
+						'approved' => esc_html__( 'Approved', 'citytours' ),
+						'trashed' => esc_html__( 'Trash', 'citytours' )
+					);
+					$status = ( isset( $_REQUEST['status'] ) ) ? sanitize_text_field( $_REQUEST['status'] ) : 'all';
 					foreach ( $status_filters as $value => $label ) {
 
 						$where = '1=1';
 						if ( $value != 'all' ) $where .= " AND CT_Reviews.status = '" . esc_sql( $value ) . "'";
-						$sql = sprintf( 'SELECT COUNT(*) FROM %1$s as CT_Reviews WHERE %2$s', CT_REVIEWS_TABLE, $where );
+						$sql = $wpdb->prepare( 'SELECT COUNT(*) FROM %1$s as CT_Reviews WHERE ' . $where, CT_REVIEWS_TABLE );
 						$count = $wpdb->get_var( $sql );
 						$class = '';
 						if ( $status == $value ) $class='current';
@@ -291,10 +300,10 @@ if ( ! function_exists( 'ct_review_render_list_page' ) ) {
 					<option></option>
 					<?php
 					$args = array(
-							'post_type'         => ct_get_available_modules(),
-							'posts_per_page'    => -1,
-							'orderby'           => 'title',
-							'order'             => 'ASC'
+						'post_type'         => ct_get_available_modules(),
+						'posts_per_page'    => -1,
+						'orderby'           => 'title',
+						'order'             => 'ASC'
 					);
 					$hotel_query = new WP_Query( $args );
 
@@ -335,7 +344,7 @@ if ( ! function_exists( 'ct_review_render_list_page' ) ) {
 				document.location = loc_url;
 			});
 			$('.row-actions .delete a').click(function(){
-				var r = confirm("It will be deleted permanently. Do you want to delete it?");
+				var r = confirm("<?php _e( 'It will be deleted permanently. Do you want to delete it?', 'citytours' ); ?>");
 				if(r == false) {
 					return false;
 				}
@@ -359,29 +368,30 @@ if ( ! function_exists( 'ct_review_render_manage_page' ) ) {
 			return;
 		}
 
-		$default_review_data = array(   'post_id'  => '',
-										'review_rating' => 0,
-										'review_rating_detail' => '',
-										'review_text' => '',
-										'reviewer_ip' => '127.0.0.1',
-										'reviewer_email' => '',
-										'reviewer_name' => '',
-										'status'        => 'pending',
-										'date'        => date( 'Y-m-d H:i:s' ),
-										'user_id' => '',
-										'booking_no' => '',
-										'pin_code' => '',
-									);
+		$default_review_data = array(   
+			'post_id'  => '',
+			'review_rating' => 0,
+			'review_rating_detail' => '',
+			'review_text' => '',
+			'reviewer_ip' => '127.0.0.1',
+			'reviewer_email' => '',
+			'reviewer_name' => '',
+			'status'        => 'pending',
+			'date'        => date( 'Y-m-d H:i:s' ),
+			'user_id' => '',
+			'booking_no' => '',
+			'pin_code' => '',
+		);
 
 		$review_data = array();
 
 		if ( 'add' == $_REQUEST['action'] ) {
-			$page_title = "Add New Post Review";
+			$page_title = __( 'Add New Post Review', 'citytours' );
 		} elseif ( 'edit' == $_REQUEST['action'] ) {
-			$page_title = 'Edit Post Review<a href="admin.php?page=reviews&amp;action=add" class="add-new-h2">Add New</a>';
+			$page_title = __( 'Edit Post Review', 'citytours' ) . '<a href="admin.php?page=reviews&amp;action=add" class="add-new-h2">' . __( 'Add New', 'citytours' ) . '</a>';
 			
 			if ( empty( $_REQUEST['review_id'] ) ) {
-				echo "<h2>You attempted to edit an item that doesn't exist. Perhaps it was deleted?</h2>";
+				echo "<h2>" . esc_html__( "You attempted to edit an item that doesn't exist. Perhaps it was deleted?" , 'citytours' ) . "</h2>";
 				return;
 			}
 			$review_id = sanitize_text_field( $_REQUEST['review_id'] );
@@ -393,7 +403,7 @@ if ( ! function_exists( 'ct_review_render_manage_page' ) ) {
 
 			$review_data = $wpdb->get_row( $sql, ARRAY_A );
 			if ( empty( $review_data ) ) {
-				echo "<h2>You attempted to edit an item that doesn't exist. Perhaps it was deleted?</h2>";
+				echo "<h2>" . esc_html__( "You attempted to edit an item that doesn't exist. Perhaps it was deleted?" , 'citytours' ) . "</h2>";
 				return;
 			}
 		}
@@ -404,7 +414,7 @@ if ( ! function_exists( 'ct_review_render_manage_page' ) ) {
 
 		<div class="wrap">
 			<h2><?php echo wp_kses_post( $page_title ); ?></h2>
-			<?php if ( isset( $_REQUEST['updated'] ) ) echo '<div id="message" class="updated below-h2"><p>Review saved</p></div>'?>
+			<?php if ( isset( $_REQUEST['updated'] ) ) echo '<div id="message" class="updated below-h2"><p>' . __( 'Review saved' , 'citytours' ) . '</p></div>'; ?>
 			<form method="post" onsubmit="return manage_review_validateForm1();">
 				<input type="hidden" name="id" value="<?php if ( ! empty( $review_data['id'] ) ) echo esc_attr( $review_data['id'] ); ?>">
 				<div class="one-half">
@@ -475,7 +485,7 @@ if ( ! function_exists( 'ct_review_render_manage_page' ) ) {
 							</select></td>
 						</tr>
 						<tr>
-							<th><?php esc_html_e(  'Review Date', 'citytours' ); ?><br/>(example : 2015-02-20 03:24:16)</th>
+							<th><?php esc_html_e( 'Review Date', 'citytours' ); ?><br/>(<?php _e( 'example', 'citytours' ); ?> : 2015-02-20 03:24:16)</th>
 							<td><input type="text" name="date" value="<?php echo esc_attr( $review_data['date'] ); ?>"></td>
 						</tr>
 						<tr>
@@ -537,8 +547,8 @@ if ( ! function_exists( 'ct_review_render_manage_page' ) ) {
  */
 if ( ! function_exists( 'ct_review_delete_action' ) ) {
 	function ct_review_delete_action() {
-
 		global $wpdb;
+
 		$wpdb->delete( CT_REVIEWS_TABLE, array( 'id' => $_REQUEST['review_id'] ) );
 		wp_redirect( admin_url( 'admin.php?page=reviews') );
 		exit;
@@ -551,12 +561,14 @@ if ( ! function_exists( 'ct_review_delete_action' ) ) {
 if ( ! function_exists( 'ct_review_change_status_action' ) ) {
 	function ct_review_change_status_action( $status = 'pending' ) {
 		global $wpdb;
+
 		$wpdb->update( CT_REVIEWS_TABLE, array( 'status' => $status ), array( 'id' => $_REQUEST['review_id'] ) );
 
 		$sql = 'SELECT CT_Reviews.post_id FROM ' . CT_REVIEWS_TABLE . ' AS CT_Reviews WHERE id="' . esc_sql( $_REQUEST['review_id'] ) . '"';
 		$post_id = $wpdb->get_var( $sql );
 		ct_review_calculate_rating( $post_id );
-		wp_redirect( $_SERVER[HTTP_REFERER] );
+
+		wp_redirect( filter_input( INPUT_SERVER, 'HTTP_REFERER' ) );
 	}
 }
 
@@ -597,7 +609,9 @@ if ( ! function_exists( 'ct_review_calculate_rating' ) ) {
 				$rating += $rating_detail[$i];
 			}
 		}
+
 		$rating = round( $rating / count( $review_fields ), 1 );
+
 		update_post_meta( $post_id, '_review', $rating );
 		update_post_meta( $post_id, '_review_detail', $rating_detail );
 	}
@@ -613,23 +627,22 @@ if ( ! function_exists( 'ct_review_save_action' ) ) {
 			print 'Sorry, your nonce did not verify.';
 			exit;
 		} else {
-
 			global $wpdb;
 
 			$default_review_data = array(
-									'post_id'  => '',
-									'review_rating' => 0,
-									'review_rating_detail' => '',
-									'review_text'   => '',
-									'reviewer_ip'   => '127.0.0.1',
-									'reviewer_email' => '',
-									'reviewer_name' => '',
-									'status'        => 'pending',
-									'date'        => date( 'Y-m-d H:i:s' ),
-									'user_id' => '',
-									'booking_no' => '',
-									'pin_code' => '',
-								);
+				'post_id'  => '',
+				'review_rating' => 0,
+				'review_rating_detail' => '',
+				'review_text'   => '',
+				'reviewer_ip'   => '127.0.0.1',
+				'reviewer_email' => '',
+				'reviewer_name' => '',
+				'status'        => 'pending',
+				'date'        => date( 'Y-m-d H:i:s' ),
+				'user_id' => '',
+				'booking_no' => '',
+				'pin_code' => '',
+			);
 
 			$table_fields = array( 'reviewer_name', 'reviewer_email', 'reviewer_ip', 'review_text', 'post_id', 'status', 'date', 'user_id', 'booking_no', 'pin_code' );
 			//review_rating, review_rating_detail, date
@@ -656,6 +669,7 @@ if ( ! function_exists( 'ct_review_save_action' ) ) {
 			}
 
 			ct_review_calculate_rating( $data['post_id'] );
+
 			wp_redirect( admin_url( 'admin.php?page=reviews&action=edit&review_id=' . $id . '&updated=true') );
 			exit;
 		}
@@ -672,8 +686,6 @@ if ( ! function_exists( 'ct_review_admin_enqueue_scripts' ) ) {
 		wp_enqueue_style( 'rwmb_select2', RWMB_URL . 'css/select2/select2.css', array(), '3.2' );
 		wp_enqueue_script( 'rwmb_select2', RWMB_URL . 'js/select2/select2.min.js', array(), '3.2', true );
 
-		// custom style and js
-		wp_enqueue_style( 'ct_admin_hotel_style' , CT_TEMPLATE_DIRECTORY_URI . '/inc/admin/css/style.css' ); 
 	}
 }
 
@@ -693,6 +705,7 @@ if ( ! function_exists( 'ct_ajax_get_review_rating_fields' ) ) {
 if ( ! function_exists( 'ct_get_review_rating_fields' ) ) {
 	function ct_get_review_rating_fields( $post_id = '', $default_rating = array() ) {
 		global $ct_options;
+
 		$post_type = '';
 		if ( ! empty( $post_id ) ) {
 			$post_type = get_post_type( $post_id );
@@ -710,14 +723,14 @@ if ( ! function_exists( 'ct_get_review_rating_fields' ) ) {
 
 		$i = 0;
 		foreach ( $review_fields as $review_field ) {
-	?>
+			?>
 
-		<tr>
-			<th><?php esc_html_e( $review_field, 'citytours' ) ?></th>
-			<td><input type="number" name="review_rating_detail[<?php echo esc_attr( $i ) ?>]" min="1" max="5" value="<?php echo esc_attr( isset( $default_rating[$i] ) ? $default_rating[$i] : 5 ) ?>"></td>
-		</tr>
+			<tr>
+				<th><?php echo esc_html( $review_field ); ?></th>
+				<td><input type="number" name="review_rating_detail[<?php echo esc_attr( $i ) ?>]" min="1" max="5" value="<?php echo esc_attr( isset( $default_rating[$i] ) ? $default_rating[$i] : 5 ) ?>"></td>
+			</tr>
 
-	<?php
+			<?php
 			$i++;
 		}
 	}

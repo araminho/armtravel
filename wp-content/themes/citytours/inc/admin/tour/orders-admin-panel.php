@@ -178,6 +178,7 @@ class CT_Tour_Order_List_Table extends WP_List_Table {
 
 	function prepare_items() {
 		global $wpdb;
+		
 		$per_page = 10;
 		$columns = $this->get_columns();
 		$hidden = array();
@@ -200,12 +201,12 @@ class CT_Tour_Order_List_Table extends WP_List_Table {
 		if ( ! current_user_can( 'manage_options' ) ) { $where .= " AND tour.post_author = '" . get_current_user_id() . "' "; }
 
 		$sql = $wpdb->prepare( 'SELECT CT_Orders.*, tour.ID as post_id, tour.post_title as tour_name FROM %1$s as CT_Orders
-						INNER JOIN %2$s as tour ON CT_Orders.post_id=tour.ID
-						WHERE ' . $where . ' ORDER BY %3$s %4$s
-						LIMIT %5$s, %6$s' , CT_ORDER_TABLE, $post_table_name, $orderby, $order, $per_page * ( $current_page - 1 ), $per_page );
+			INNER JOIN %2$s as tour ON CT_Orders.post_id=tour.ID
+			WHERE ' . $where . ' ORDER BY %3$s %4$s
+			LIMIT %5$s, %6$s' , CT_ORDER_TABLE, $post_table_name, $orderby, $order, $per_page * ( $current_page - 1 ), $per_page );
 		$data = $wpdb->get_results( $sql, ARRAY_A );
 
-		$sql = sprintf( 'SELECT COUNT(*) FROM %1$s as CT_Orders INNER JOIN %2$s as tour ON CT_Orders.post_id=tour.ID WHERE %3$s' , CT_ORDER_TABLE, $post_table_name, $where );
+		$sql = $wpdb->prepare( 'SELECT COUNT(*) FROM %1$s as CT_Orders INNER JOIN %2$s as tour ON CT_Orders.post_id=tour.ID WHERE ' . $where, CT_ORDER_TABLE, $post_table_name );
 		$total_items = $wpdb->get_var( $sql );
 
 		$this->items = $data;
@@ -224,7 +225,7 @@ endif;
 if ( ! function_exists( 'ct_tour_order_add_menu_items' ) ) {
 	function ct_tour_order_add_menu_items() {
 		//add tour orders list page
-		$page = add_submenu_page( 'edit.php?post_type=tour', 'Tour Orders', 'Orders', 'manage_options', 'tour_orders', 'ct_tour_order_render_pages' );
+		$page = add_submenu_page( 'edit.php?post_type=tour', __( 'Tour Orders', 'citytours' ), __( 'Orders', 'citytours' ), 'edit_ct_custom_posts', 'tour_orders', 'ct_tour_order_render_pages' );
 		add_action( 'admin_print_scripts-' . $page, 'ct_tour_order_admin_enqueue_scripts' );
 	}
 }
@@ -250,16 +251,25 @@ if ( ! function_exists( 'ct_tour_order_render_pages' ) ) {
 if ( ! function_exists( 'ct_tour_order_render_list_page' ) ) {
 	function ct_tour_order_render_list_page() {
 		global $wpdb;
+
 		$ctOrderTable = new CT_Tour_Order_List_Table();
 		$ctOrderTable->prepare_items();
-		
 		?>
 
 		<div class="wrap">
 
-			<h2>Tour Orders <a href="edit.php?post_type=tour&amp;page=tour_orders&amp;action=add" class="add-new-h2">Add New</a></h2>
-			<?php if ( isset( $_REQUEST['bulk_delete'] ) && isset( $_REQUEST['items'] ) ) echo '<div id="message" class="updated below-h2"><p>' . esc_html( sprintf( esc_html__( '%d orders deleted', 'citytours' ), $_REQUEST['items'] ) ) . '</p></div>'?>
-			<?php if ( isset( $_REQUEST['bulk_update'] ) && isset( $_REQUEST['items'] ) ) echo '<div id="message" class="updated below-h2"><p>' . esc_html( sprintf( esc_html__( '%d orders updated', 'citytours' ), $_REQUEST['items'] ) ) . '</p></div>'?>
+			<h2><?php _e( 'Tour Orders', 'citytours' ); ?><a href="edit.php?post_type=tour&amp;page=tour_orders&amp;action=add" class="add-new-h2"><?php _e( 'Add New', 'citytours' ); ?></a></h2>
+
+			<?php 
+			if ( isset( $_REQUEST['bulk_delete'] ) && isset( $_REQUEST['items'] ) ) {
+				echo '<div id="message" class="updated below-h2"><p>' . esc_html( sprintf( esc_html__( '%d orders deleted', 'citytours' ), $_REQUEST['items'] ) ) . '</p></div>';
+			}
+
+			if ( isset( $_REQUEST['bulk_update'] ) && isset( $_REQUEST['items'] ) ) {
+				echo '<div id="message" class="updated below-h2"><p>' . esc_html( sprintf( esc_html__( '%d orders updated', 'citytours' ), $_REQUEST['items'] ) ) . '</p></div>';
+			}
+			?>
+
 			<select id="tour_filter">
 				<option></option>
 				<?php
@@ -277,9 +287,13 @@ if ( ! function_exists( 'ct_tour_order_render_list_page' ) ) {
 				if ( $tour_query->have_posts() ) {
 					while ( $tour_query->have_posts() ) {
 						$tour_query->the_post();
+
 						$selected = '';
 						$id = $tour_query->post->ID;
-						if ( ! empty( $_REQUEST['post_id'] ) && ( $_REQUEST['post_id'] == $id ) ) $selected = ' selected ';
+						if ( ! empty( $_REQUEST['post_id'] ) && ( $_REQUEST['post_id'] == $id ) ) {
+							$selected = ' selected ';
+						}
+
 						echo '<option ' . esc_attr( $selected ) . 'value="' . esc_attr( $id ) .'">' . wp_kses_post( get_the_title( $id ) ) . '</option>';
 					}
 				} else {
@@ -292,16 +306,28 @@ if ( ! function_exists( 'ct_tour_order_render_list_page' ) ) {
 			<input type="text" id="date_filter" name="date" placeholder="<?php echo esc_html__( 'Filter by Date', 'citytours' ) ?>" value="<?php if ( ! empty( $_REQUEST['date'] ) ) echo esc_attr( $_REQUEST['date'] ); ?>">
 			<input type="text" id="booking_no_filter" name="booking_no" placeholder="<?php echo esc_html__( 'Filter by Booking No', 'citytours' ) ?>" value="<?php if ( ! empty( $_REQUEST['booking_no'] ) ) echo esc_attr( $_REQUEST['booking_no'] ); ?>">
 			<select name="status" id="status_filter">
-				<option value=""><?php echo esc_html__( 'select a status', 'citytours' ) ?></option>
+				<option value=""><?php echo esc_html__( 'Select Status', 'citytours' ) ?></option>
 				<?php
-					$statuses = array( 'new' => esc_html__( 'New', 'citytours' ), 'confirmed' => esc_html__( 'Confirmed', 'citytours' ), 'cancelled' => esc_html__( 'Cancelled', 'citytours' ), 'pending' => esc_html__( 'Pending', 'citytours' ) );
-					foreach( $statuses as $key=>$status ) { ?>
-						<option value="<?php echo esc_attr( $key ) ?>" <?php selected( $key, isset( $_REQUEST['status'] ) ? esc_attr( $_REQUEST['status'] ) : '' ); ?>><?php echo esc_attr( $status ) ?></option>
-				<?php } ?>
+					$statuses = array( 
+						'new'       => esc_html__( 'New', 'citytours' ), 
+						'confirmed' => esc_html__( 'Confirmed', 'citytours' ), 
+						'cancelled' => esc_html__( 'Cancelled', 'citytours' ), 
+						'pending'   => esc_html__( 'Pending', 'citytours' ) 
+					);
+
+					foreach( $statuses as $key => $status ) { 
+						?>
+						<option value="<?php echo esc_attr( $key ) ?>" <?php selected( $key, isset( $_REQUEST['status'] ) ? esc_attr( $_REQUEST['status'] ) : '' ); ?>>
+							<?php echo esc_attr( $status ) ?>
+						</option>
+						<?php 
+					}
+				?>
 			</select>
 			<input type="button" name="order_filter" id="tour-order-filter" class="button" value="Filter">
 			<a href="edit.php?post_type=tour&amp;page=tour_orders" class="button-secondary"><?php echo esc_html__( 'Show All', 'citytours' ) ?></a>
-			<form id="accomo-orders-filter" method="get">
+
+			<form id="tours-orders-filter" method="get">
 				<input type="hidden" name="post_type" value="<?php echo esc_attr( $_REQUEST['post_type'] ) ?>" />
 				<input type="hidden" name="page" value="<?php echo esc_attr( $_REQUEST['page'] ) ?>" />
 				<?php $ctOrderTable->display() ?>
@@ -319,6 +345,7 @@ if ( ! function_exists( 'ct_tour_order_render_list_page' ) ) {
 if ( ! function_exists( 'ct_tour_order_render_manage_page' ) ) {
 	function ct_tour_order_render_manage_page() {
 		global $wpdb, $ct_options;
+
 		if ( ! empty( $_POST['save'] ) ) {
 			ct_tour_order_save_action();
 			return;
@@ -331,7 +358,7 @@ if ( ! function_exists( 'ct_tour_order_render_manage_page' ) ) {
 		if ( 'edit' == $_REQUEST['action'] ) {
 
 			if ( empty( $_REQUEST['order_id'] ) ) {
-				echo "<h2>" . esc_html__( "You attempted to edit an item that doesn't exist. Perhaps it was deleted?" , "ct" ) . "</h2>";
+				echo "<h2>" . esc_html__( "You attempted to edit an item that doesn't exist. Perhaps it was deleted?" , 'citytours' ) . "</h2>";
 				return;
 			}
 
@@ -344,7 +371,7 @@ if ( ! function_exists( 'ct_tour_order_render_manage_page' ) ) {
 			$service_data = $order->get_services();
 
 			if ( empty( $order_data ) ) {
-				echo "<h2>" . esc_html__( "You attempted to edit an item that doesn't exist. Perhaps it was deleted?" , "ct" ) . "</h2>";
+				echo "<h2>" . esc_html__( "You attempted to edit an item that doesn't exist. Perhaps it was deleted?" , 'citytours' ) . "</h2>";
 				return;
 			}
 		}
@@ -355,14 +382,20 @@ if ( ! function_exists( 'ct_tour_order_render_manage_page' ) ) {
 		?>
 
 		<div class="wrap">
-			<?php $page_title = ( 'edit' == $_REQUEST['action'] ) ? 'Edit Tour Order<a href="edit.php?post_type=tour&amp;page=tour_orders&amp;action=add" class="add-new-h2">Add New</a>' : 'Add New Tour Order'; ?>
+			<?php $page_title = ( 'edit' == $_REQUEST['action'] ) ? __( 'Edit Tour Order', 'citytours' ) . '<a href="edit.php?post_type=tour&amp;page=tour_orders&amp;action=add" class="add-new-h2">' . __( 'Add New', 'citytours' ) . '</a>' : __( 'Add New Tour Order', 'citytours' ); ?>
+			
 			<h2><?php echo wp_kses_post( $page_title ); ?></h2>
-			<?php if ( isset( $_REQUEST['updated'] ) ) echo '<div id="message" class="updated below-h2"><p>Order saved</p></div>'?>
+
+			<?php if ( isset( $_REQUEST['updated'] ) ) echo '<div id="message" class="updated below-h2"><p>' . __( 'Order saved', 'citytours' ) . '</p></div>'?>
+
 			<form method="post" id="order-form" class="tour-order-form" onsubmit="return manage_order_validateForm();" data-message="<?php echo esc_attr( esc_html__( 'Please select a tour', 'citytours' ) ) ?>">
+
 				<input type="hidden" name="id" value="<?php echo esc_attr( $order_data['id'] ); ?>">
+
 				<div class="row postbox">
 					<div class="one-half">
 						<h3><?php echo esc_html__( 'Order Detail', 'citytours' ) ?></h3>
+
 						<table class="ct_admin_table ct_order_manage_table">
 							<tr>
 								<th><?php echo esc_html__( 'Tour', 'citytours' ) ?></th>
@@ -398,6 +431,10 @@ if ( ! function_exists( 'ct_tour_order_render_manage_page' ) ) {
 							<tr>
 								<th><?php echo esc_html__( 'Date', 'citytours' ) ?></th>
 								<td><input type="text" name="date_from" id="date" value="<?php echo esc_attr( $order_data['date_from'] ) ?>"></td>
+							</tr>
+							<tr>
+								<th><?php echo esc_html__( 'Time', 'citytours' ) ?></th>
+								<td><input type="text" name="tour_time" value="<?php echo ( ! empty( $tour_data['tour_time'] ) ) ? esc_attr( $tour_data['tour_time'] ) : ""; ?>"></td>
 							</tr>
 							<tr>
 								<th><?php echo esc_html__( 'Total Adults', 'citytours' ) ?></th>
@@ -440,7 +477,12 @@ if ( ! function_exists( 'ct_tour_order_render_manage_page' ) ) {
 									<th><?php echo esc_html__( 'Deposit Paid', 'citytours' ) ?></th>
 									<td>
 										<select name="deposit_paid">
-											<?php $deposit_paid = array( '1' => esc_html__( 'Yes', 'citytours' ), '0' => esc_html__( 'No', 'citytours' ) ); ?>
+											<?php 
+											$deposit_paid = array( 
+												'1' => esc_html__( 'Yes', 'citytours' ), 
+												'0' => esc_html__( 'No', 'citytours' ) 
+											); 
+											?>
 											<?php foreach ( $deposit_paid as $key => $content) { ?>
 												<option value="<?php echo esc_attr( $key ) ?>" <?php selected( $key, $order_data['deposit_paid'] ); ?>><?php echo esc_html( $content ) ?></option>
 											<?php } ?>
@@ -448,7 +490,7 @@ if ( ! function_exists( 'ct_tour_order_render_manage_page' ) ) {
 									</td>
 								</tr>
 								<?php if ( ! empty( $order_data['deposit_paid'] ) ) {
-									$other_data = unserialize( $order_data['other'] );
+									$other_data = $order_data['other'];
 									if ( ! empty( $other_data['pp_transaction_id'] ) ) { ?>
 									<tr>
 										<th><?php echo esc_html__( 'Paypal Payment Transaction ID', 'citytours' ) ?></th>
@@ -478,12 +520,13 @@ if ( ! function_exists( 'ct_tour_order_render_manage_page' ) ) {
 							?>
 							<tr>
 								<th colspan="2" style="padding-top:15px;">
-									<a href="<?php echo $edit_url ?>"><?php _e( 'Related WooCommerce Order', 'citytours' ) ?></a>
+									<a href="<?php echo esc_url( $edit_url ); ?>"><?php _e( 'Related WooCommerce Order', 'citytours' ) ?></a>
 								</th>
 							</tr>
 							<?php endif; ?>
 						</table>
 					</div>
+
 					<div class="one-half">
 						<h3><?php echo esc_html__( 'Customer Infomation', 'citytours' ) ?></h3>
 						<table  class="ct_admin_table ct_order_manage_table">
@@ -542,7 +585,9 @@ if ( ! function_exists( 'ct_tour_order_render_manage_page' ) ) {
 						</table>
 					</div>
 				</div>
+
 				<input type="hidden" name="tour_booking_id" value="<?php echo esc_attr( ( empty( $tour_data ) || empty( $tour_data['id'] ) ) ? '' : $tour_data['id'] ); ?>">
+
 				<div class="row postbox ct-order-services">
 					<h3><?php echo esc_html__( 'Order Services Detail', 'citytours' ) ?></h3>
 					<div class="services-wrapper">
@@ -589,16 +634,22 @@ if ( ! function_exists( 'ct_tour_order_render_manage_page' ) ) {
 						</tbody></table>
 					</div>
 				</div>
+
 				<input type="submit" class="button-primary button_save_order" name="save" value="Save order">
+
 				<a href="edit.php?post_type=tour&amp;page=tour_orders" class="button-secondary">Cancel</a>
 				<?php wp_nonce_field('ct_manage_orders','order_save'); ?>
 			</form>
 		</div>
+
 		<?php if ( ! empty( $ct_options['vld_credit_card'] ) && ! empty( $ct_options['cc_off_charge'] ) && ! empty( $order_data['other'] ) ) {
 			$cc_fields = array( 'cc_type' => 'CREDIT CARD TYPE', 'cc_holder_name' => 'CARD HOLDER NAME', 'cc_number'=>'CARD NUMBER', 'cc_cid'=>'CARD IDENTIFICATION NUMBER', 'cc_exp_year'=>'EXPIRATION YEAR', 'cc_exp_month'=>'EXPIRATION MONTH' );
 			$cc_infos = unserialize( $order_data['other'] );
+
 			echo '<style>.cc_table{background:#fff;margin-top:30px;}.cc_table td{padding:10px;}.cc_table,.cc_table tr,.cc_table td{border:1px solid #000; border-collapse: collapse;}</style>';
-			echo '<div style="clear:both"></div><h3>Credit Card Info</h3><table class="cc_table"><tbody>';
+			echo '<div style="clear:both"></div><h3>Credit Card Info</h3>';
+
+			echo '<table class="cc_table"><tbody>';
 			foreach ($cc_fields as $key => $label) {
 				if ( ! empty( $cc_infos[ $key ] ) ) {
 					echo '<tr><td><label>' . $label . '</label></td><td>' . $cc_infos[ $key ] . '</td></tr>';
@@ -696,6 +747,7 @@ if ( ! function_exists( 'ct_tour_order_save_action' ) ) {
 		$tour_data = array(
 			'tour_id' => $order_data['post_id'],
 			'tour_date' => $order_data['date_from'],
+			'tour_time'		=> $_POST['tour_time'],
 			'adults' => $order_data['total_adults'],
 			'kids' => $order_data['total_kids'],
 			'total_price' => $order_data['total_price'],
@@ -705,7 +757,7 @@ if ( ! function_exists( 'ct_tour_order_save_action' ) ) {
 		// update tour booking table
 		$sql = 'DELETE FROM ' . CT_TOUR_BOOKINGS_TABLE . ' WHERE order_id=%d';
 		$wpdb->query( $wpdb->prepare( $sql, $order_id ) );
-		$format = array( '%d', '%s', '%d', '%d', '%f', '%d' );
+		$format = array( '%d', '%s', '%s', '%d', '%d', '%f', '%d' );
 		if ( ! empty( $_POST['tour_booking_id'] ) ) {
 			$tour_data['id'] = $_POST['tour_booking_id'];
 			$format[] = '%d';
@@ -775,8 +827,7 @@ if ( ! function_exists( 'ct_tour_order_admin_enqueue_scripts' ) ) {
 		wp_enqueue_script( 'jquery-ui-sortable' );
 
 		// custom style and js
-		wp_enqueue_style( 'ct_admin_tour_style' , get_template_directory_uri() . '/inc/admin/css/style.css' ); 
-		wp_enqueue_script( 'ct_admin_tour_script' , CT_TEMPLATE_DIRECTORY_URI . '/inc/admin/js/order.js', array('jquery'), '1.0', true );
+		wp_enqueue_script( 'ct_admin_tour_script' , CT_TEMPLATE_DIRECTORY_URI . '/js/admin/order.js', array('jquery'), '1.0', true );
 	}
 }
 

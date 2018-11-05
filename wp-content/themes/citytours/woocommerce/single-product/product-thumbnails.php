@@ -5,12 +5,10 @@
  * @see         https://docs.woocommerce.com/document/template-structure/
  * @author      WooThemes
  * @package     WooCommerce/Templates
- * @version     3.0.2
+ * @version     3.3.2
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-    exit;
-}
+defined( 'ABSPATH' ) || exit;
 
 global $post, $product;
 
@@ -25,7 +23,6 @@ if ( $attachment_ids ) {
     <div class="product-thumbs-slider <?php echo 'columns-' . $columns ?> owl-carousel">
 
         <?php
-
         if ( has_post_thumbnail() ) { 
             $props  = wc_get_product_attachment_props( get_post_thumbnail_id(), $post );
             echo get_the_post_thumbnail( $post->ID, apply_filters( 'single_product_small_thumbnail_size', 'shop_thumbnail' ), array(
@@ -33,7 +30,7 @@ if ( $attachment_ids ) {
                 'alt'    => $props['alt'],
             ) );
         } else { 
-            echo sprintf( '<img src="%s" alt="%s" />', wc_placeholder_img_src(), __( 'Placeholder', 'woocommerce' ) );
+            echo sprintf( '<img src="%s" alt="%s" />', wc_placeholder_img_src(), __( 'Placeholder', 'citytours' ) );
         }
 
         foreach ( $attachment_ids as $attachment_id ) {
@@ -55,7 +52,8 @@ if ( $attachment_ids ) {
 
             $loop++;
         }
+        ?>
 
-    ?></div>
+    </div>
     <?php
 }

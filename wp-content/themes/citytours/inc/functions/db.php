@@ -26,6 +26,17 @@ if ( ! function_exists( 'ct_create_extra_tables' ) ) {
 					) DEFAULT CHARSET=utf8;";
 			dbDelta($sql);
 
+			$sql = "CREATE TABLE " . CT_HOTEL_VACANCY_PRICE_TABLE . " (
+						id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+						vacancy_id bigint(20) unsigned DEFAULT NULL,
+						week_day tinyint(2) unsigned DEFAULT NULL,
+						price_per_room decimal(16,2) DEFAULT '0.00',
+						price_per_person decimal(16,2) DEFAULT '0.00',
+						price_per_child decimal(16,2) DEFAULT '0.00',
+						PRIMARY KEY	(id)
+					) DEFAULT CHARSET=utf8;";
+			dbDelta($sql);
+
 			$sql = "CREATE TABLE " . CT_HOTEL_BOOKINGS_TABLE . " (
 						id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 						hotel_id bigint(20) unsigned DEFAULT NULL,
@@ -67,6 +78,23 @@ if ( ! function_exists( 'ct_create_extra_tables' ) ) {
 						tour_id bigint(20) unsigned DEFAULT NULL,
 						st_id tinyint(1) DEFAULT '0',
 						tour_date date DEFAULT '0000-00-00',
+						tour_time varchar(100) DEFAULT NULL,
+						adults tinyint(1) unsigned DEFAULT '0',
+						kids tinyint(1) unsigned DEFAULT '0',
+						total_price decimal(16,2) DEFAULT '0.00',
+						order_id bigint(20) unsigned DEFAULT NULL,
+						PRIMARY KEY  (id)
+					) DEFAULT CHARSET=utf8;";
+			dbDelta($sql);
+
+			$sql = "CREATE TABLE " . CT_CAR_BOOKINGS_TABLE . " (
+						id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+						car_id bigint(20) unsigned DEFAULT NULL,
+						st_id tinyint(1) DEFAULT '0',
+						car_date date DEFAULT '0000-00-00',
+						car_time varchar(100) DEFAULT NULL,
+						pickup_location varchar(100) DEFAULT NULL,
+						dropoff_location varchar(100) DEFAULT NULL,
 						adults tinyint(1) unsigned DEFAULT '0',
 						kids tinyint(1) unsigned DEFAULT '0',
 						total_price decimal(16,2) DEFAULT '0.00',
@@ -78,7 +106,7 @@ if ( ! function_exists( 'ct_create_extra_tables' ) ) {
 			$sql = "CREATE TABLE " . CT_ADD_SERVICES_TABLE . " (
 						id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 						title varchar(255) DEFAULT NULL,
-						price bigint(20) DEFAULT NULL,
+						price decimal(16,2) DEFAULT NULL,
 						per_person tinyint(1) DEFAULT '0',
 						inc_child tinyint(1) DEFAULT '0',
 						icon_class varchar(255) DEFAULT NULL,
@@ -158,6 +186,7 @@ if ( ! function_exists( 'ct_create_extra_tables' ) ) {
 						mail_sent tinyint(1) DEFAULT '0',
 						updated datetime DEFAULT NULL,
 						post_type varchar(20) DEFAULT NULL,
+						user_id bigint(20) unsigned DEFAULT NULL,
 						PRIMARY KEY  (id)
 					) DEFAULT CHARSET=utf8;";
 			dbDelta($sql);
@@ -165,6 +194,10 @@ if ( ! function_exists( 'ct_create_extra_tables' ) ) {
 			update_option( "ct_db_version", CT_DB_VERSION );
 		}
 
+		$wpdb->query( "ALTER TABLE " . CT_ADD_SERVICES_TABLE . " MODIFY COLUMN price decimal(16,2) DEFAULT '0.00'" );
+		$wpdb->query( "ALTER TABLE " . CT_TOUR_BOOKINGS_TABLE . " ADD COLUMN tour_time varchar(100) DEFAULT NULL" );
+		$wpdb->query( "ALTER TABLE " . CT_ORDER_TABLE . " ADD COLUMN user_id bigint(20) unsigned DEFAULT NULL" );
+		
 		$installed_theme_ver = get_option( "ct_theme_version" );
 		if ( $installed_theme_ver != CT_VERSION ) {
 			update_option( "ct_theme_version", CT_VERSION );

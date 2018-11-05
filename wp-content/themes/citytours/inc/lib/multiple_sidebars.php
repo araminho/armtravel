@@ -1,62 +1,42 @@
 <?php
-/*
-Plugin Name: Sidebar Generator
-Plugin URI: http://www.getson.info
-Description: This plugin generates as many sidebars as you need. Then allows you to place them on any page you wish. Version 1.1 now supports themes with multiple sidebars.
-Version: 1.1.0
-Author: Kyle Getson
-Author URI: http://www.kylegetson.com
-Copyright (C) 2009 Kyle Robert Getson
-*/
+/* Sidebar Generator Class */
 
-/*
-Copyright (C) 2009 Kyle Robert Getson, kylegetson.com and getson.info
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly
+}
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+class CT_Sidebar_Generator {
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-class sidebar_generator {
-
-    function sidebar_generator(){
-        add_action('init',array('sidebar_generator','init'));
-        add_action('admin_menu',array('sidebar_generator','admin_menu'));
-        add_action('admin_enqueue_scripts', array('sidebar_generator','admin_enqueue_scripts'));
-        add_action('admin_print_scripts', array('sidebar_generator','admin_print_scripts'));
-        add_action('wp_ajax_add_sidebar', array('sidebar_generator','add_sidebar') );
-        add_action('wp_ajax_remove_sidebar', array('sidebar_generator','remove_sidebar') );
+    function __construct(){
+        add_action( 'init', array( $this,'init' ) );
+        add_action( 'admin_menu', array( $this,'admin_menu' ) );
+        add_action( 'admin_enqueue_scripts',  array( $this,'admin_enqueue_scripts' ) );
+        add_action( 'admin_print_scripts',  array( $this,'admin_print_scripts' ) );
+        add_action( 'wp_ajax_add_sidebar',  array( $this,'add_sidebar' ) );
+        add_action( 'wp_ajax_remove_sidebar',  array( $this,'remove_sidebar' ) );
 
         /*//edit posts/pages
-        add_action('edit_form_advanced', array('sidebar_generator', 'edit_form'));
-        add_action('edit_page_form', array('sidebar_generator', 'edit_form'));
+        add_action('edit_form_advanced', array( $this, 'edit_form'));
+        add_action('edit_page_form', array( $this, 'edit_form'));
 
         //save posts/pages
-        add_action('edit_post', array('sidebar_generator', 'save_form'));
-        add_action('publish_post', array('sidebar_generator', 'save_form'));
-        add_action('save_post', array('sidebar_generator', 'save_form'));
-        add_action('edit_page_form', array('sidebar_generator', 'save_form'));*/
+        add_action('edit_post', array( $this, 'save_form'));
+        add_action('publish_post', array( $this, 'save_form'));
+        add_action('save_post', array( $this, 'save_form'));
+        add_action('edit_page_form', array( $this, 'save_form'));*/
     }
 
     static function init(){
         //go through each sidebar and register it
-        $sidebars = sidebar_generator::get_sidebars();
+        $sidebars = CT_Sidebar_Generator::get_sidebars();
 
-        if(is_array($sidebars)){
-            foreach($sidebars as $sidebar){
-                $sidebar_class = sidebar_generator::name_to_class($sidebar);
-                register_sidebar(array(
-                    'name'=>$sidebar,
-                    'id' => 'ct-custom-sidebar-'.strtolower($sidebar_class),
+        if( is_array( $sidebars ) ) {
+            foreach( $sidebars as $sidebar ) {
+                $sidebar_class = CT_Sidebar_Generator::name_to_class( $sidebar );
+
+                register_sidebar( array(
+                    'name'          => $sidebar,
+                    'id'            => 'ct-custom-sidebar-' . strtolower($sidebar_class),
                     'before_widget' => '<div id="%1$s" class="widget %2$s">',
                     'after_widget'  => '</div><hr>',
                     'before_title'  => '<h4 class="widgettitle">',
@@ -72,52 +52,55 @@ class sidebar_generator {
 
     static function admin_print_scripts(){
         ?>
-            <script>
-                function add_sidebar( sidebar_name )
-                {
 
-                    var mysack = new sack("<?php echo site_url(); ?>/wp-admin/admin-ajax.php" );
+        <script type="text/javascript">
+            function add_sidebar( sidebar_name )
+            {
+                var mysack = new sack("<?php echo site_url(); ?>/wp-admin/admin-ajax.php" );
 
-                    mysack.execute = 1;
-                    mysack.method = 'POST';
-                    mysack.setVar( "action", "add_sidebar" );
-                    mysack.setVar( "sidebar_name", sidebar_name );
-                    mysack.encVar( "cookie", document.cookie, false );
-                    mysack.onError = function() { alert('Ajax error. Cannot add sidebar' )};
-                    mysack.runAJAX();
-                    return true;
-                }
+                mysack.execute = 1;
+                mysack.method = 'POST';
+                mysack.setVar( "action", "add_sidebar" );
+                mysack.setVar( "sidebar_name", sidebar_name );
+                mysack.encVar( "cookie", document.cookie, false );
+                mysack.onError = function() { alert('Ajax error. Cannot add sidebar' )};
+                mysack.runAJAX();
 
-                function remove_sidebar( sidebar_name,num )
-                {
+                return true;
+            }
 
-                    var mysack = new sack("<?php echo site_url(); ?>/wp-admin/admin-ajax.php" );
+            function remove_sidebar( sidebar_name,num )
+            {
+                var mysack = new sack("<?php echo site_url(); ?>/wp-admin/admin-ajax.php" );
 
-                    mysack.execute = 1;
-                    mysack.method = 'POST';
-                    mysack.setVar( "action", "remove_sidebar" );
-                    mysack.setVar( "sidebar_name", sidebar_name );
-                    mysack.setVar( "row_number", num );
-                    mysack.encVar( "cookie", document.cookie, false );
-                    mysack.onError = function() { alert('Ajax error. Cannot add sidebar' )};
-                    mysack.runAJAX();
-                    //alert('hi!:::'+sidebar_name);
-                    return true;
-                }
-            </script>
+                mysack.execute = 1;
+                mysack.method = 'POST';
+                mysack.setVar( "action", "remove_sidebar" );
+                mysack.setVar( "sidebar_name", sidebar_name );
+                mysack.setVar( "row_number", num );
+                mysack.encVar( "cookie", document.cookie, false );
+                mysack.onError = function() { alert('Ajax error. Cannot add sidebar' )};
+                mysack.runAJAX();
+                //alert('hi!:::'+sidebar_name);
+
+                return true;
+            }
+        </script>
+
         <?php
     }
 
     static function add_sidebar(){
-        $sidebars = sidebar_generator::get_sidebars();
-        $name = str_replace(array("\n","\r","\t"),'',$_POST['sidebar_name']);
-        $id = sidebar_generator::name_to_class($name);
-        if(isset($sidebars[$id])){
-            die("alert('Sidebar already exists, please use a different name.')");
+        $sidebars = CT_Sidebar_Generator::get_sidebars();
+        $name = str_replace( array("\n","\r","\t"),'',$_POST['sidebar_name'] );
+        $id = CT_Sidebar_Generator::name_to_class( $name );
+
+        if( isset( $sidebars[$id] ) ) {
+            die( "alert('Sidebar already exists, please use a different name.')" );
         }
 
         $sidebars[$id] = $name;
-        sidebar_generator::update_sidebars($sidebars);
+        CT_Sidebar_Generator::update_sidebars($sidebars);
 
         $js = "
             var tbl = document.getElementById('sbg_table');
@@ -148,35 +131,41 @@ class sidebar_generator {
 
             removeLink.appendChild(linkText);
             cellLeft.appendChild(removeLink);
-
-
         ";
-
 
         die( "$js");
     }
 
     static function remove_sidebar(){
-        $sidebars = sidebar_generator::get_sidebars();
-        $name = str_replace(array("\n","\r","\t"),'',$_POST['sidebar_name']);
-        $id = sidebar_generator::name_to_class($name);
-        if(!isset($sidebars[$id])){
+        $sidebars = CT_Sidebar_Generator::get_sidebars();
+        $name = str_replace( array("\n","\r","\t"),'',$_POST['sidebar_name'] );
+        $id = CT_Sidebar_Generator::name_to_class( $name );
+
+        if( ! isset( $sidebars[$id] ) ){
             die("alert('Sidebar does not exist.')");
         }
+
         $row_number = $_POST['row_number'];
+
         unset($sidebars[$id]);
-        sidebar_generator::update_sidebars($sidebars);
+
+        CT_Sidebar_Generator::update_sidebars($sidebars);
         $js = "
             var tbl = document.getElementById('sbg_table');
             tbl.deleteRow($row_number)
-
         ";
+
         die($js);
     }
 
     static function admin_menu(){
-        add_theme_page('Sidebars', 'Sidebars', 'manage_options', 'multiple_sidebars', array('sidebar_generator','admin_page'));
-
+        add_theme_page( 
+            __( 'Sidebars', 'citytours' ), 
+            __( 'Sidebars', 'citytours' ), 
+            'manage_options', 
+            'multiple_sidebars', 
+            array( 'CT_Sidebar_Generator', 'admin_page' ) 
+        );
     }
 
     static function admin_page(){
@@ -184,6 +173,7 @@ class sidebar_generator {
         <script>
             function remove_sidebar_link(name,num){
                 answer = confirm("Are you sure you want to remove " + name + "?\nThis will remove any widgets you have assigned to this sidebar.");
+
                 if(answer){
                     //alert('AJAX REMOVE');
                     remove_sidebar(name,num);
@@ -191,52 +181,65 @@ class sidebar_generator {
                     return false;
                 }
             }
+
             function add_sidebar_link(){
                 var sidebar_name = prompt("Sidebar Name:","");
                 //alert(sidebar_name);
                 add_sidebar(sidebar_name);
             }
         </script>
+
         <div class="wrap">
-            <h2>Sidebars</h2>
+            <h2><?php _e( 'Sidebars', 'citytours' ) ?></h2>
+
             <br />
+
             <table class="widefat page" id="sbg_table" style="width:600px;">
                 <tr>
-                    <th>Sidebar Name</th>
-                    <th>CSS class</th>
-                    <th>Remove</th>
+                    <th><?php _e( 'Sidebar Name', 'citytours' ) ?></th>
+                    <th><?php _e( 'CSS class', 'citytours' ) ?></th>
+                    <th><?php _e( 'Remove', 'citytours' ) ?></th>
                 </tr>
+
                 <?php
-                $sidebars = sidebar_generator::get_sidebars();
+                $sidebars = CT_Sidebar_Generator::get_sidebars();
+
                 //$sidebars = array('bob','john','mike','asdf');
-                if(is_array($sidebars) && !empty($sidebars)){
+                if( is_array( $sidebars ) && ! empty( $sidebars ) ){
                     $cnt=0;
+
                     foreach($sidebars as $sidebar){
-                        $alt = ($cnt%2 == 0 ? 'alternate' : '');
-                ?>
-                <tr class="<?php echo esc_attr( $alt )?>">
-                    <td><?php echo esc_html( $sidebar ); ?></td>
-                    <td><?php echo sidebar_generator::name_to_class($sidebar); ?></td>
-                    <td><a href="javascript:void(0);" onclick="return remove_sidebar_link('<?php echo esc_js( $sidebar ); ?>',<?php echo esc_js( $cnt+1 ); ?>);" title="Remove this sidebar">remove</a></td>
-                </tr>
-                <?php
+                        $alt = $cnt%2 == 0 ? 'alternate' : '' ;
+                        ?>
+
+                        <tr class="<?php echo esc_attr( $alt )?>">
+                            <td><?php echo esc_html( $sidebar ); ?></td>
+                            <td><?php echo CT_Sidebar_Generator::name_to_class($sidebar); ?></td>
+                            <td><a href="javascript:void(0);" onclick="return remove_sidebar_link('<?php echo esc_js( $sidebar ); ?>',<?php echo esc_js( $cnt+1 ); ?>);" title="Remove this sidebar">remove</a></td>
+                        </tr>
+
+                        <?php
                         $cnt++;
                     }
                 }else{
                     ?>
+
                     <tr>
-                        <td colspan="3">No Sidebars defined</td>
+                        <td colspan="3"><?php _e( 'No Sidebars defined', 'citytours' ) ?></td>
                     </tr>
+
                     <?php
                 }
                 ?>
-            </table><br /><br />
-            <div class="add_sidebar">
-                <a href="javascript:void(0);" onclick="return add_sidebar_link()" title="Add a sidebar" class="button-primary">+ Add New Sidebar</a>
 
+            </table><br /><br />
+
+            <div class="add_sidebar">
+                <a href="javascript:void(0);" onclick="return add_sidebar_link()" title="<?php _e( 'Add New Sidebar', 'citytours' ) ?>" class="button-primary">+ <?php _e( 'Add New Sidebar', 'citytours' ) ?></a>
             </div>
 
         </div>
+
         <?php
     }
 
@@ -244,90 +247,104 @@ class sidebar_generator {
      * for saving the pages/post
     */
     static function save_form($post_id){
-        if(isset($_POST['sbg_edit'])){
-        $is_saving = $_POST['sbg_edit'];
-        if(!empty($is_saving)){
-            delete_post_meta($post_id, 'sbg_selected_sidebar');
-            delete_post_meta($post_id, 'sbg_selected_sidebar_replacement');
-            add_post_meta($post_id, 'sbg_selected_sidebar', $_POST['sidebar_generator']);
-            add_post_meta($post_id, 'sbg_selected_sidebar_replacement', $_POST['sidebar_generator_replacement']);
-        }
+        if( isset( $_POST['sbg_edit'] ) ) {
+            $is_saving = $_POST['sbg_edit'];
+
+            if( ! empty( $is_saving ) ){
+                delete_post_meta( $post_id, 'sbg_selected_sidebar' );
+                delete_post_meta( $post_id, 'sbg_selected_sidebar_replacement' );
+
+                add_post_meta( $post_id, 'sbg_selected_sidebar', $_POST['sidebar_generator'] );
+                add_post_meta( $post_id, 'sbg_selected_sidebar_replacement', $_POST['sidebar_generator_replacement'] );
+            }
         }
     }
 
     static function edit_form(){
         global $post;
+
         $post_id = $post;
-        if (is_object($post_id)) {
+        if ( is_object( $post_id ) ) {
             $post_id = $post_id->ID;
         }
-        $selected_sidebar = get_post_meta($post_id, 'sbg_selected_sidebar', true);
-        if(!is_array($selected_sidebar)){
+
+        $selected_sidebar = get_post_meta( $post_id, 'sbg_selected_sidebar', true );
+        if( ! is_array( $selected_sidebar ) ) {
             $tmp = $selected_sidebar;
             $selected_sidebar = array();
             $selected_sidebar[0] = $tmp;
         }
-        $selected_sidebar_replacement = get_post_meta($post_id, 'sbg_selected_sidebar_replacement', true);
-        if(!is_array($selected_sidebar_replacement)){
+
+        $selected_sidebar_replacement = get_post_meta( $post_id, 'sbg_selected_sidebar_replacement', true );
+        if( ! is_array( $selected_sidebar_replacement ) ){
             $tmp = $selected_sidebar_replacement;
             $selected_sidebar_replacement = array();
             $selected_sidebar_replacement[0] = $tmp;
         }
         ?>
 
-    <div id='sbg-sortables' class='meta-box-sortables'>
-        <div id="sbg_box" class="postbox " >
-            <div class="handlediv" title="Click to toggle"><br /></div><h3 class='hndle'><span>Sidebar</span></h3>
-            <div class="inside">
-                <div class="sbg_container">
-                    <input name="sbg_edit" type="hidden" value="sbg_edit" />
+        <div id='sbg-sortables' class='meta-box-sortables'>
+            <div id="sbg_box" class="postbox " >
+                <div class="handlediv" title="Click to toggle"><br /></div>
 
-                    <p>Please select the sidebar you would like to display on this page. <strong>Note:</strong> You must first create the sidebar under Appearance > Sidebars.
-                    </p>
-                    <ul>
-                    <?php
-                        global $wp_registered_sidebars;
-                        for($i=0;$i<1;$i++){ ?>
-                            <li>
-                            <select name="sidebar_generator[<?php echo esc_attr( $i )?>]" style="display: none;">
-                                <option value="0"<?php if($selected_sidebar[$i] == ''){ echo " selected";} ?>>WP Default Sidebar</option>
-                            <?php
-                            $sidebars = $wp_registered_sidebars;// sidebar_generator::get_sidebars();
-                            if(is_array($sidebars) && !empty($sidebars)){
-                                foreach($sidebars as $sidebar){
-                                    if($selected_sidebar[$i] == $sidebar['name']){
-                                        echo "<option value='{$sidebar['name']}' selected>{$sidebar['name']}</option>\n";
-                                    }else{
-                                        echo "<option value='{$sidebar['name']}'>{$sidebar['name']}</option>\n";
-                                    }
-                                }
-                            }
-                            ?>
-                            </select>
-                            <select name="sidebar_generator_replacement[<?php echo esc_attr( $i )?>]">
-                                <option value="0"<?php if($selected_sidebar_replacement[$i] == ''){ echo " selected";} ?>>None</option>
-                            <?php
+                <h3 class='hndle'><span><?php _e( 'Sidebar', 'citytours' ) ?></span></h3>
 
-                            $sidebar_replacements = $wp_registered_sidebars;//sidebar_generator::get_sidebars();
-                            if(is_array($sidebar_replacements) && !empty($sidebar_replacements)){
-                                foreach($sidebar_replacements as $sidebar){
-                                    if($selected_sidebar_replacement[$i] == $sidebar['name']){
-                                        echo "<option value='{$sidebar['name']}' selected>{$sidebar['name']}</option>\n";
-                                    }else{
-                                        echo "<option value='{$sidebar['name']}'>{$sidebar['name']}</option>\n";
-                                    }
-                                }
-                            }
-                            ?>
-                            </select>
+                <div class="inside">
+                    <div class="sbg_container">
+                        <input name="sbg_edit" type="hidden" value="sbg_edit" />
 
-                            </li>
-                        <?php } ?>
-                    </ul>
+                        <p><?php echo __('Please select the sidebar you would like to display on this page. <strong>Note:</strong> You must first create the sidebar under Appearance > Sidebars.', 'citytours') ?></p>
+
+                        <ul>
+                        <?php
+                            global $wp_registered_sidebars;
+
+                            for( $i=0; $i<1; $i++ ) { 
+                                ?>
+
+                                <li>
+                                    <select name="sidebar_generator[<?php echo esc_attr( $i )?>]" style="display: none;">
+                                        <option value="0"<?php if($selected_sidebar[$i] == ''){ echo " selected";} ?>><?php _e( 'WP Default Sidebar', 'citytours' ) ?></option>
+
+                                        <?php
+                                        $sidebars = $wp_registered_sidebars;// CT_Sidebar_Generator::get_sidebars();
+
+                                        if( is_array( $sidebars ) && ! empty( $sidebars ) ) {
+                                            foreach( $sidebars as $sidebar ) {
+                                                if( $selected_sidebar[$i] == $sidebar['name'] ) {
+                                                    echo "<option value='{$sidebar['name']}' selected>{$sidebar['name']}</option>\n";
+                                                } else {
+                                                    echo "<option value='{$sidebar['name']}'>{$sidebar['name']}</option>\n";
+                                                }
+                                            }
+                                        }
+                                        ?>
+                                    </select>
+
+                                    <select name="sidebar_generator_replacement[<?php echo esc_attr( $i )?>]">
+                                        <option value="0"<?php if($selected_sidebar_replacement[$i] == ''){ echo " selected";} ?>><?php _e( 'None', 'citytours' ) ?></option>
+                                        <?php
+
+                                        $sidebar_replacements = $wp_registered_sidebars;//CT_Sidebar_Generator::get_sidebars();
+                                        if( is_array( $sidebar_replacements ) && ! empty( $sidebar_replacements ) ) {
+                                            foreach( $sidebar_replacements as $sidebar ) {
+                                                if( $selected_sidebar_replacement[$i] == $sidebar['name'] ) {
+                                                    echo "<option value='{$sidebar['name']}' selected>{$sidebar['name']}</option>\n";
+                                                } else {
+                                                    echo "<option value='{$sidebar['name']}'>{$sidebar['name']}</option>\n";
+                                                }
+                                            }
+                                        }
+                                        ?>
+                                    </select>
+
+                                </li>
+                            <?php } ?>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
         <?php
     }
@@ -336,8 +353,8 @@ class sidebar_generator {
      * called by the action get_sidebar. this is what places this into the theme
     */
     static function get_sidebar( $name="0" ){
-        if ( ! is_singular() ){
-            if ( $name != "0" ){
+        if ( ! is_singular() ) {
+            if ( $name != "0" ) {
                 if ( is_active_sidebar( $name ) ) :
                     dynamic_sidebar( $name );
                 endif;
@@ -347,23 +364,27 @@ class sidebar_generator {
                         dynamic_sidebar('sidebar-woo-category');
                     endif;
                 } else { 
-                if ( is_active_sidebar( 'sidebar-post' ) ) :
-                    dynamic_sidebar('sidebar-post');
-                endif;
+                    if ( is_active_sidebar( 'sidebar-post' ) ) :
+                        dynamic_sidebar('sidebar-post');
+                    endif;
+                }
             }
-            }
+
             return;//dont do anything
         }
 
         wp_reset_postdata();
+
         global $wp_query;
+
         $post = $wp_query->get_queried_object();
         $selected_sidebar = get_post_meta($post->ID, '_ct_sidebar_widget_area', true);
         $did_sidebar = false;
+
         //this page uses a generated sidebar
         if ( ! empty( $selected_sidebar ) ) {
             if ( $selected_sidebar == 'default' ) {
-                $did_sidebar = sidebar_generator::default_behavior();
+                $did_sidebar = CT_Sidebar_Generator::default_behavior();
             } else {
                 if ( is_active_sidebar( $selected_sidebar ) ) :
                     dynamic_sidebar( $selected_sidebar );
@@ -375,7 +396,7 @@ class sidebar_generator {
                     dynamic_sidebar( $name );
                 endif;
             } else {
-                $did_sidebar = sidebar_generator::default_behavior();
+                $did_sidebar = CT_Sidebar_Generator::default_behavior();
             }
         }
     }
@@ -392,20 +413,24 @@ class sidebar_generator {
     */
     static function get_sidebars(){
         $sidebars = get_option('sbg_sidebars');
+
         return $sidebars;
     }
 
     static function name_to_class($name){
         $class = str_replace(array(' ',',','.','"',"'",'/',"\\",'+','=',')','(','*','&','^','%','$','#','@','!','~','`','<','>','?','[',']','{','}','|',':',),'',$name);
+
         return $class;
     }
 
     static function default_behavior() {
         $did_sidebar = false;
+
         if ( is_singular( 'hotel' ) ) {
             if ( is_active_sidebar( 'sidebar-hotel' ) ) :
                 dynamic_sidebar('sidebar-hotel');
             endif;
+
             $did_sidebar = true;
         }
 
@@ -413,6 +438,15 @@ class sidebar_generator {
             if ( is_active_sidebar( 'sidebar-tour' ) ) :
                 dynamic_sidebar('sidebar-tour');
             endif;
+
+            $did_sidebar = true;
+        }
+
+        if ( is_singular( 'car' ) ) {
+            if ( is_active_sidebar( 'sidebar-car' ) ) :
+                dynamic_sidebar('sidebar-car');
+            endif;
+
             $did_sidebar = true;
         }
 
@@ -420,6 +454,7 @@ class sidebar_generator {
             if ( is_active_sidebar( 'sidebar-woo-product' ) ) :
                 dynamic_sidebar('sidebar-woo-product');
             endif;
+
             $did_sidebar = true;
         }
 
@@ -427,15 +462,18 @@ class sidebar_generator {
             if ( is_active_sidebar( 'sidebar-post' ) ) :
                 dynamic_sidebar('sidebar-post');//default behavior
             endif;
+
             $did_sidebar = true;
         }
+
         return $did_sidebar;
     }
 }
-$sbg = new sidebar_generator;
 
-function generated_dynamic_sidebar($name='0'){
-    sidebar_generator::get_sidebar($name);
+$sbg = new CT_Sidebar_Generator;
+
+function generated_dynamic_sidebar( $name = '0' ){
+    CT_Sidebar_Generator::get_sidebar( $name );
+
     return true;
 }
-?>

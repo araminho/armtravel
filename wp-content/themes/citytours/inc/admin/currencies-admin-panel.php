@@ -117,8 +117,8 @@ class CT_Currency_List_Table extends WP_List_Table {
 		$where = "1=1";
 
 		$sql = $wpdb->prepare( 'SELECT CT_currencies.* FROM %1$s as CT_currencies
-						WHERE ' . $where . ' ORDER BY %3$s %4$s
-						LIMIT %5$s, %6$s' , CT_CURRENCIES_TABLE, '', $orderby, $order, $per_page * ( $current_page - 1 ), $per_page );
+						WHERE ' . $where . ' ORDER BY %2$s %3$s
+						LIMIT %4$s, %5$s' , CT_CURRENCIES_TABLE, $orderby, $order, $per_page * ( $current_page - 1 ), $per_page );
 
 		$data = $wpdb->get_results( $sql, ARRAY_A );
 
@@ -141,7 +141,7 @@ endif;
 if ( ! function_exists( 'ct_currency_admin_add_menu_items' ) ) {
 	function ct_currency_admin_add_menu_items() {
 		$page = add_menu_page( 'Currencies', 'Currencies', 'manage_options', 'currencies', 'ct_currency_admin_render_pages');
-		add_action( 'admin_print_scripts-' . $page, 'ct_currency_admin_enqueue_scripts' );
+		// add_action( 'admin_print_scripts-' . $page, 'ct_currency_admin_enqueue_scripts' );
 	}
 }
 
@@ -171,7 +171,7 @@ if ( ! function_exists( 'ct_currency_admin_render_list_page' ) ) {
 		?>
 
 		<div class="wrap">
-			<h2>Currencies <a href="admin.php?page=currencies&amp;action=add" class="add-new-h2">Add New</a></h2>
+			<h2><?php _e( 'Currencies', 'citytours' ); ?> <a href="admin.php?page=currencies&amp;action=add" class="add-new-h2"><?php _e( 'Add New', 'citytours' ); ?></a></h2>
 			<form id="accomo-currencies-filter" method="get">
 				<input type="hidden" name="page" value="<?php echo esc_attr( $_REQUEST['page'] ) ?>" />
 				<?php $ctVancancyTable->display() ?>
@@ -180,7 +180,7 @@ if ( ! function_exists( 'ct_currency_admin_render_list_page' ) ) {
 		<script>
 		jQuery(document).ready(function($) {
 			$('.row-actions .delete a').click(function(){
-				var r = confirm("It will be deleted permanetly. Do you want to delete it?");
+				var r = confirm("<?php _e( 'It will be deleted permanetly. Do you want to delete it?', 'citytours' ); ?>");
 				if(r == false) {
 					return false;
 				}
@@ -205,12 +205,12 @@ if ( ! function_exists( 'ct_currency_admin_render_manage_page' ) ) {
 		$currency_data = array();
 
 		if ( 'add' == $_REQUEST['action'] ) {
-			$page_title = "Add New currency";
+			$page_title = __( 'Add New currency', 'citytours' );
 		} elseif ( 'edit' == $_REQUEST['action'] ) {
-			$page_title = 'Edit currency<a href="admin.php?page=currencies&amp;action=add" class="add-new-h2">Add New</a>';
+			$page_title = __( 'Edit currency', 'citytours' ) . '<a href="admin.php?page=currencies&amp;action=add" class="add-new-h2">' . __( 'Add New', 'citytours' ) . '</a>';
 			
 			if ( empty( $_REQUEST['currency_id'] ) ) {
-				echo "<h2>You attempted to edit an item that doesn't exist. Perhaps it was deleted?</h2>";
+				echo "<h2>" . esc_html__( "You attempted to edit an item that doesn't exist. Perhaps it was deleted?" , 'citytours' ) . "</h2>";
 				return;
 			}
 			$currency_id = sanitize_text_field( $_REQUEST['currency_id'] );
@@ -221,7 +221,7 @@ if ( ! function_exists( 'ct_currency_admin_render_manage_page' ) ) {
 
 			$currency_data = $wpdb->get_row( $sql, ARRAY_A );
 			if ( empty( $currency_data ) ) {
-				echo "<h2>You attempted to edit an item that doesn't exist. Perhaps it was deleted?</h2>";
+				echo "<h2>" . esc_html__( "You attempted to edit an item that doesn't exist. Perhaps it was deleted?" , 'citytours' ) . "</h2>";
 				return;
 			}
 		}
@@ -230,20 +230,26 @@ if ( ! function_exists( 'ct_currency_admin_render_manage_page' ) ) {
 
 		<div class="wrap">
 			<h2><?php echo wp_kses_post( $page_title ); ?></h2>
-			<?php if ( isset( $_REQUEST['updated'] ) ) echo '<div id="message" class="updated below-h2"><p>Currency saved</p></div>'?>
+			<?php
+				if ( isset( $_REQUEST['updated'] ) ) {
+			?>
+					<div id="message" class="updated below-h2"><p><?php _e( 'Currency saved', 'citytours' ); ?></p></div>
+			<?php		
+				}
+			?>
 			<form method="post" onsubmit="return manage_currency_validateForm1();">
 				<input type="hidden" name="id" value="<?php if ( ! empty( $currency_data['id'] ) ) echo esc_attr( $currency_data['id'] ); ?>">
 				<table class="ct_admin_table ct_currency_manage_table">
 					<tr>
-						<th>Currency Code</th>
+						<th><?php _e( 'Currency Code', 'citytours' ); ?></th>
 						<td><input type="text" name="currency_code"  id="currency_code" value="<?php if ( ! empty( $currency_data['currency_code'] ) ) echo esc_attr( $currency_data['currency_code'] ); ?>"></td>
 					</tr>
 					<tr>
-						<th>Currency Label</th>
+						<th><?php _e( 'Currency Label', 'citytours' ); ?></th>
 						<td><input type="text" name="currency_label" id="currency_label" value="<?php if ( ! empty( $currency_data['currency_label'] ) ) echo esc_attr( $currency_data['currency_label'] ); ?>"></td>
 					</tr>
 					<tr>
-						<th>Currency Symbol</th>
+						<th><?php _e( 'Currency Symbol', 'citytours' ); ?></th>
 						<td><input type="text" name="currency_symbol" id="currency_symbol" value="<?php if ( ! empty( $currency_data['currency_symbol'] ) ) echo esc_attr( $currency_data['currency_symbol'] ); ?>"></td>
 					</tr>
 					<?php
@@ -251,7 +257,7 @@ if ( ! function_exists( 'ct_currency_admin_render_manage_page' ) ) {
 						if ( isset( $ct_options['fix_ex_rate'] ) && $ct_options['fix_ex_rate'] ) {
 					?>
 							<tr>
-								<th>Exchange Rate</th>
+								<th><?php _e( 'Exchange Rate', 'citytours' ); ?></th>
 								<td><input type="text" name="exchange_rate" value="<?php if ( ! empty( $currency_data['exchange_rate'] ) ) echo esc_attr( $currency_data['exchange_rate'] ); ?>"></td>
 							</tr>
 					<?php
@@ -262,8 +268,8 @@ if ( ! function_exists( 'ct_currency_admin_render_manage_page' ) ) {
 						}
 					?>
 				</table>
-				<input type="submit" class="button-primary" name="save" value="Save currency">
-							<a href="admin.php?page=currencies" class="button-secondary">Cancel</a>
+				<input type="submit" class="button-primary" name="save" value="<?php _e( 'Save currency', 'citytours' ); ?>">
+							<a href="admin.php?page=currencies" class="button-secondary"><?php _e( 'Cancel', 'citytours' ); ?></a>
 				<?php wp_nonce_field('ct_currency_manage','currency_save'); ?>
 			</form>
 		</div>
@@ -343,7 +349,7 @@ if ( ! function_exists( 'ct_currency_admin_save_action' ) ) {
  */
 if ( ! function_exists( 'ct_currency_admin_enqueue_scripts' ) ) {
 	function ct_currency_admin_enqueue_scripts() {
-		wp_enqueue_style( 'ct_admin' , get_template_directory_uri() . '/inc/admin/css/style.css' ); 
+		wp_enqueue_style( 'ct_admin' , CT_TEMPLATE_DIRECTORY_URI . '/css/admin/admin.css' ); 
 	}
 }
 

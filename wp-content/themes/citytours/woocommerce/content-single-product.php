@@ -5,7 +5,7 @@
  * @see         https://docs.woocommerce.com/document/template-structure/
  * @author      WooThemes
  * @package     WooCommerce/Templates
- * @version     3.0.0
+ * @version     3.4.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -44,9 +44,9 @@ $post_class .= ' product-details';
     ?>
 
 </div>
-<div class="<?php echo $container_class ?>">
+<div class="<?php echo esc_attr( $container_class ); ?>">
 
-    <div itemscope itemtype="<?php echo woocommerce_get_product_schema(); ?>" id="product-<?php the_ID(); ?>" class="<?php echo $post_class ?>">
+    <div id="product-<?php the_ID(); ?>" class="<?php echo esc_attr( $post_class ); ?>">
 
         <div class="basic-details">
             <div class="row"> 

@@ -153,7 +153,7 @@ class CT_Hotel_Vacancy_List_Table extends WP_List_Table {
 
 		$data = $wpdb->get_results( $sql, ARRAY_A );
 
-		$sql = sprintf( 'SELECT COUNT(*) FROM %1$s as CT_Vacancies INNER JOIN %2$s as hotel ON CT_Vacancies.hotel_id=hotel.ID WHERE %3$s' , CT_HOTEL_VACANCIES_TABLE, $post_table_name, $where );
+		$sql = $wpdb->prepare( 'SELECT COUNT(*) FROM %1$s as CT_Vacancies INNER JOIN %2$s as hotel ON CT_Vacancies.hotel_id=hotel.ID WHERE ' . $where, CT_HOTEL_VACANCIES_TABLE, $post_table_name );
 		$total_items = $wpdb->get_var( $sql );
 
 		$this->items = $data;
@@ -171,7 +171,7 @@ endif;
  */
 if ( ! function_exists( 'ct_hotel_vacancy_add_menu_items' ) ) {
 	function ct_hotel_vacancy_add_menu_items() {
-		$page = add_submenu_page( 'edit.php?post_type=hotel', __('Hotel Vacancies', 'citytours'), __( 'Vacancies', 'citytours' ), 'edit_posts', 'vacancies', 'ct_hotel_vacancy_render_pages' );
+		$page = add_submenu_page( 'edit.php?post_type=hotel', __('Hotel Vacancies', 'citytours'), __( 'Vacancies', 'citytours' ), 'edit_ct_custom_posts', 'vacancies', 'ct_hotel_vacancy_render_pages' );
 		add_action( 'admin_print_scripts-' . $page, 'ct_hotel_vacancy_admin_enqueue_scripts' );
 	}
 }
@@ -277,7 +277,7 @@ if ( ! function_exists( 'ct_hotel_vacancy_render_list_page' ) ) {
 			</select>
 			<input type="text" id="date_filter" placeholder="Filter by Date" value="<?php echo isset($_REQUEST['date']) ? esc_attr( $_REQUEST['date'] ):'' ?>">
 			<input type="button" name="vacancy_filter" id="vacancy-filter" class="button" value="Filter">
-			<a href="edit.php?post_type=hotel&amp;page=vacancies" class="button-secondary">Show All</a>
+			<a href="edit.php?post_type=hotel&amp;page=vacancies" class="button-secondary"><?php esc_html_e( 'Show All', 'citytours' ); ?></a>
 			<form id="accomo-vacancies-filter" method="get">
 				<input type="hidden" name="post_type" value="<?php echo esc_attr( $_REQUEST['post_type'] ) ?>" />
 				<input type="hidden" name="page" value="<?php echo esc_attr( $_REQUEST['page'] ) ?>" />
@@ -316,28 +316,31 @@ if ( ! function_exists( 'ct_hotel_vacancy_render_manage_page' ) ) {
 		if ( 'add' == $_REQUEST['action'] ) {
 			$page_title = "Add New Hotel Vacancy";
 		} elseif ( 'edit' == $_REQUEST['action'] ) {
-			$page_title = 'Edit Hotel Vacancy<a href="edit.php?post_type=hotel&amp;page=vacancies&amp;action=add" class="add-new-h2">Add New</a>';
+			$page_title = __( 'Edit Hotel Vacancy', 'citytours' ) . '<a href="edit.php?post_type=hotel&amp;page=vacancies&amp;action=add" class="add-new-h2">' . __( 'Add New', 'citytours' ) . '</a>';
 			
 			if ( empty( $_REQUEST['vacancy_id'] ) ) {
-				echo "<h2>You attempted to edit an item that doesn't exist. Perhaps it was deleted?</h2>";
+				echo "<h2>" . esc_html__( "You attempted to edit an item that doesn't exist. Perhaps it was deleted?" , 'citytours' ) . "</h2>";
 				return;
 			}
 			$vacancy_id = sanitize_text_field( $_REQUEST['vacancy_id'] );
 			$post_table_name  = $wpdb->prefix . 'posts';
 
-			$where = 'CT_Vacancies.id = %3$d';
+			$where = 'CT_Vacancies.id = %4$d';
 			if ( ! current_user_can( 'manage_options' ) ) { $where .= " AND hotel.post_author = '" . get_current_user_id() . "' "; }
 
 			$sql = $wpdb->prepare( 'SELECT CT_Vacancies.* , hotel.post_title as hotel_name, room_type.post_title as room_type_name FROM %1$s as CT_Vacancies
 							INNER JOIN %2$s as hotel ON CT_Vacancies.hotel_id=hotel.ID
-							INNER JOIN %2$s as room_type ON CT_Vacancies.room_type_id=room_type.ID
-							WHERE ' . $where , CT_HOTEL_VACANCIES_TABLE, $post_table_name, $vacancy_id );
+							INNER JOIN %3$s as room_type ON CT_Vacancies.room_type_id=room_type.ID
+							WHERE ' . $where , CT_HOTEL_VACANCIES_TABLE, $post_table_name, $post_table_name, $vacancy_id );
 
 			$vacancy_data = $wpdb->get_row( $sql, ARRAY_A );
 			if ( empty( $vacancy_data ) ) {
-				echo "<h2>You attempted to edit an item that doesn't exist. Perhaps it was deleted?</h2>";
+				echo "<h2>" . esc_html__( "You attempted to edit an item that doesn't exist. Perhaps it was deleted?" , 'citytours' ) . "</h2>";
 				return;
 			}
+
+			$sql = $wpdb->prepare( 'SELECT * FROM %1$s WHERE vacancy_id=%2$s', CT_HOTEL_VACANCY_PRICE_TABLE, $vacancy_id );
+			$week_price_data = $wpdb->get_results( $sql, ARRAY_A );
 		}
 
 		$vacancy_data = array_replace( $default_vacancy_data, $vacancy_data );
@@ -384,7 +387,7 @@ if ( ! function_exists( 'ct_hotel_vacancy_render_manage_page' ) ) {
 						</td>
 					</tr>
 					<tr>
-						<th>Room Type</th>
+						<th><?php _e( 'Room Type', 'citytours' ); ?></th>
 						<td>
 							<select name="room_type_id" id="room_type_id">
 								<option></option>
@@ -426,34 +429,137 @@ if ( ! function_exists( 'ct_hotel_vacancy_render_manage_page' ) ) {
 						</td>
 					</tr>
 					<tr>
-						<th>Number of Rooms</th>
+						<th><?php esc_html_e( 'Number of Rooms', 'citytours' ); ?></th>
 						<td><input type="number" name="rooms" min="1" value="<?php if ( ! empty( $vacancy_data['rooms'] ) ) echo esc_attr( $vacancy_data['rooms'] ); ?>"></td>
 					</tr>
 					<tr>
-						<th>Date From</th>
+						<th><?php esc_html_e( 'Date From', 'citytours' ); ?></th>
 						<td><input type="text" name="date_from" id="date_from" value="<?php if ( ! empty( $vacancy_data['date_from'] ) ) echo esc_attr( $vacancy_data['date_from'] ); ?>"></td>
-						<td><span>If you leave this field blank it will be set as current date</span></td>
+						<td><span><?php esc_html_e( 'If you leave this field blank it will be set as current date', 'citytours' ); ?></span></td>
 					</tr>
 					<tr>
-						<th>Date To</th>
+						<th><?php esc_html_e( 'Date To', 'citytours' ); ?></th>
 						<td><input type="text" name="date_to" id="date_to" value="<?php if ( ( ! empty( $vacancy_data['date_to'] ) ) && ( $vacancy_data['date_to'] != '9999-12-31' ) ) echo esc_attr( $vacancy_data['date_to'] ); ?>"></td>
-						<td><span>Leave it blank if this rooms are available all the time</span></td>
+						<td><span><?php esc_html_e( 'Leave it blank if this rooms are available all the time', 'citytours' ); ?></span></td>
 					</tr>
 					<tr>
-						<th>Price Per Room (per night)</th>
+						<th><?php esc_html_e( 'Price Per Room (per night)', 'citytours' ); ?></th>
 						<td><input type="text" name="price_per_room" value="<?php if ( ! empty( $vacancy_data['price_per_room'] ) ) echo esc_attr( $vacancy_data['price_per_room'] ); ?>"></td>
 					</tr>
 					<tr>
-						<th>Price Per Person (per night)</th>
+						<th><?php esc_html_e( 'Price Per Person (per night)', 'citytours' ); ?></th>
 						<td><input type="text" name="price_per_person" value="<?php if ( ! empty( $vacancy_data['price_per_person'] ) ) echo esc_attr( $vacancy_data['price_per_person'] ); ?>"></td>
 					</tr>
 					<tr>
-						<th>Price Per Child (per night)</th>
+						<th><?php esc_html_e( 'Price Per Child (per night)', 'citytours' ); ?></th>
 						<td><input type="text" name="price_per_child" value="<?php if ( ! empty( $vacancy_data['price_per_child'] ) ) echo esc_attr( $vacancy_data['price_per_child'] ); ?>"></td>
 					</tr>
 				</table>
-				<input type="submit" class="button-primary" name="save" value="Save Vacancy">
-				<a href="edit.php?post_type=hotel&amp;page=vacancies" class="button-secondary">Cancel</a>
+
+				<h3><?php _e( 'Special prices for Week Days', 'citytours' ); ?></h3>
+				<p><?php _e( 'You can set prices for special days such as Saturday, Sunday, etc', 'citytours' ); ?></p>
+				<div class="rwmb-clone-wrapper">
+					<div class="rwmb-input">
+						<?php
+							$week_days = array(
+											'0' => __( 'Sunday', 'citytours' ),
+											'1' => __( 'Monday', 'citytours' ),
+											'2' => __( 'Tuesday', 'citytours' ),
+											'3' => __( 'Wednesday', 'citytours' ),
+											'4' => __( 'Thurday', 'citytours' ),
+											'5' => __( 'Friday', 'citytours' ),
+											'6' => __( 'Saturday', 'citytours' ),
+										);
+						?>
+						<?php if ( empty( $week_price_data ) ) : ?>
+							<div class="rwmb-clone">
+								<div class="rwmb-field rwmb-select-wrapper">
+									<div class="rwmb-label">
+										<label><?php echo __( 'Day', 'citytours' ); ?></label>                            
+									</div>
+									<div class="rwmb-clone-input">
+										<select name="week_price[day][0]" class="rwmb-text">
+											<?php foreach ( $week_days as $k => $day ) : ?>
+												<option value="<?php echo esc_attr( $k ); ?>"><?php echo esc_html( $day ); ?></option>
+											<?php endforeach; ?>
+										</select>
+									</div>
+								</div>
+								<div class="rwmb-field rwmb-text-wrapper">
+									<div class="rwmb-label">
+										<label><?php _e( 'Price Per Room (per night)', 'citytours' ); ?></label>                            
+									</div>
+									<div class="rwmb-clone-input">
+										<input type="text" class="rwmb-text medium-text" name="week_price[price_per_room][0]">
+									</div>
+								</div>
+								<div class="rwmb-field rwmb-text-wrapper">
+									<div class="rwmb-label">
+										<label><?php _e( 'Price Per Person (per night)', 'citytours' ); ?></label>                            
+									</div>
+									<div class="rwmb-clone-input">
+										<input type="text" class="rwmb-text medium-text" name="week_price[price_per_person][0]">
+									</div>
+								</div>
+								<div class="rwmb-field rwmb-text-wrapper">
+									<div class="rwmb-label">
+										<label><?php _e( 'Price Per Child (per night)', 'citytours' ); ?></label>                            
+									</div>
+									<div class="rwmb-clone-input">
+										<input type="text" class="rwmb-text medium-text" name="week_price[price_per_child][0]" >
+									</div>
+								</div>
+								<a href="#" class="rwmb-button button remove-clone" style="display: none;">-</a>
+							</div>
+						<?php else: ?>
+							<?php foreach ( $week_price_data as $key => $week_price ) : ?>
+								<div class="rwmb-clone">
+									<div class="rwmb-field rwmb-select-wrapper">
+										<div class="rwmb-label">
+											<label><?php echo __( 'Day', 'citytours' ); ?></label>                            
+										</div>
+										<div class="rwmb-clone-input">
+											<select name="week_price[day][<?php echo esc_attr( $key ); ?>]" class="rwmb-text">
+												<?php foreach ( $week_days as $k => $day ) : ?>
+													<option value="<?php echo esc_attr( $k ); ?>" <?php selected( $week_price['week_day'], $k ) ?>><?php echo esc_html( $day ); ?></option>
+												<?php endforeach; ?>
+											</select>
+										</div>
+									</div>
+									<div class="rwmb-field rwmb-text-wrapper">
+										<div class="rwmb-label">
+											<label><?php _e( 'Price Per Room (per night)', 'citytours' ); ?></label>                            
+										</div>
+										<div class="rwmb-clone-input">
+											<input type="text" class="rwmb-text medium-text" name="week_price[price_per_room][<?php echo esc_attr( $key ); ?>]" value="<?php echo empty( $week_price['price_per_room'] ) ? '' : $week_price['price_per_room']; ?>">
+										</div>
+									</div>
+									<div class="rwmb-field rwmb-text-wrapper">
+										<div class="rwmb-label">
+											<label><?php _e( 'Price Per Person (per night)', 'citytours' ); ?></label>                            
+										</div>
+										<div class="rwmb-clone-input">
+											<input type="text" class="rwmb-text medium-text" name="week_price[price_per_person][<?php echo esc_attr( $key ); ?>]" value="<?php echo empty( $week_price['price_per_person'] ) ? '' : $week_price['price_per_person']; ?>">
+										</div>
+									</div>
+									<div class="rwmb-field rwmb-text-wrapper">
+										<div class="rwmb-label">
+											<label><?php _e( 'Price Per Child (per night)', 'citytours' ); ?></label>                            
+										</div>
+										<div class="rwmb-clone-input">
+											<input type="text" class="rwmb-text medium-text" name="week_price[price_per_child][<?php echo esc_attr( $key ); ?>]" value="<?php echo empty( $week_price['price_per_child'] ) ? '' : $week_price['price_per_child']; ?>">
+										</div>
+									</div>
+									<a href="#" class="rwmb-button button remove-clone" style="display: none;">-</a>
+								</div>
+							<?php endforeach; ?>
+						<?php endif; ?>
+						<a href="#" class="rwmb-button button-primary add-clone">+</a>
+					</div>
+				</div>
+
+				<input type="submit" class="button-primary" name="save" value="<?php _e( 'Save Vacancy', 'citytours' ); ?>">
+				<a href="edit.php?post_type=hotel&amp;page=vacancies" class="button-secondary"><?php _e( 'Cancel', 'citytours' ); ?></a>
 				<?php wp_nonce_field('ct_hotel_vacancy_manage','vacancy_save'); ?>
 			</form>
 		</div>
@@ -493,7 +599,6 @@ if ( ! function_exists( 'ct_hotel_vacancy_delete_action' ) ) {
 
 		// do action
 		$wpdb->delete( CT_HOTEL_VACANCIES_TABLE, array( 'id' => $_REQUEST['vacancy_id'] ) );
-		//}
 		wp_redirect( admin_url( 'edit.php?post_type=hotel&page=vacancies') );
 		exit;
 	}
@@ -512,7 +617,8 @@ if ( ! function_exists( 'ct_hotel_vacancy_save_action' ) ) {
 
 			global $wpdb;
 
-			$default_vacancy_data = array( 'hotel_id'  => '',
+			$default_vacancy_data = array(
+										'hotel_id'  => '',
 										'room_type_id'      => '',
 										'rooms'        => 0,
 										'date_from'        => date( 'Y-m-d' ),
@@ -542,6 +648,38 @@ if ( ! function_exists( 'ct_hotel_vacancy_save_action' ) ) {
 				$wpdb->update( CT_HOTEL_VACANCIES_TABLE, $data, array( 'id' => sanitize_text_field( $_POST['id'] ) ) );
 				$id = sanitize_text_field( $_POST['id'] );
 			}
+
+			$wpdb->delete( CT_HOTEL_VACANCY_PRICE_TABLE, array( 'vacancy_id' => $id ) );
+			if ( ! empty( $_POST['week_price'] ) && is_array( $_POST['week_price'] ) ) {
+				$week_price = $_POST['week_price'];
+				foreach( $week_price['day'] as $key => $day ) {
+					if ( ! isset( $day ) ) {
+						continue;
+					}
+
+					$data = array();
+					$data['vacancy_id'] = $id;
+					$data['week_day'] = $day;					
+					if ( empty( $week_price['price_per_room'][$key] ) ) {
+						$data['price_per_room'] = 0;
+					} else {
+						$data['price_per_room'] = $week_price['price_per_room'][$key];
+					}
+					if ( empty( $week_price['price_per_person'][$key] ) ) {
+						$data['price_per_person'] = 0;
+					} else {
+						$data['price_per_person'] = $week_price['price_per_person'][$key];
+					}
+					if ( empty( $week_price['price_per_child'][$key] ) ) {
+						$data['price_per_child'] = 0;
+					} else {
+						$data['price_per_child'] = $week_price['price_per_child'][$key];
+					}
+
+					$wpdb->insert( CT_HOTEL_VACANCY_PRICE_TABLE, $data );
+				}
+			}
+
 			wp_redirect( admin_url( 'edit.php?post_type=hotel&page=vacancies&action=edit&vacancy_id=' . $id . '&updated=true') );
 			exit;
 		}
@@ -563,6 +701,7 @@ if ( ! function_exists( 'ct_hotel_vacancy_admin_enqueue_scripts' ) ) {
 		wp_register_style( 'jquery-ui-core', "{$url}/jquery.ui.core.css", array(), '1.8.17' );
 		wp_register_style( 'jquery-ui-theme', "{$url}/jquery.ui.theme.css", array(), '1.8.17' );
 		wp_enqueue_style( 'jquery-ui-datepicker', "{$url}/jquery.ui.datepicker.css", array( 'jquery-ui-core', 'jquery-ui-theme' ), '1.8.17' );
+		wp_enqueue_style( 'rwmb', RWMB_CSS_URL . 'style.css', array(), RWMB_VER );
 
 		// Load localized scripts
 		$locale = str_replace( '_', '-', get_locale() );
@@ -578,8 +717,10 @@ if ( ! function_exists( 'ct_hotel_vacancy_admin_enqueue_scripts' ) ) {
 		wp_localize_script( 'rwmb-date', 'RWMB_Date', array( 'lang' => $locale ) );
 
 		// custom style and js
-		wp_enqueue_style( 'ct_admin_hotel_style' , CT_TEMPLATE_DIRECTORY_URI . '/inc/admin/css/style.css' ); 
-		wp_enqueue_script( 'ct_admin_vacancy_script' , CT_TEMPLATE_DIRECTORY_URI . '/inc/admin/hotel/js/vacancy.js', array('jquery'), '1.0', true );
+		wp_enqueue_script( 'ct_admin_vacancy_script' , CT_TEMPLATE_DIRECTORY_URI . '/js/admin/hotel_vacancy.js', array('jquery'), '1.0', true );
+
+		wp_enqueue_script( 'jquery-ui-sortable' );
+		wp_enqueue_script( 'rwmb-clone', RWMB_JS_URL . 'clone.js', array( 'jquery-ui-sortable' ), RWMB_VER, true );
 	}
 }
 

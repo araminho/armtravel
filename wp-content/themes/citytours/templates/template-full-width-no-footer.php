@@ -2,6 +2,11 @@
  /*
  Template Name: Full Page Map Template
  */
+
+if ( ! defined( 'ABSPATH' ) ) { 
+    exit; 
+}
+
 get_header();
 
 if ( have_posts() ) {
@@ -12,11 +17,17 @@ if ( have_posts() ) {
 		?>
 
 		<div class="<?php echo esc_attr( $content_class ); ?>">
+
 			<div class="post nopadding clearfix">
+
 				<?php the_content(); ?>
+
 			</div><!-- end post -->
+
 		</div>
 
-<?php endwhile;
+		<?php 
+	endwhile;
 }
+
 get_footer();

@@ -107,10 +107,15 @@ ul.products {
     line-height:26px;
     color:#5a5a5a;
     background:#ffffff;
-    font-size:14px;
+    font-size:16px;
     margin-right:1px;
     -webkit-transition:all 500ms ease;
     transition:all 500ms ease;  
+}
+
+.shop-item .image-box .item-options .btn_shop.loading {
+    cursor: wait;
+    opacity: .7;
 }
 
 .shop-item .image-box .item-options .btn_shop .tool-tip{
@@ -280,6 +285,10 @@ ul.products {
     top: -.3em;
     border: none;
     color: red;
+}
+
+.woocommerce-checkout .select2-container--default {
+    display: none;
 }
 
 .blockUI.blockOverlay {
@@ -744,7 +753,7 @@ ul.products .image-box .onsale { top:10px; }
 }
 
 .table.cart-list.shopping-cart .product-thumbnail img {
-    width: 60px;
+    max-width: 100px;
     height: auto;
     margin-bottom: 0;
 }
@@ -759,6 +768,19 @@ ul.products .image-box .onsale { top:10px; }
 
 .table.cart-list.shopping-cart td.product-remove {
     font-size: 22px;
+}
+
+.shop_table .cart_item td.product-name a {
+    font-weight: bold;
+}
+
+.shop_table .cart_item td.product-name dl {
+    margin: 6px 10px;
+}
+
+.shop_table .cart_item td.product-name dt, 
+.shop_table .cart_item td.product-name dd {
+    display: inline-block;
 }
 
 .cart-section .cart-collaterals {
@@ -827,8 +849,8 @@ ul.products .image-box .onsale { top:10px; }
 }
 
 .default-title h2{
-    font-size:15px;
-    font-weight:500;
+    font-size:20px;
+    font-weight:bold;
     text-transform:uppercase;
 }
 
@@ -1371,30 +1393,62 @@ ul.products .image-box .onsale { top:10px; }
 }
 
 
+/* Mini Cart Style */
+.mini_cart_item .item-desc dl {
+    margin-bottom: 10px;
+}
+
+.mini_cart_item .item-desc dt,
+.mini_cart_item .item-desc dd {
+    display: inline-block;
+}
+
+.mini_cart_item .item-desc .quantity {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.mini_cart_item .item-desc .quantity span {
+    font-weight: bold;
+}
+
+
 /*============================================================================================*/
 /* MEDIA QUERIES max-width 767px - MOBILE LANDSCAPE  */
 /*============================================================================================*/
 @media (max-width: 767px) {
     
 /* Responsive table cart */ 
-    .table.cart-list.shopping-cart,
-    .table.cart-list.shopping-cart thead,
-    .table.cart-list.shopping-cart tbody,
-    .table.cart-list.shopping-cart th,
-    .table.cart-list.shopping-cart td,
-    .table.cart-list.shopping-cart tr {
-        display: block;
-        border: 0;
+    .table.shopping-cart .cart-options .pull-left, .table.shopping-cart .cart-options .pull-right {
+        float: none !important;
+        text-align: center;
+    }
+
+    .table.shopping-cart .apply-coupon:after {
+        content: '';
+        display: table;
+        clear: both;
+    }
+
+    .table.shopping-cart .apply-coupon .form-group {
+        margin: 0 0 10px;
+        padding: 0 10px;
+        width: 50%;
+    }
+
+    .table.shopping-cart .apply-coupon .form-group input {
+        width: 100%;
     }
     
     .table.cart-list.shopping-cart thead tr {
         position: absolute;
         top: -9999px;
         left: -9999px;
+        display: none;
     }
     
     .table.cart-list.shopping-cart tr {
-        border: 1px solid #ccc;
+        margin-bottom: 20px;
     }
     
     .table.cart-list.shopping-cart td {
@@ -1413,45 +1467,10 @@ ul.products .image-box .onsale { top:10px; }
         white-space: nowrap;
     }
     
-    .table.cart-list.shopping-cart td:nth-of-type(1):before {
-        content: "Product";
-        font-weight: bold;
-        color: #111;
-    }
-    
-    .table.cart-list.shopping-cart td:nth-of-type(2):before {
-        content: "Price";
-        font-weight: bold;
-        color: #111;
-    }
-    
-    .table.cart-list.shopping-cart td:nth-of-type(3):before {
-        content: "Quantity";
-        font-weight: bold;
-        color: #111;
-    }
-    
-    .table.cart-list.shopping-cart td:nth-of-type(4):before {
-        content: "Total";
-        font-weight: bold;
-        color: #111;
-    }
-    
-    .table.cart-list.shopping-cart td:nth-of-type(5):before {
-        content: "Remove";
-        font-weight: bold;
-        color: #111;
-    }
-    
     .table.cart-list.shopping-cart .thumb_cart {
         display: none;
     }
     
-    .cart-section .cart-options .pull-right.fix_mobile{
-        float:left !important;
-        margin-bottom:10px;
-    }
-
     .product-details #commentform .comment-form-author, .product-details #commentform .comment-form-email {
         width: 100%;
         float: none;

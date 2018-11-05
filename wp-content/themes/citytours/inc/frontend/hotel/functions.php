@@ -136,8 +136,6 @@ if ( ! function_exists( 'ct_hotel_calc_room_price' ) ) {
 		$from_date_obj = new DateTime( '@' . ct_strtotime( $from_date ) );
 		$to_date_obj = new DateTime( '@' . ct_strtotime( $to_date ) );
 		$date_interval = DateInterval::createFromDateString('1 day');
-		// $endDateInt = new DateInterval( "P1D" );
-		// $to_date_obj->add( $endDateInt );
 		$period = new DatePeriod($from_date_obj, $date_interval, $to_date_obj);
 
 		$price_data = array();
@@ -153,9 +151,10 @@ if ( ! function_exists( 'ct_hotel_calc_room_price' ) ) {
 
 			$check_date = esc_sql( $dt->format( "Y-m-d" ) );
 			$check_dates[] = $check_date;
+			$day = esc_sql( date( 'w', ct_strtotime( $check_date ) ) );
 
-			$sql = "SELECT vacancies.room_type_id, vacancies.price_per_room , vacancies.price_per_person, vacancies.price_per_child
-					FROM (SELECT room_type_id, rooms, price_per_room, price_per_person, price_per_child
+			$sql = "SELECT vacancies.room_type_id, IFNULL(vacancy_price.price_per_room, vacancies.price_per_room) AS price_per_room, IFNULL(vacancy_price.price_per_person, vacancies.price_per_person) AS price_per_person, IFNULL(vacancy_price.price_per_child, vacancies.price_per_child) AS price_per_child
+					FROM (SELECT id, room_type_id, rooms, price_per_room, price_per_person, price_per_child
 							FROM " . CT_HOTEL_VACANCIES_TABLE . " 
 							WHERE 1=1 AND hotel_id='" . $hotel_id . "' AND room_type_id = '" . $room_type_id . "' AND date_from <= '" . $check_date . "'  AND date_to > '" . $check_date . "' ) AS vacancies
 					LEFT JOIN (SELECT hotel_booking.room_type_id, SUM(hotel_booking.rooms) AS rooms 
@@ -163,8 +162,9 @@ if ( ! function_exists( 'ct_hotel_calc_room_price' ) ) {
 							INNER JOIN " . CT_ORDER_TABLE . " as hotel_order on hotel_order.id = hotel_booking.order_id
 							WHERE 1=1 AND hotel_order.status!='cancelled' AND hotel_order.post_id='" . $hotel_id . "' AND hotel_booking.room_type_id = '" . $room_type_id . "' AND hotel_order.date_to > '" . $check_date . "' AND hotel_order.date_from <= '" . $check_date . "'" . ( ( empty( $except_booking_no ) || empty( $pin_code ) )?"":( " AND NOT ( hotel_order.booking_no = '" . $except_booking_no . "' AND hotel_order.pin_code = '" . $pin_code . "' )" ) ) . "
 					) AS bookings ON vacancies.room_type_id = bookings.room_type_id
+					LEFT JOIN " . CT_HOTEL_VACANCY_PRICE_TABLE . " AS vacancy_price
+					ON vacancy_price.vacancy_id=vacancies.id AND vacancy_price.week_day = '" . $day . "'
 					WHERE vacancies.rooms - IFNULL(bookings.rooms,0) >= " . $rooms . ";";
-
 			$result = $wpdb->get_row( $sql ); // object (room_type_id, price_per_room, price_per_person, price_per_child)
 
 			if ( empty( $result ) ) { //if no available rooms on selected date
@@ -206,7 +206,7 @@ if ( ! function_exists( 'ct_hotel_generate_conf_mail' ) ) {
 			// server variables
 			$admin_email = get_option('admin_email');
 			$home_url = esc_url( home_url('/') );
-			$site_name = $_SERVER['SERVER_NAME'];
+			$site_name = filter_input( INPUT_SERVER, 'SERVER_NAME' );
 			$logo_url = esc_url( ct_logo_url() );
 			$order_data['hotel_id'] = ct_hotel_clang_id( $order_data['post_id'] );
 
@@ -272,39 +272,40 @@ if ( ! function_exists( 'ct_hotel_generate_conf_mail' ) ) {
 			$customer_country = $order_data['country'];
 			$customer_special_requirements = $order_data['special_requirements'];
 
-			$variables = array( 'home_url',
-								'site_name',
-								'logo_url',
-								'hotel_name',
-								'hotel_url',
-								'hotel_thumbnail',
-								'hotel_address',
-								'hotel_email',
-								'hotel_phone',
-								'booking_rooms',
-								'booking_services',
-								'booking_no',
-								'booking_pincode',
-								'booking_from_date',
-								'booking_to_date',
-								'booking_nights',
-								'booking_adults',
-								'booking_kids',
-								'booking_total_price',
-								'booking_deposit_paid',
-								'booking_deposit_price',
-								'customer_first_name',
-								'customer_last_name',
-								'customer_email',
-								'customer_country_code',
-								'customer_phone',
-								'customer_address1',
-								'customer_address2',
-								'customer_city',
-								'customer_zip',
-								'customer_country',
-								'customer_special_requirements',
-							);
+			$variables = array( 
+				'home_url',
+				'site_name',
+				'logo_url',
+				'hotel_name',
+				'hotel_url',
+				'hotel_thumbnail',
+				'hotel_address',
+				'hotel_email',
+				'hotel_phone',
+				'booking_rooms',
+				'booking_services',
+				'booking_no',
+				'booking_pincode',
+				'booking_from_date',
+				'booking_to_date',
+				'booking_nights',
+				'booking_adults',
+				'booking_kids',
+				'booking_total_price',
+				'booking_deposit_paid',
+				'booking_deposit_price',
+				'customer_first_name',
+				'customer_last_name',
+				'customer_email',
+				'customer_country_code',
+				'customer_phone',
+				'customer_address1',
+				'customer_address2',
+				'customer_city',
+				'customer_zip',
+				'customer_country',
+				'customer_special_requirements',
+			);
 
 			if ( empty( $subject ) ) {
 				$subject = empty( $ct_options['hotel_confirm_email_subject'] ) ? 'Booking Confirmation Email Subject' : $ct_options['hotel_confirm_email_subject'];
@@ -359,7 +360,7 @@ if ( ! function_exists( 'ct_hotel_get_search_result_count' ) ) {
 
 		if ( $by == 'star' ) {
 
-			$sql = "SELECT IFNULL( meta_star.meta_value, 0 ) as star, COUNT(*) AS counts FROM {$temp_tbl_name} as t1
+			$sql = "SELECT IFNULL( meta_star.meta_value, 0 ) as star, COUNT(*) AS counts FROM {$temp_tbl_name} as t1 
 					INNER JOIN {$tbl_posts} post_s1 ON (t1.hotel_id = post_s1.ID) AND (post_s1.post_status = 'publish') AND (post_s1.post_type = 'hotel') 
 					LEFT JOIN {$tbl_postmeta} AS meta_star ON t1.hotel_id = meta_star.post_id AND meta_star.meta_key = '_hotel_star'";
 			$where = ' 1=1';
@@ -423,6 +424,7 @@ if ( ! function_exists( 'ct_hotel_get_search_result_count' ) ) {
 if ( ! function_exists( 'ct_hotel_get_search_result' ) ) {
 	function ct_hotel_get_search_result( $args ) {
 		global $ct_options, $wpdb;
+
 		$s = '';
 		$date_from = '';
 		$date_to = '';
@@ -442,10 +444,11 @@ if ( ! function_exists( 'ct_hotel_get_search_result' ) ) {
 
 		$order_array = array( 'ASC', 'DESC' );
 		$order_by_array = array(
-				'' => '',
-				'price' => 'convert(meta_price.meta_value, decimal)',
-				'rating' => 'meta_rating.meta_value'
-			);
+			'' => '',
+			'price' => 'convert(meta_price.meta_value, decimal)',
+			'rating' => 'meta_rating.meta_value'
+		);
+
 		if ( ! array_key_exists( $order_by , $order_by_array) ) $order_by = '';
 		if ( ! in_array( $order , $order_array) ) $order = 'ASC';
 
@@ -469,8 +472,7 @@ if ( ! function_exists( 'ct_hotel_get_search_result' ) ) {
 		$s_query = "SELECT post_s1.ID AS hotel_id FROM {$tbl_posts} AS post_s1 
 					WHERE (post_s1.post_status = 'publish') AND (post_s1.post_type = 'hotel')";
 		if ( ! empty( $s ) ) {
-			//mysql escape sting and like escape
-			if ( floatval( get_bloginfo( 'version' ) ) >= 4.0 ) { $s = esc_sql( $wpdb->esc_like( $s ) ); } else { $s = esc_sql( like_escape( $s ) ); }
+			$s = esc_sql( $wpdb->esc_like( $s ) );
 			$s_query .= " AND ((post_s1.post_title LIKE '%{$s}%') OR (post_s1.post_content LIKE '%{$s}%') )";
 		}
 
@@ -541,7 +543,6 @@ if ( ! function_exists( 'ct_hotel_get_search_result' ) ) {
 					INNER JOIN {$tbl_icl_translations} it4 ON (it4.element_type = 'post_hotel') AND it4.language_code='" . ICL_LANGUAGE_CODE . "' AND it4.trid = it3.trid";
 		}
 
-		// var_dump($sql);
 		$sql = "CREATE TEMPORARY TABLE IF NOT EXISTS {$temp_tbl_name} AS " . $sql;
 		$wpdb->query( $sql );
 
@@ -620,6 +621,7 @@ if ( ! function_exists( 'ct_hotel_get_search_result' ) ) {
 if ( ! function_exists( 'ct_hotel_get_hotels_from_id' ) ) {
 	function ct_hotel_get_hotels_from_id( $ids ) {
 		if ( ! is_array( $ids ) ) return false;
+		
 		$results = array();
 		foreach( $ids as $id ) {
 			$result = get_post( $id );
@@ -630,7 +632,59 @@ if ( ! function_exists( 'ct_hotel_get_hotels_from_id' ) ) {
 		return $results;
 	}
 }
+/*
+ * Get discounted(hot) hotels and return data
+ */
+if ( ! function_exists( 'ct_hotel_get_hot_hotels' ) ) {
+    function ct_hotel_get_hot_hotels( $count = 10, $exclude_ids, $acc_type=array() ) {
+        $args = array(
+            'post_type'  => 'hotel',
+            'orderby'    => 'rand',
+            'posts_per_page' => $count,
+            'suppress_filters' => 0,
+            'post_status' => 'publish',
+            'meta_query' => array(
+                'relation' => 'AND',
+                array(
+                    'key'     => '_hotel_hot',
+                    'value'   => '1',
+                ),
+                array(
+                    'key'     => '_hotel_discount_rate',
+                    'value'   => array( 0, 100 ),
+                    'type'    => 'numeric',
+                    'compare' => 'BETWEEN',
+                ),
+            ),
+        );
 
+        if ( ! empty( $exclude_ids ) ) {
+			$args['post__not_in'] = $exclude_ids;
+		}
+        
+        if ( ! empty( $district ) ) {
+			if ( is_numeric( $district[0] ) ) {
+				$args['tax_query'] = array(
+						array(
+							'taxonomy' => 'district',
+							'field' => 'term_id',
+							'terms' => $district
+							)
+					);
+			} else {
+				$args['tax_query'] = array(
+						array(
+							'taxonomy' => 'district',
+							'field' => 'name',
+							'terms' => $district
+							)
+					);
+			}
+		}
+
+        return get_posts( $args );
+    }
+}
 
 /*
  * Get special( latest or featured ) hotels and return data
@@ -650,10 +704,10 @@ if ( ! function_exists( 'ct_hotel_get_special_hotels' ) ) {
 
 		if ( ! empty( $district ) ) {
 			if ( is_numeric( $district[0] ) ) {
-			$args['tax_query'] = array(
-					array(
-						'taxonomy' => 'district',
-						'field' => 'term_id',
+				$args['tax_query'] = array(
+						array(
+							'taxonomy' => 'district',
+							'field' => 'term_id',
 							'terms' => $district
 							)
 					);
@@ -662,10 +716,10 @@ if ( ! function_exists( 'ct_hotel_get_special_hotels' ) ) {
 						array(
 							'taxonomy' => 'district',
 							'field' => 'name',
-						'terms' => $district
-						)
-				);
-		}
+							'terms' => $district
+							)
+					);
+			}
 		}
 
 		if ( $type == 'featured'  ) {

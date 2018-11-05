@@ -5,20 +5,18 @@
  * @see         https://docs.woocommerce.com/document/template-structure/
  * @author      WooThemes
  * @package     WooCommerce/Templates
- * @version     2.3.0
+ * @version     3.5.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-wc_print_notices();
-
 do_action( 'woocommerce_before_checkout_form', $checkout );
 
 // If checkout registration is disabled and not logged in, the user cannot checkout
 if ( ! $checkout->enable_signup && ! $checkout->enable_guest_checkout && ! is_user_logged_in() ) {
-    echo apply_filters( 'woocommerce_checkout_must_be_logged_in_message', __( 'You must be logged in to checkout.', 'woocommerce' ) );
+    echo apply_filters( 'woocommerce_checkout_must_be_logged_in_message', __( 'You must be logged in to checkout.', 'citytours' ) );
     return;
 }
 
@@ -47,7 +45,7 @@ if ( ! $checkout->enable_signup && ! $checkout->enable_guest_checkout && ! is_us
     <div class="col-md-5">
 
         <div class="default-title"> 
-            <h2 id="order_review_heading"><?php _e( 'Your order', 'woocommerce' ); ?></h2>
+            <h2 id="order_review_heading"><?php _e( 'Your order', 'citytours' ); ?></h2>
         </div>
 
         <?php do_action( 'woocommerce_checkout_before_order_review' ); ?>

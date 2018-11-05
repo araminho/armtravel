@@ -50,7 +50,7 @@ if ( ! function_exists( 'ct_get_tour_thankyou_page' ) ) {
 }
 
 if ( ! function_exists( 'ct_tour_check_availability' ) ) {
-	function ct_tour_check_availability( $post_id, $date='', $adults=1, $kids=0 ) {
+	function ct_tour_check_availability( $post_id, $date='', $time='', $adults=1, $kids=0 ) {
 
 		// validation
 		if ( empty( $post_id ) || 'tour' != get_post_type( $post_id )  ) return esc_html__( 'Invalide Tour ID.', 'citytours' ); //invalid data
@@ -67,6 +67,9 @@ if ( ! function_exists( 'ct_tour_check_availability' ) ) {
 		$where = "1=1";
 		$where .= " AND tour_id=" . $post_id;
 		if ( ! empty( $is_repeated ) ) $where .= " AND tour_date='" . esc_sql( date( 'Y-m-d', ct_strtotime( $date ) ) ) . "'";
+		if ( ! empty( $time ) ) {
+			$where .= "AND tour_time='" . esc_sql( $time ) . "'";
+		}
 		$sql = "SELECT SUM(adults) FROM " . CT_TOUR_BOOKINGS_TABLE . " WHERE $where";
 		$booked_count = $wpdb->get_var( $sql );
 		if ( $booked_count + $adults <= $max_people ) {
@@ -81,11 +84,25 @@ if ( ! function_exists( 'ct_tour_check_availability' ) ) {
 
 if ( ! function_exists( 'ct_tour_calc_tour_price' ) ) {
 	function ct_tour_calc_tour_price( $post_id, $date='', $adults=1, $kids=0 ) {
+
+		$is_repeated =  get_post_meta( $post_id, '_tour_repeated', true );
+		if ( ! empty( $is_repeated ) ) {
+			$weekly_price = ct_tour_get_price_per_day( $post_id );
+			$day = date( 'w', ct_strtotime( $date ) );
+			$person_price = $weekly_price[$day];
+		} else {
 		$person_price = get_post_meta( $post_id, '_tour_price', true );
-		if ( empty( $person_price ) ) $person_price = 0;
+		}
+
+		if ( empty( $person_price ) ) {
+			$person_price = 0;
+		}
+	
 		$charge_child = get_post_meta( $post_id, '_tour_charge_child', true );
 		$child_price = get_post_meta( $post_id, '_tour_price_child', true );
-		if ( empty( $charge_child ) || empty( $child_price ) ) $child_price = 0;
+		if ( empty( $charge_child ) || empty( $child_price ) ) {
+			$child_price = 0;
+		}
 		$total = $person_price * $adults + $child_price * $kids;
 		return $total;
 	}
@@ -102,7 +119,7 @@ if ( ! function_exists( 'ct_tour_generate_conf_mail' ) ) {
 			// server variables
 			$admin_email = get_option('admin_email');
 			$home_url = esc_url( home_url('/') );
-			$site_name = $_SERVER['SERVER_NAME'];
+			$site_name = filter_input( INPUT_SERVER, 'SERVER_NAME' );
 			$logo_url = esc_url( ct_logo_url() );
 			$order_data['tour_id'] = ct_tour_clang_id( $order_data['post_id'] );
 
@@ -130,6 +147,8 @@ if ( ! function_exists( 'ct_tour_generate_conf_mail' ) ) {
 
 			// booking info
 			$booking_date = date_i18n( 'j F Y', strtotime( $order_data['date_from'] ) );
+			$booking_data = $order->get_tours();
+			$booking_time = $booking_data['tour_time'];
 			$booking_adults = $order_data['total_adults'];
 			$booking_kids = $order_data['total_kids'];
 			$booking_total_price = esc_html( ct_price( $order_data['total_price'] * $order_data['exchange_rate'], "", $order_data['currency_code'], 0 ) );
@@ -164,6 +183,7 @@ if ( ! function_exists( 'ct_tour_generate_conf_mail' ) ) {
 								'booking_no',
 								'booking_pincode',
 								'booking_date',
+								'booking_time',
 								'booking_adults',
 								'booking_kids',
 								'booking_total_price',
@@ -434,6 +454,54 @@ if ( ! function_exists( 'ct_tour_get_tours_from_id' ) ) {
 	}
 }
 
+/*
+ * Get discounted(hot) tours and return data
+ */
+if ( ! function_exists( 'ct_tour_get_hot_tours' ) ) {
+    function ct_tour_get_hot_tours( $count = 10, $exclude_ids, $tour_type=array() ) {
+        $args = array(
+            'post_type'  => 'tour',
+            'orderby'    => 'rand',
+            'posts_per_page' => $count,
+            'suppress_filters' => 0,
+            'post_status' => 'publish',
+            'meta_query' => array(
+                'relation' => 'AND',
+                array(
+                    'key'     => '_tour_hot',
+                    'value'   => '1',
+                ),
+                array(
+                    'key'     => '_tour_discount_rate',
+                    'value'   => array( 0, 100 ),
+                    'type'    => 'numeric',
+                    'compare' => 'BETWEEN',
+                )
+            ),
+        );
+
+        if ( ! empty( $tour_type ) ) {
+            if ( is_numeric( $tour_type[0] ) ) {
+                $args['tax_query'] = array(
+                        array(
+                            'taxonomy' => 'tour_type',
+                            'field' => 'term_id',
+                            'terms' => $tour_type
+                            )
+                    );
+            } else {
+                $args['tax_query'] = array(
+                        array(
+                            'taxonomy' => 'tour_type',
+                            'field' => 'name',
+                            'terms' => $tour_type
+                            )
+                    );
+            }
+        }
+        return get_posts( $args );
+    }
+}
 
 /*
  * Get special( latest or featured ) tours and return data
@@ -532,5 +600,89 @@ if ( ! function_exists( 'ct_tour_get_special_tours' ) ) {
 
 			return $result;
 		}
+	}
+}
+
+if ( ! function_exists( 'ct_get_tour_available_days' ) ) {
+	function ct_get_tour_available_days( $post_id ) {
+		$monday_available = get_post_meta( $post_id, '_tour_monday_available', true );
+		$tuesday_available = get_post_meta( $post_id, '_tour_tuesday_available', true );
+		$wednesday_available = get_post_meta( $post_id, '_tour_wednesday_available', true );
+		$thursday_available = get_post_meta( $post_id, '_tour_thursday_available', true );
+		$friday_available = get_post_meta( $post_id, '_tour_friday_available', true );
+		$saturday_available = get_post_meta( $post_id, '_tour_saturday_available', true );
+		$sunday_available = get_post_meta( $post_id, '_tour_sunday_available', true );
+
+		$tour_available_days = array();
+		
+		if ( ! empty( $monday_available ) ) {
+			$tour_available_days[] = 1;
+		}
+		if ( ! empty( $tuesday_available ) ) {
+			$tour_available_days[] = 2;
+		}
+		if ( ! empty( $wednesday_available ) ) {
+			$tour_available_days[] = 3;
+		}
+		if ( ! empty( $thursday_available ) ) {
+			$tour_available_days[] = 4;
+		}
+		if ( ! empty( $friday_available ) ) {
+			$tour_available_days[] = 5;
+		}
+		if ( ! empty( $saturday_available ) ) {
+			$tour_available_days[] = 6;
+		}
+		if ( ! empty( $sunday_available ) ) {
+			$tour_available_days[] = 0;
+		}
+
+		return $tour_available_days;
+	}
+}
+
+/*
+ * get tour price array for week 
+ */
+if ( ! function_exists( 'ct_tour_get_price_per_day' ) ) {
+	function ct_tour_get_price_per_day( $post_id ) {
+
+		$prices = array();
+		
+		$person_price = get_post_meta( $post_id, '_tour_price', true );
+		if ( empty( $person_price ) ) {
+			$person_price = 0;
+		}
+
+		$prices[0] = get_post_meta( $post_id, '_tour_sunday_price', true );
+		if ( empty( $prices[0] ) ) {
+			$prices[0] = $person_price;
+		}
+		$prices[1] = get_post_meta( $post_id, '_tour_monday_price', true );
+		if ( empty( $prices[1] ) ) {
+			$prices[1] = $person_price;
+		}
+		$prices[2] = get_post_meta( $post_id, '_tour_tuesday_price', true );
+		if ( empty( $prices[2] ) ) {
+			$prices[2] = $person_price;
+		}
+		$prices[3] = get_post_meta( $post_id, '_tour_wednesday_price', true );
+		if ( empty( $prices[3] ) ) {
+			$prices[3] = $person_price;
+		}
+		$prices[4] = get_post_meta( $post_id, '_tour_thursday_price', true );
+		if ( empty( $prices[4] ) ) {
+			$prices[4] = $person_price;
+		}
+		$prices[5] = get_post_meta( $post_id, '_tour_friday_price', true );
+		if ( empty( $prices[5] ) ) {
+			$prices[5] = $person_price;
+		}
+		$prices[6] = get_post_meta( $post_id, '_tour_saturday_price', true );
+		if ( empty( $prices[6] ) ) {
+			$prices[6] = $person_price;
+		}
+
+		return $prices;
 	}
 }

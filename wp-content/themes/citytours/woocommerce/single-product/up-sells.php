@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $product, $woocommerce_loop, $ct_options;
 
-if ( ! $upsells = $product->get_upsells() ) {
+if ( ! $upsells = $product->get_upsell_ids() ) {
     return;
 }
 
@@ -46,7 +46,7 @@ if ( $products->have_posts() ) : ?>
 
     <div class="related-products up-sells upsells products">
 
-        <h2><?php esc_html_e( 'You may also like&hellip;', 'woocommerce' ) ?></h2>
+        <h2><?php esc_html_e( 'You may also like&hellip;', 'citytours' ) ?></h2>
 
         <?php woocommerce_product_loop_start(); ?>
 

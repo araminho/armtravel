@@ -22,10 +22,11 @@ get_header( 'shop' ); ?>
         $header_img_scr = ct_get_header_image_src( $product_id );
 
         if ( ! empty( $header_img_scr ) ) { 
-            $header_content = get_post_meta( $product_id, '_header_content', true );
+            $header_content = ct_get_header_content( $product_id );
+            $header_img_height = ct_get_header_image_height( $product_id );
             ?>
 
-            <section class="parallax-window" data-parallax="scroll" data-image-src="<?php echo esc_url( $header_img_scr ) ?>" data-natural-width="1400" data-natural-height="470">
+            <section class="parallax-window" data-parallax="scroll" data-image-src="<?php echo esc_url( $header_img_scr ) ?>" data-natural-width="1400" data-natural-height="<?php echo esc_attr( $header_img_height ); ?>">
                 <div class="parallax-content-1">
                     <?php echo balancetags( $header_content ); ?>
                 </div>

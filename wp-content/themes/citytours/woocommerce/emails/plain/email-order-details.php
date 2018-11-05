@@ -3,9 +3,8 @@
  * Order details table shown in emails.
  *
  * @see         https://docs.woocommerce.com/document/template-structure/
- * @author      WooThemes
  * @package     WooCommerce/Templates/Emails
- * @version     2.5.0
+ * @version     3.5.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -14,25 +13,34 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 do_action( 'woocommerce_email_before_order_table', $order, $sent_to_admin, $plain_text, $email );
 
-echo strtoupper( sprintf( __( 'Order number: %s', 'woocommerce' ), $order->get_order_number() ) ) . "\n";
-echo date_i18n( __( 'jS F Y', 'woocommerce' ), strtotime( $order->order_date ) ) . "\n";
-echo "\n" . $order->email_order_items_table( array(
+/* translators: %s: Order ID. */
+echo wp_kses_post( strtoupper( sprintf( __( 'Order number: %s', 'citytours' ), $order->get_order_number() ) ) ) . "\n";
+echo wc_format_datetime( $order->get_date_created() ) . "\n";  // WPCS: XSS ok.
+echo "\n" . wc_get_email_order_items( $order, array( // WPCS: XSS ok.
     'show_sku'    => $sent_to_admin,
     'show_image'  => false,
     'image_size'  => array( 32, 32 ),
-    'plain_text'  => true
+    'plain_text'  => true,
+    'sent_to_admin' => $sent_to_admin,
 ) );
 
 echo "==========\n\n";
 
-if ( $totals = $order->get_order_item_totals() ) {
+$totals = $order->get_order_item_totals();
+
+if ( $totals ) {
     foreach ( $totals as $total ) {
-        echo $total['label'] . "\t " . $total['value'] . "\n";
+        echo wp_kses_post( $total['label'] . "\t " . $total['value'] ) . "\n";
     }
 }
 
+if ( $order->get_customer_note() ) {
+    echo esc_html__( 'Note:', 'citytours' ) . "\t " . wp_kses_post( wptexturize( $order->get_customer_note() ) ) . "\n";
+}
+
 if ( $sent_to_admin ) {
-    echo "\n" . sprintf( __( 'View order: %s', 'woocommerce'), admin_url( 'post.php?post=' . $order->id . '&action=edit' ) ) . "\n";
+    /* translators: %s: Order link. */
+    echo "\n" . sprintf( esc_html__( 'View order: %s', 'citytours' ), esc_url( $order->get_edit_order_url() ) ) . "\n";
 }
 
 if ( ! $sent_to_admin ) { 

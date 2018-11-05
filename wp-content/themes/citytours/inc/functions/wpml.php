@@ -4,7 +4,7 @@
  */
 if ( ! function_exists( 'ct_get_default_language_post_id' ) ) {
 	function ct_get_default_language_post_id( $id, $post_type = 'post' ) {
-		if ( function_exists('icl_object_id') ) {
+		if ( class_exists('SitePress') ) {
 			global $sitepress;
 
 			$default_language = $sitepress->get_default_language();
@@ -20,7 +20,7 @@ if ( ! function_exists( 'ct_get_default_language_post_id' ) ) {
  */
 if ( ! function_exists( 'ct_get_current_language_post_id' ) ) {
 	function ct_get_current_language_post_id( $id, $post_type = 'post' ) {
-		if ( function_exists( 'icl_object_id' ) ) {
+		if ( class_exists('SitePress') ) {
 			return icl_object_id( $id, $post_type, true );
 		} else {
 			return $id;
@@ -84,6 +84,24 @@ if ( ! function_exists( 'ct_tour_clang_id' ) ) {
 }
 
 /*
+ * get sibling car id in original language
+ */
+if ( ! function_exists( 'ct_car_org_id' ) ) {
+	function ct_car_org_id( $id ) {
+		return ct_get_default_language_post_id( $id, 'car' );
+	}
+}
+
+/*
+ * get sibling car id in current language
+ */
+if ( ! function_exists( 'ct_car_clang_id' ) ) {
+	function ct_car_clang_id( $id ) {
+		return ct_get_current_language_post_id( $id, 'car' );
+	}
+}
+
+/*
  * get sibling post id in original language
  */
 if ( ! function_exists( 'ct_post_org_id' ) ) {
@@ -125,7 +143,7 @@ if ( ! function_exists( 'ct_get_permalink_clang' ) ) {
 	function ct_get_permalink_clang( $post_id )
 	{
 		$url = "";
-		if ( function_exists('icl_object_id') ) {
+		if ( class_exists('SitePress') ) {
 			$language = ICL_LANGUAGE_CODE;
 
 			$lang_post_id = icl_object_id( $post_id , 'page', true, $language );
@@ -157,5 +175,26 @@ if ( ! function_exists( 'ct_get_lang_count' ) ) {
 			$language_count = count( $languages );
 		}
 		return $language_count;
+	}
+}
+
+/*
+ * get language code for page
+ */
+if ( ! function_exists( 'ct_get_lang_code_for_page' ) ) { 
+	function ct_get_lang_code_for_page( $post_id ) { 
+		$lang_code = "";
+
+		if ( class_exists('SitePress') ) {
+			$language = ICL_LANGUAGE_CODE;
+
+			$lang_post_id = icl_object_id( $post_id , 'page', true, $language );
+
+			if( 0 != $lang_post_id ) {
+				$lang_code = ICL_LANGUAGE_CODE;
+			}
+		}
+
+		return $lang_code;
 	}
 }

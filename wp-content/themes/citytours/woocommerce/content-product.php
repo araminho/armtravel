@@ -5,7 +5,7 @@
  * @see     https://docs.woocommerce.com/document/template-structure/
  * @author  WooThemes
  * @package WooCommerce/Templates
- * @version 3.0.0
+ * @version 3.4.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -46,7 +46,7 @@ if ( is_archive() ) {
 }
 
 ?>
-<li class="<?php echo $post_class ?>">
+<li class="<?php echo esc_attr( $post_class ); ?>">
     <div class="inner-box">
         <?php
         /**

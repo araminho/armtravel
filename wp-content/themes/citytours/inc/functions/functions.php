@@ -111,15 +111,27 @@ if ( ! function_exists( 'ct_is_tour_enabled' ) ) {
 }
 
 /*
+ * is car module enabled
+ */
+if ( ! function_exists( 'ct_is_car_enabled' ) ) {
+	function ct_is_car_enabled() {
+		return apply_filters( 'ct_is_car_enabled', in_array( 'car', ct_get_available_modules() ) );
+	}
+}
+
+/*
  * one click install main pages
  */
 if ( ! function_exists( 'ct_one_click_install_main_pages' ) ) {
 	function ct_one_click_install_main_pages() {
 		if ( ! empty( $_GET['install_ct_pages'] ) ) {
 			global $ct_options;
+
 			$installed = get_option( 'install_ct_pages' );
+
 			if ( empty( $installed ) ) {
 				update_option( 'install_ct_pages', 1 );
+
 				if ( empty( $ct_options['wishlist'] ) ) {
 					$postarr = array(
 						'post_title'    => 'Wishlist',
@@ -183,8 +195,10 @@ if ( ! function_exists( 'ct_one_click_install_main_pages' ) ) {
 					);
 					$ct_options['tour_thankyou_page'] = '' . wp_insert_post( $postarr );
 				}
+
 				update_option( 'citytours', $ct_options );
-				wp_redirect( admin_url( 'themes.php?page=CityTours' ) );
+				
+				wp_redirect( admin_url( 'admin.php?page=theme_options' ) );
 				exit;
 			}
 		}
@@ -202,10 +216,17 @@ if ( ! function_exists( 'ct_one_click_install_main_pages' ) ) {
 if ( ! function_exists( 'ct_get_add_services_by_postid' ) ) {
 	function ct_get_add_services_by_postid( $post_id=0, $service_id=0 ) {
 		global $wpdb;
+
 		$where = '1=1';
-		if ( ! empty( $service_id ) ) $where .= ' AND id=' . esc_sql( $service_id );
-		if ( ! empty( $post_id ) ) $where .= ' AND post_id=' . esc_sql( $post_id );
+		if ( ! empty( $service_id ) ) {
+			$where .= ' AND id=' . esc_sql( $service_id );
+		}
+		if ( ! empty( $post_id ) ) {
+			$where .= ' AND post_id=' . esc_sql( $post_id );
+		}
+
 		$services = $wpdb->get_results( 'SELECT * FROM ' . CT_ADD_SERVICES_TABLE . ' WHERE ' . $where );
+
 		return $services;
 	}
 }
@@ -216,7 +237,9 @@ if ( ! function_exists( 'ct_get_add_services_by_postid' ) ) {
 if ( ! function_exists( 'ct_get_add_service' ) ) {
 	function ct_get_add_service( $service_id ) {
 		global $wpdb;
+
 		$services = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . CT_ADD_SERVICES_TABLE . ' WHERE id=%d', $service_id ) );
+
 		return $services;
 	}
 }
@@ -553,94 +576,14 @@ if ( ! function_exists( 'ct_get_current_user_info' ) ) {
 }
 
 /*
- * send mail with icalendar functions
- */
-if ( ! function_exists('ct_send_ical_event') ) {
-	function ct_send_ical_event( $from_name, $from_address, $to_name, $to_address, $startTime, $endTime, $subject, $description, $location) {
-		$domain = $from_name;
-		//Create Email Headers
-		$mime_boundary = "----Meeting Booking----".MD5(TIME());
-
-		$headers = "From: ".$from_name." <".$from_address.">\n";
-		$headers .= "Reply-To: ".$from_name." <".$from_address.">\n";
-		$headers .= "MIME-Version: 1.0\n";
-		$headers .= "Content-Type: multipart/alternative; boundary=\"$mime_boundary\"\n";
-		$headers .= "Content-class: urn:content-classes:calendarmessage\n";
-		
-		//Create Email Body (HTML)
-		$message = "--$mime_boundary\r\n";
-		$message .= "Content-Type: text/html; charset=UTF-8\n";
-		$message .= "Content-Transfer-Encoding: 8bit\n\n";
-		$message .= "<html>\n";
-		$message .= "<body>\n";
-		$message .= $description;
-		$message .= "</body>\n";
-		$message .= "</html>\n";
-		$message .= "--$mime_boundary\r\n";
-
-		$ical = 'BEGIN:VCALENDAR' . "\r\n" .
-		'PRODID:-//Microsoft Corporation//Outlook 10.0 MIMEDIR//EN' . "\r\n" .
-		'VERSION:2.0' . "\r\n" .
-		'METHOD:REQUEST' . "\r\n" .
-		'BEGIN:VEVENT' . "\r\n" .
-		'ORGANIZER;CN="'.$from_name.'":MAILTO:'.$from_address. "\r\n" .
-		'ATTENDEE;CN="'.$to_name.'";ROLE=REQ-PARTICIPANT;RSVP=TRUE:MAILTO:'.$to_address. "\r\n" .
-		'LAST-MODIFIED:' . date("Ymd\TGis") . "\r\n" .
-		'UID:'.date("Ymd\TGis",ct_strtotime($startTime)).rand()."@".$domain."\r\n" .
-		'DTSTAMP:'.date("Ymd\TGis"). "\r\n" .
-		'DTSTART;TZID="Eastern Time":'.date("Ymd\THis",ct_strtotime($startTime)). "\r\n" .
-		'DTEND;TZID="Eastern Time":'.date("Ymd\THis",ct_strtotime($endTime)). "\r\n" .
-		'TRANSP:OPAQUE'. "\r\n" .
-		'SEQUENCE:1'. "\r\n" .
-		'SUMMARY:' . $subject . "\r\n" .
-		'LOCATION:' . $location . "\r\n" .
-		'CLASS:PUBLIC'. "\r\n" .
-		'PRIORITY:5'. "\r\n" .
-		'BEGIN:VALARM' . "\r\n" .
-		'TRIGGER:-PT15M' . "\r\n" .
-		'ACTION:DISPLAY' . "\r\n" .
-		'DESCRIPTION:Reminder' . "\r\n" .
-		'END:VALARM' . "\r\n" .
-		'END:VEVENT'. "\r\n" .
-		'END:VCALENDAR'. "\r\n";
-		$message .= 'Content-Type: text/calendar;name="meeting.ics";method=REQUEST\n';
-		$message .= "Content-Transfer-Encoding: 8bit\n\n";
-		$message .= $ical;
-
-		$mailsent = wp_mail( $to_address, $subject, $message, $headers );
-		return ($mailsent)?(true):(false);
-	}
-}
-
-/*
- * send mail functions
- */
-if ( ! function_exists('ct_send_mail') ) {
-	function ct_send_mail( $from_name, $from_address, $to_address, $subject, $description ) {
-		//Create Email Headers
-		$headers = "MIME-Version: 1.0" . "\r\n";
-		$headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-		$headers .= "From: ".$from_name." <".$from_address.">\n";
-		$headers .= "Reply-To: ".$from_name." <".$from_address.">\n";
-		$message = "<html>\n";
-		$message .= "<body>\n";
-		$message .= $description;
-		$message .= "</body>\n";
-		$message .= "</html>\n";
-		$mailsent = wp_mail( $to_address, $subject, $message, $headers );
-		return ($mailsent)?(true):(false);
-	}
-}
-
-/*
  * template chooser
  */
 if ( ! function_exists('ct_template_chooser') ) {
 	function ct_template_chooser( $template ) {
 		global $post, $ct_options;
 
-		if ( ( ! empty( $ct_options['hotel_invoice_page'] ) && ( ! empty( $post ) ) && ( $ct_options['hotel_invoice_page'] == $post->ID ) ) ||
-			 ( ! empty( $ct_options['tour_invoice_page'] ) && ( ! empty( $post ) ) && ( $ct_options['tour_invoice_page'] == $post->ID ) ) ) {
+		if ( ( ! empty( $ct_options['hotel_invoice_page'] ) && ( ! empty( $post ) ) && ( $ct_options['hotel_invoice_page'] == $post->ID || $ct_options['hotel_invoice_page'] == ct_post_org_id( $post->ID ) ) ) ||
+			 ( ! empty( $ct_options['tour_invoice_page'] ) && ( ! empty( $post ) ) && ( $ct_options['tour_invoice_page'] == $post->ID || $ct_options['tour_invoice_page'] == ct_post_org_id( $post->ID ) ) ) ) {
 			$new_template = locate_template( array( 'templates/invoice.php' ) );
 
 			if ( '' != $new_template ) {
@@ -658,11 +601,11 @@ if ( ! function_exists('ct_template_chooser') ) {
 
 		$post_type = get_query_var('post_type');
 		if ( is_search() && $post_type == 'hotel' ) {
-			// return locate_template( 'templates/accommodation/search-accommodation.php' );
 			return locate_template( 'archive-hotel.php' );
 		} elseif ( is_search() && $post_type == 'tour' ) {
-			// return locate_template( 'templates/tour/search-tour.php' );
 			return locate_template( 'archive-tour.php' );
+		} elseif ( is_search() && $post_type == 'car' ) {
+			return locate_template( 'archive-car.php' );
 		}
 
 		return $template;
@@ -674,10 +617,12 @@ if ( ! function_exists('ct_template_chooser') ) {
  */
 if ( ! function_exists('ct_get_review_count') ) {
 	function ct_get_review_count( $post_id ) {
-		$post_id = ct_post_org_id( $post_id );
 		global $wpdb;
+
+		$post_id = ct_post_org_id( $post_id );
 		$sql = "SELECT count(*) FROM " . CT_REVIEWS_TABLE . " WHERE post_id='" . esc_sql( $post_id ) . "' AND status='approved'";
 		$result = $wpdb->get_var( $sql );
+
 		return $result;
 	}
 }
@@ -713,24 +658,37 @@ if ( ! function_exists( 'ct_get_reviews' ) ) {
  * get post review html from post_id
  */
 if ( ! function_exists( 'ct_get_review_html' ) ) {
-	function ct_get_review_html( $post_id, $start_num=0, $per_page=10 ) {
+	function ct_get_review_html( $post_id, $start_num = 0, $per_page = 10 ) {
 		$reviews = ct_get_reviews( $post_id, $start_num, $per_page );
+		$html = '';
+
 		if ( ! empty( $reviews ) ) {
+			ob_start();
+
 			foreach ( $reviews as $review ) {
-				$default = "";
-				$photo = ct_get_avatar( array( 'id' => $review['user_id'], 'email' => $review['reviewer_email'], 'size' => 76, 'class' => 'img-circle' ) );
-			?>
+				$photo = ct_get_avatar( array( 
+					'id' 	=> $review['user_id'], 
+					'email'	=> $review['reviewer_email'], 
+					'size' 	=> 76, 
+					'class' => 'img-circle' 
+				) );
+				?>
+
 				<div class="review_strip_single guest-review">
 					<?php echo ct_get_avatar( array( 'id' => $review['user_id'], 'email' => $review['reviewer_email'], 'size' => 76, 'class' => 'img-circle' ) ); ?>
 					<small> - <?php echo date( "M, d, Y",ct_strtotime( $review['date'] ) );?> -</small>
 					<h4><?php echo esc_html( $review['reviewer_name'] );?></h4>
 					<p><?php echo esc_html( stripslashes( $review['review_text'] ) ) ?></p>
 					<div class="rating"><?php ct_rating_smiles( $review['review_rating'] ) ?></div>
-				</div><!-- End review strip -->
-			<?php
+				</div>
+
+				<?php
 			}
+
+			$html = ob_get_clean();
 		}
-		return count( $reviews );
+
+		return array( 'html' => $html, 'count' => count( $reviews ) );
 	}
 }
 
@@ -739,12 +697,34 @@ if ( ! function_exists( 'ct_get_review_html' ) ) {
  */
 if ( ! function_exists( 'ct_ajax_get_more_reviews' ) ) {
 	function ct_ajax_get_more_reviews() {
-		if ( empty( $_POST['post_id'] ) || $_POST['last_no'] ) return false;
+		$result = array( 
+			'success' => 0, 
+			'html' => '', 
+			'more_reviews' => 0,
+			'notice' => __('No More Reviews', 'citytours')
+		);
+
+		if ( empty( $_POST['post_id'] ) || empty($_POST['last_no']) ) {
+			wp_send_json( $result );
+			exit;
+		}
+
 		$post_id = sanitize_text_field( $_POST['post_id'] );
 		$last_no = sanitize_text_field( $_POST['last_no'] );
 		$per_page = 10;
-		$review_count = ct_get_review_html( $post_id, $last_no, $per_page );
-		exit();
+		$review_html = ct_get_review_html( $post_id, $last_no, $per_page );
+
+		if ( ! empty( $review_html['html'] ) ) { 
+			$result['success'] = 1;
+			$result['html'] = $review_html['html'];
+
+			if ( $review_html['count'] == $per_page ) { 
+				$result['more_reviews'] = 1;
+			}
+		}
+
+		wp_send_json( $result );
+		exit;
 	}
 }
 
@@ -794,7 +774,7 @@ if ( ! function_exists( 'ct_ajax_submit_review' ) ) {
 		$data['post_id'] = $order_data['post_id'];
 		$data['reviewer_name'] = $order_data['first_name'] . ' ' . $order_data['last_name'];
 		$data['reviewer_email'] = $order_data['email'];
-		$data['reviewer_ip'] = $_SERVER['REMOTE_ADDR'];
+		$data['reviewer_ip'] = filter_input( INPUT_SERVER, 'REMOTE_ADDR' );
 		$data['review_rating_detail'] = serialize( $_POST['review_rating_detail'] );
 		$data['review_rating'] = array_sum( $_POST['review_rating_detail'] ) / count( $_POST['review_rating_detail'] ); 
 		$data['date'] = date( 'Y-m-d H:i:s' );
@@ -833,6 +813,7 @@ if ( ! function_exists( 'ct_get_available_modules' ) ) {
 		$modules = array();
 		if ( empty( $ct_options['disable_hotel'] ) ) $modules[] = 'hotel';
 		if ( empty( $ct_options['disable_tour'] ) ) $modules[] = 'tour';
+		if ( empty( $ct_options['disable_car'] ) ) $modules[] = 'car';
 		return $modules;
 	}
 }
@@ -863,12 +844,16 @@ if ( ! function_exists( 'ct_switch_theme' ) ) {
 if ( ! function_exists( 'ct_get_service_list' ) ) {
 	function ct_get_service_list( $post_id=0, $def_service_id=0 ) {
 		$services = ct_get_add_services_by_postid( $post_id );
+
 		echo '<option></option>';
 		if ( ! empty( $services ) ) {
 			foreach ( $services as $service ) {
 				$selected = '';
 				$id = $service->id;
-				if ( $def_service_id == $id ) $selected = ' selected ';
+				if ( $def_service_id == $id ) {
+					$selected = ' selected ';
+				}
+
 				echo '<option ' . esc_attr( $selected ) . 'value="' . esc_attr( $id ) .'">' . wp_kses_post( $service->title ) . '</option>';
 			}
 		}
@@ -881,7 +866,7 @@ if ( ! function_exists( 'ct_get_service_list' ) ) {
 if ( ! function_exists( 'ct_get_temp_table_name' ) ) {
 	function ct_get_temp_table_name() {
 		$temp_tbl_name = str_replace( ' ', '', 'Search_' . session_id() ); // Replaces all spaces with hyphens.
-   		return esc_sql( preg_replace('/[^A-Za-z0-9\-]/', '', $temp_tbl_name) ); // Removes special chars.
+		return esc_sql( preg_replace('/[^A-Za-z0-9\-]/', '', $temp_tbl_name) ); // Removes special chars.
 	}
 }
 
@@ -904,15 +889,28 @@ if ( ! function_exists( 'ct_google_map_url' ) ) {
 */
 if ( ! function_exists( 'ct_update_rooms_url' ) ) { 
 	function ct_update_rooms_url( $post_link, $post ) { 
-        if ( $post->post_type === 'room_type' ) {
-            $hotel_id = get_post_meta( $post->ID, '_room_hotel_id', true );
-            $hotel_id = ct_post_org_id( $hotel_id );
+		if ( $post->post_type === 'room_type' ) {
+			$hotel_id = get_post_meta( $post->ID, '_room_hotel_id', true );
+			$hotel_id = ct_post_org_id( $hotel_id );
 
-            if ( ! empty( $hotel_id ) ) {
-                $post_link = get_permalink( $hotel_id );
-            }
-        }
+			if ( ! empty( $hotel_id ) ) {
+				$post_link = get_permalink( $hotel_id );
+			}
+		}
 
-        return $post_link;
+		return $post_link;
+	}
+}
+
+/*
+ * functions after theme setup
+ */
+if ( ! function_exists( 'ct_after_setup_theme' ) ) {
+	function ct_after_setup_theme() {
+		add_role( 'ct_busowner', 'Business Owner' );
+		$role = get_role( 'ct_busowner' );
+		$role->add_cap( 'read' );
+		$role->add_cap( 'upload_files' );
+		$role->add_cap( 'edit_posts' );
 	}
 }

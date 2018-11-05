@@ -1,8 +1,12 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
 
+require_once( CT_INC_DIR . '/admin/admin_pages/admin.php' );
 require_once( CT_INC_DIR . '/admin/hotel/main.php' );
 require_once( CT_INC_DIR . '/admin/tour/main.php' );
+require_once( CT_INC_DIR . '/admin/car/main.php' );
 require_once( CT_INC_DIR . '/admin/currencies-admin-panel.php' );
 
 /*
@@ -11,11 +15,13 @@ require_once( CT_INC_DIR . '/admin/currencies-admin-panel.php' );
 if ( ! function_exists('ct_admin_notice') ) {
 	function ct_admin_notice() {
 		$installed = get_option( 'install_ct_pages' );
+
 		if ( empty( $installed ) && ( empty( $_GET['install_ct_pages'] ) && empty( $_GET['skip_ct_pages'] ) ) ) {
-			echo '<div class="updated"><p>' . esc_html__( 'Welcome to CityTours - You\'re almost ready to launch.', 'citytours' ) . '</p><p><a class="button-primary" href="' . esc_url( admin_url( 'themes.php?page=CityTours&install_ct_pages=true' ) ) . '">' . esc_html__( 'Install Main Pages', 'citytours' ) . '</a> <a href="' . esc_url( admin_url( 'themes.php?page=CityTours&skip_ct_pages=true' ) ) . '" class="skip-setup">' . esc_html__( 'Skip setup', 'citytours' ) . '</a></p></div>';
+			echo '<div class="updated"><p>' . esc_html__( 'Welcome to CityTours - You\'re almost ready to launch.', 'citytours' ) . '</p><p><a class="button-primary" href="' . esc_url( admin_url( 'admin.php?page=theme_options&install_ct_pages=true' ) ) . '">' . esc_html__( 'Install Main Pages', 'citytours' ) . '</a> <a href="' . esc_url( admin_url( 'admin.php?page=theme_options&skip_ct_pages=true' ) ) . '" class="skip-setup">' . esc_html__( 'Skip setup', 'citytours' ) . '</a></p></div>';
 		}
+		
 		if ( ! get_option('permalink_structure') ) {
-			// echo '<div class="updated"><p>' . esc_html__( 'Please change your permalink setting to Post name. We strongly recommended that.', 'citytours' ) . '</p><p><a class="button-primary" href="' . esc_url( admin_url( 'options-permalink.php' ) ) . '">' . esc_html__( 'Edit Permalink Settings', 'citytours' ) . '</a></p></div>';
+			
 		}
 	}
 }

@@ -3,6 +3,7 @@
 <!--[if IE 9]><html class="ie ie9"> <![endif]-->
 <!--[if gt IE 9]><!--> <!--<![endif]-->
 <html <?php language_attributes(); ?>>
+
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -21,7 +22,9 @@
 
 	<?php wp_head(); ?>
 </head>
+
 <body>
+
 <div class="container">
 <?php if ( ! empty( $_REQUEST['booking_no'] ) && ! empty( $_REQUEST['pin_code'] ) ) {
 	$order = new CT_Hotel_Order( $_REQUEST['booking_no'], $_REQUEST['pin_code'] );
@@ -33,14 +36,16 @@
 		} elseif( 'hotel' == $post_type ) {
 			$deposit_rate = get_post_meta( $order_info['post_id'], '_hotel_security_deposit', true );
 		}
-?>
+		?>
 
 	<div class="row">
 		<div class="col-xs-12">
 			<div class="invoice-title">
 				<h2><?php echo esc_html__( 'Invoice', 'citytours' ) ?></h2><h3 class="pull-right"><?php echo sprintf( esc_html__( 'Order # %s', 'citytours' ), $order_info['id'] ) ?></h3>
 			</div>
+
 			<hr>
+
 			<div class="row">
 				<div class="col-xs-6">
 					<address>
@@ -52,6 +57,7 @@
 						<?php echo esc_html( $order_info['country'] ) ?><br>
 					</address>
 				</div>
+
 				<div class="col-xs-6 text-right">
 					<address>
 						<strong><?php echo esc_html__( 'Order Date', 'citytours' ) ?>:</strong><br>
@@ -68,6 +74,7 @@
 				<div class="panel-heading">
 					<h3 class="panel-title"><strong><?php echo esc_html__( 'Order summary', 'citytours' ) ?></strong></h3>
 				</div>
+
 				<div class="panel-body">
 					<div class="table-responsive">
 						<table class="table table-condensed">
@@ -78,33 +85,45 @@
 									<td class="text-right"><strong><?php echo esc_html__( 'Totals', 'citytours' ) ?></strong></td>
 								</tr>
 							</thead>
+
 							<tbody>
 
 								<?php
 								if ( 'hotel' == $post_type ) {
 									$order_rooms = $order->get_rooms();
+
 									if ( ! empty( $order_rooms ) ) :
-										foreach ( $order_rooms as $order_room ) : ?>
+										foreach ( $order_rooms as $order_room ) : 
+											?>
+
 											<tr>
 												<td class=""><?php echo esc_html( $order_room['room_type_id'] ) ?></td>
 												<td class="text-center"><?php echo esc_html( get_the_title( $order_room['room_type_id'] ) ) . ' ' . date_i18n( ct_site_date_format(), strtotime( $order_info['date_from'] ) ) . ' - ' . date_i18n( ct_site_date_format(), strtotime( $order_info['date_to'] ) ) ?></td>
 												<td class="text-right"><?php echo ct_price( $order_room['total_price'] ) ?></td>
 											</tr>
-									<?php endforeach;
+
+											<?php 
+										endforeach;
 									endif;
 								} elseif ( 'tour' == $post_type ) {
 									$tour_data = $order->get_tours();
-									if ( ! empty( $tour_data ) ) : ?>
+
+									if ( ! empty( $tour_data ) ) : 
+										?>
+
 										<tr>
 											<td class=""><?php echo esc_html( $tour_data['tour_id'] ) ?></td>
 											<td class="text-center"><?php echo esc_html( get_the_title( $tour_data['tour_id'] ) );
 											if ( ! empty( $order_info['date_from'] ) && '0000-00-00' != $order_info['date_from'] ) echo ' - ' . date_i18n( ct_site_date_format(), strtotime( $order_info['date_from'] ) ) ?></td>
 											<td class="text-right"><?php echo ct_price( $tour_data['total_price'] ) ?></td>
 										</tr>
-									<?php endif;
-								} ?>
 
-								<?php $order_services = $order->get_services();
+										<?php 
+									endif;
+								}
+
+								$order_services = $order->get_services();
+
 								if ( ! empty( $order_services ) ) :
 								?>
 								<?php foreach ( $order_services as $order_service ) : ?>
@@ -116,11 +135,13 @@
 								</tr>
 								<?php endforeach; ?>
 								<?php endif; ?>
+
 								<tr>
 									<td class="thick-line"></td>
 									<td class="thick-line text-center"><strong><?php echo esc_html__( 'Total', 'citytours' ) ?></strong></td>
 									<td class="thick-line text-right"><?php echo ct_price( $order_info['total_price'] ) ?></td>
 								</tr>
+
 								<?php if ( ! empty( $deposit_rate ) && $deposit_rate < 100 ) : ?>
 									<tr>
 										<td class="no-line"></td>
@@ -141,8 +162,12 @@
 	<?php } ?>
 <?php } else {
 	echo esc_html__( 'You can not access to this page directly.', 'citytours' );
-} ?>
+} 
+?>
+
 </div>
+
 <?php wp_footer(); ?>
+
 </body>
 </html>

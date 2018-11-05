@@ -1,6 +1,6 @@
 <wpml-config>
     <admin-texts>
-        <key name="ct_options">
+        <key name="citytours">
             <key name="branding_logo_text" />
 			<key name="blog_header_content" />
 			<key name="hotel_thankyou_text_1" />

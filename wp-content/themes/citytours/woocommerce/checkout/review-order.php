@@ -5,7 +5,7 @@
  * @see         https://docs.woocommerce.com/document/template-structure/
  * @author      WooThemes
  * @package     WooCommerce/Templates
- * @version     2.3.0
+ * @version     3.3.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -15,29 +15,36 @@ if ( ! defined( 'ABSPATH' ) ) {
 <table class="shop_table woocommerce-checkout-review-order-table orders-table">
     <thead>
         <tr class="clearfix">
-            <th class="product-name col"><strong><?php _e( 'Product', 'woocommerce' ); ?></strong></th>
-            <th class="product-total col second"><strong><?php _e( 'Total', 'woocommerce' ); ?></strong></th>
+            <th class="product-name col"><strong><?php _e( 'Product', 'citytours' ); ?></strong></th>
+            <th class="product-total col second"><strong><?php _e( 'Total', 'citytours' ); ?></strong></th>
         </tr>
     </thead>
+
     <tbody>
         <?php
             do_action( 'woocommerce_review_order_before_cart_contents' );
 
             foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
-                $_product     = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
+                $_product          = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
+                $product_permalink = apply_filters( 'woocommerce_cart_item_permalink', $_product->is_visible() ? $_product->get_permalink( $cart_item ) : '#', $cart_item, $cart_item_key );
 
                 if ( $_product && $_product->exists() && $cart_item['quantity'] > 0 && apply_filters( 'woocommerce_checkout_cart_item_visible', true, $cart_item, $cart_item_key ) ) {
                     ?>
+
                     <tr class="<?php echo esc_attr( apply_filters( 'woocommerce_cart_item_class', 'cart_item', $cart_item, $cart_item_key ) ); ?> clearfix">
+
                         <td class="product-name col">
-                            <?php echo apply_filters( 'woocommerce_cart_item_name', $_product->get_title(), $cart_item, $cart_item_key ) . '&nbsp;'; ?>
+                            <?php echo apply_filters( 'woocommerce_cart_item_name', sprintf( '<a href="%s">%s</a>', esc_url( $product_permalink ), $_product->get_name() ), $cart_item, $cart_item_key ) . '&nbsp;'; ?>
                             <?php echo apply_filters( 'woocommerce_checkout_cart_item_quantity', ' <strong class="product-quantity">' . sprintf( '&times; %s', $cart_item['quantity'] ) . '</strong>', $cart_item, $cart_item_key ); ?>
-                            <?php echo WC()->cart->get_item_data( $cart_item ); ?>
+                            <?php echo wc_get_formatted_cart_item_data( $cart_item ); ?>
                         </td>
+
                         <td class="product-total col second">
                             <?php echo apply_filters( 'woocommerce_cart_item_subtotal', WC()->cart->get_product_subtotal( $_product, $cart_item['quantity'] ), $cart_item, $cart_item_key ); ?>
                         </td>
+
                     </tr>
+
                     <?php
                 }
             }
@@ -45,10 +52,11 @@ if ( ! defined( 'ABSPATH' ) ) {
             do_action( 'woocommerce_review_order_after_cart_contents' );
         ?>
     </tbody>
+
     <tfoot>
 
         <tr class="cart-subtotal clearfix">
-            <th class="col"><?php _e( 'Subtotal', 'woocommerce' ); ?></th>
+            <th class="col"><?php _e( 'Subtotal', 'citytours' ); ?></th>
             <td class="col second"><?php wc_cart_totals_subtotal_html(); ?></td>
         </tr>
 
@@ -76,7 +84,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             </tr>
         <?php endforeach; ?>
 
-        <?php if ( wc_tax_enabled() && 'excl' === WC()->cart->tax_display_cart ) : ?>
+        <?php if ( wc_tax_enabled() && ! WC()->cart->display_prices_including_tax() ) : ?>
             <?php if ( 'itemized' === get_option( 'woocommerce_tax_total_display' ) ) : ?>
                 <?php foreach ( WC()->cart->get_tax_totals() as $code => $tax ) : ?>
                     <tr class="tax-rate tax-rate-<?php echo sanitize_title( $code ); ?> clearfix">
@@ -95,7 +103,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         <?php do_action( 'woocommerce_review_order_before_order_total' ); ?>
 
         <tr class="order-total clearfix">
-            <th class="col"><strong><?php _e( 'Total', 'woocommerce' ); ?></strong></th>
+            <th class="col"><strong><?php _e( 'Total', 'citytours' ); ?></strong></th>
             <td class="col second"><?php wc_cart_totals_order_total_html(); ?></td>
         </tr>
 

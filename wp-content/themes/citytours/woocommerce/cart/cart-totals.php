@@ -28,17 +28,17 @@ if ( WC()->customer->has_calculated_shipping() ) {
 }
 
 ?>
-<div class="cart_totals <?php echo $classes ?>">
+<div class="cart_totals <?php echo esc_attr( $classes ); ?>">
 
     <?php do_action( 'woocommerce_before_cart_totals' ); ?>
 
-    <!-- <h2><?php _e( 'Cart Totals', 'woocommerce' ); ?></h2> -->
+    <!-- <h2><?php _e( 'Cart Totals', 'citytours' ); ?></h2> -->
 
     <table cellspacing="0" class="shop_table shop_table_responsive totals-table">
 
         <tr class="cart-subtotal clearfix">
-            <th class="col"><?php _e( 'Subtotal', 'woocommerce' ); ?></th>
-            <td class="col" data-title="<?php esc_attr_e( 'Subtotal', 'woocommerce' ); ?>"><?php wc_cart_totals_subtotal_html(); ?></td>
+            <th class="col"><?php _e( 'Subtotal', 'citytours' ); ?></th>
+            <td class="col" data-title="<?php esc_attr_e( 'Subtotal', 'citytours' ); ?>"><?php wc_cart_totals_subtotal_html(); ?></td>
         </tr>
 
         <?php foreach ( WC()->cart->get_coupons() as $code => $coupon ) : ?>
@@ -59,8 +59,8 @@ if ( WC()->customer->has_calculated_shipping() ) {
         <?php elseif ( WC()->cart->needs_shipping() && 'yes' === get_option( 'woocommerce_enable_shipping_calc' ) ) : ?>
 
             <tr class="shipping clearfix">
-                <th class="col"><?php _e( 'Shipping', 'woocommerce' ); ?></th>
-                <td class="col" data-title="<?php esc_attr_e( 'Shipping', 'woocommerce' ); ?>"><?php woocommerce_shipping_calculator(); ?></td>
+                <th class="col"><?php _e( 'Shipping', 'citytours' ); ?></th>
+                <td class="col" data-title="<?php esc_attr_e( 'Shipping', 'citytours' ); ?>"><?php woocommerce_shipping_calculator(); ?></td>
             </tr>
 
         <?php endif; ?>
@@ -75,7 +75,7 @@ if ( WC()->customer->has_calculated_shipping() ) {
         <?php if ( wc_tax_enabled() && 'excl' === WC()->cart->tax_display_cart ) :
             $taxable_address = WC()->customer->get_taxable_address();
             $estimated_text  = WC()->customer->is_customer_outside_base() && ! WC()->customer->has_calculated_shipping()
-                    ? sprintf( ' <small>(' . __( 'estimated for %s', 'woocommerce' ) . ')</small>', WC()->countries->estimated_for_prefix( $taxable_address[0] ) . WC()->countries->countries[ $taxable_address[0] ] )
+                    ? sprintf( ' <small>(' . __( 'estimated for %s', 'citytours' ) . ')</small>', WC()->countries->estimated_for_prefix( $taxable_address[0] ) . WC()->countries->countries[ $taxable_address[0] ] )
                     : '';
 
             if ( 'itemized' === get_option( 'woocommerce_tax_total_display' ) ) : ?>
@@ -96,8 +96,8 @@ if ( WC()->customer->has_calculated_shipping() ) {
         <?php do_action( 'woocommerce_cart_totals_before_order_total' ); ?>
 
         <tr class="order-total total">
-            <th class="col"><?php _e( 'Total', 'woocommerce' ); ?></th>
-            <td class="col" data-title="<?php esc_attr_e( 'Total', 'woocommerce' ); ?>"><?php wc_cart_totals_order_total_html(); ?></td>
+            <th class="col"><?php _e( 'Total', 'citytours' ); ?></th>
+            <td class="col" data-title="<?php esc_attr_e( 'Total', 'citytours' ); ?>"><?php wc_cart_totals_order_total_html(); ?></td>
         </tr>
 
         <?php do_action( 'woocommerce_cart_totals_after_order_total' ); ?>

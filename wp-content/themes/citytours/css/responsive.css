@@ -11,6 +11,20 @@
 
 }
 @media (max-width: 991px) {
+  #map_filter ul li a {
+    min-width: 100px;
+  }
+  
+  #map_filter ul li a span {
+    font-size: 11px;
+  }
+  #map_filter ul {
+    display: none;
+  }
+
+  #map_filter .map_filter{
+    display: block;
+  }
 	ul#top_tools, .sticky ul#top_tools{ margin:3px 45px 0 0;}
 	.sticky nav{ margin-top:3px; }
 	nav{ margin-top:15px; }
@@ -45,6 +59,25 @@ a#phone:before, a#email_footer:before{
 }
 }
 @media (max-width: 768px) {
+  #map_filter ul li a {
+    min-width: inherit;
+  }
+  
+  #map_filter ul li a span {
+    display: none;
+  }
+  
+  #map_filter ul li a i {
+    font-size: 24px;
+  }
+
+  #map_filter ul {
+    display: none;
+  }
+
+  #map_filter .map_filter{
+    display: block;
+  }
 .parallax-content-1 div{padding:0 10%; font-size:14px;}
 .parallax-content-1 div h3{font-size:36px;}
 .step{
@@ -158,35 +191,25 @@ border-radius: 3px;
 .table.cart-list thead tr { position: absolute;top: -9999px;left: -9999px;}
 .table.cart-list tr { border: 1px solid #ccc; }
 .table.cart-list td { border: none;border-bottom: 1px solid #eee; position: relative;padding-left: 50%; }
-.table.cart-list td:before { position: absolute;top: 12px;left: 12px;width: 45%; padding-right: 10px; white-space: nowrap;}
-.table.cart-list td:nth-of-type(1):before { content: "Item"; font-weight: bold; color:#111;  }
-.table.cart-list td:nth-of-type(2):before { content: "Quantity"; font-weight: bold; color:#111;  }
-.table.cart-list td:nth-of-type(3):before { content: "Discount"; font-weight: bold;  color:#111;}
-.table.cart-list td:nth-of-type(4):before { content: "Total"; font-weight: bold;  color:#111;}
-.table.cart-list td:nth-of-type(5):before { content: "Actions"; font-weight: bold; color:#111;}
+.table.cart-list td:before { 
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 45%;
+  padding-right: 10px;
+  white-space: nowrap;
+  content: attr(data-title);
+  font-weight: bold;
+  color: #111;
+}
 
 /* Responsive table cart TOUR NEW FOR SOAP*/
-.table.cart-list.tour, .table.cart-list.tour thead, .table.cart-list.tour tbody, .table.cart-list.tour th, .table.cart-list.tour td, .table.cart-list.tour  tr{ display: block; border:0; }
-.table.cart-list.tour thead tr { position: absolute;top: -9999px;left: -9999px;}
-.table.cart-list.tour tr { border: 1px solid #ccc; }
-.table.cart-list.tour td { border: none;border-bottom: 1px solid #eee; position: relative;padding-left: 50%;  min-height:55px;}
-.table.cart-list.tour td:before { position: absolute;top: 12px;left: 12px;width: 45%; padding-right: 10px; white-space: nowrap;}
-.table.cart-list.tour td:nth-of-type(1):before { content: "Item"; font-weight: bold; color:#111;}
-.table.cart-list.tour td:nth-of-type(2):before { content: "Adults"; font-weight: bold; color:#111;  }
-.table.cart-list.tour td:nth-of-type(3):before { content: "Childs"; font-weight: bold;  color:#111;}
-.table.cart-list.tour td:nth-of-type(4):before { content: "Total"; font-weight: bold;  color:#111;}
+.table.cart-list.tour thead tr { display: none;position: absolute;top: -9999px;left: -9999px;}
+.table.cart-list.tour td { min-height:55px;}
 
 /* Responsive table cart HOTEL NEW FOR SOAP*/
-.table.cart-list.hotel, .table.cart-list.hotel thead, .table.cart-list.hotel tbody, .table.cart-list.hotel th, .table.cart-list.hotel td, .table.cart-list.hotel  tr{ display: block; border:0; }
 .table.cart-list.hotel thead tr { position: absolute;top: -9999px;left: -9999px;}
-.table.cart-list.hotel tr { border: 1px solid #ccc; }
-.table.cart-list.hotel td { border: none;border-bottom: 1px solid #eee; position: relative;padding-left: 50%;  min-height:55px;}
-.table.cart-list.hotel td:before { position: absolute;top: 12px;left: 12px;width: 45%; padding-right: 10px; white-space: nowrap;}
-.table.cart-list.hotel td:nth-of-type(1):before { content: "Room Type"; font-weight: bold; color:#111;}
-.table.cart-list.hotel td:nth-of-type(2):before { content: "Quantity"; font-weight: bold; color:#111;  }
-.table.cart-list.hotel td:nth-of-type(3):before { content: "Adults"; font-weight: bold;  color:#111;}
-.table.cart-list.hotel td:nth-of-type(4):before { content: "Childs"; font-weight: bold;  color:#111;}
-.table.cart-list.hotel td:nth-of-type(5):before { content: "Total"; font-weight: bold;  color:#111;}
+.table.cart-list.hotel td { min-height:55px;}
 
 .thumb_cart{ display:none;}
 
@@ -296,6 +319,15 @@ border-radius: 3px;
 
 /* Mobile Landscape */
 @media (max-width: 480px) {
+  #map_filter ul li a i {
+    font-size: 18px;
+  }
+  #map_filter ul {
+    display: none;
+  }
+  #map_filter .map_filter{
+    display: block;
+  }
 
 .features-slider {padding: 11% 50px 10% 50px;}
 .features-content {padding: 10%;}

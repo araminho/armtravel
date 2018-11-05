@@ -5,7 +5,7 @@
  * @see     https://docs.woocommerce.com/document/template-structure/
  * @author  WooThemes
  * @package WooCommerce/Templates
- * @version 3.0.0
+ * @version 3.0.9
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
         <div class="default-title col-sm-12"> 
             <h2 id="ship-to-different-address">
-                <label for="ship-to-different-address-checkbox" class="checkbox"><?php _e( 'Ship to a different address?', 'woocommerce' ); ?></label>
+                <label for="ship-to-different-address-checkbox" class="checkbox"><?php _e( 'Ship to a different address?', 'citytours' ); ?></label>
                 <input id="ship-to-different-address-checkbox" class="input-checkbox" <?php checked( apply_filters( 'woocommerce_ship_to_different_address_checked', 'shipping' === get_option( 'woocommerce_ship_to_destination' ) ? 1 : 0 ), 1 ); ?> type="checkbox" name="ship_to_different_address" value="1" />
             </h2>
         </div>
@@ -27,11 +27,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 
             <?php do_action( 'woocommerce_before_checkout_shipping_form', $checkout ); ?>
 
-            <?php foreach ( $checkout->get_checkout_fields( 'shipping' ) as $key => $field ) : ?>
+            <?php
+                $fields = $checkout->get_checkout_fields( 'shipping' );
 
-                <?php woocommerce_form_field( $key, $field, $checkout->get_value( $key ) ); ?>
-
-            <?php endforeach; ?>
+                foreach ( $fields as $key => $field ) {
+                    if ( isset( $field['country_field'], $fields[ $field['country_field'] ] ) ) {
+                        $field['country'] = $checkout->get_value( $field['country_field'] );
+                    }
+                    woocommerce_form_field( $key, $field, $checkout->get_value( $key ) );
+                }
+            ?>
 
             <?php do_action( 'woocommerce_after_checkout_shipping_form', $checkout ); ?>
 
@@ -45,7 +50,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
         <?php if ( ! WC()->cart->needs_shipping() || wc_ship_to_billing_address_only() ) : ?>
 
-            <h3 class="col-sm-12"><?php _e( 'Additional information', 'woocommerce' ); ?></h3>
+            <h3 class="col-sm-12"><?php _e( 'Additional information', 'citytours' ); ?></h3>
 
         <?php endif; ?>
 

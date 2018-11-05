@@ -17,7 +17,10 @@ if ( ! class_exists( 'CTSettingsWidget') ) :
 
         public function widget( $args, $instance ) {
             // add custom class contact box
+            global $ct_options;
+
             extract( $args );
+
             if ( strpos( $before_widget, 'class' ) === false ) {
                 $before_widget = str_replace( '>', 'class="'. 'contact-box' . '"', $before_widget );
             }
@@ -25,56 +28,67 @@ if ( ! class_exists( 'CTSettingsWidget') ) :
                 $before_widget = str_replace( 'class="', 'class="'. 'contact-box' . ' ', $before_widget );
             }
 
-            global $ct_options;
-
             echo wp_kses_post( $before_widget );
+
             if ( ! empty( $instance['title'] ) ) {
                 echo wp_kses_post( $before_title . apply_filters( 'widget_title', $instance['title'] ) . $after_title );
-            } ?>
+            }
 
-            <?php if ( ct_get_lang_count() > 1 ) { ?>
+            if ( ct_get_lang_count() > 1 ) { 
+                ?>
 
                 <div class="styled-select">
-                <select class="form-control cl-switcher" name="lang" id="lang">
-                    <?php
-                    $languages = icl_get_languages('skip_missing=1');
-                    foreach ( $languages as $l ) {
-                        $selected = ( $l['active'] ) ? 'selected' : '';
-                        echo '<option ' . $selected . ' data-url="' . esc_url( $l['url'] ) . '">' . esc_html( $l['translated_name'] ) . '</option>';
-                    } ?>
-                </select>
+                    <select class="form-control cl-switcher" name="lang" id="lang">
+                        <?php
+                        $languages = icl_get_languages('skip_missing=1');
+                        foreach ( $languages as $l ) {
+                            $selected = ( $l['active'] ) ? 'selected' : '';
+                            echo '<option ' . $selected . ' data-url="' . esc_url( $l['url'] ) . '">' . esc_html( $l['translated_name'] ) . '</option>';
+                        } ?>
+                    </select>
                 </div>
 
-            <?php } ?>
+                <?php 
+            }
 
-            <?php if ( ct_is_woocommerce_integration_enabled() ) { ?>
+            /*if ( ct_is_woocommerce_integration_enabled() ) { 
+                ?>
+
                 <div class="styled-select">
-                <select class="form-control cl-switcher" name="currency" id="currency">
-                    <?php 
-                    $key = get_woocommerce_currency();
-                    $selected = 'selected';
-                    $params = $_GET;
-                    $params['selected_currency'] = $key;
-                    $paramString = http_build_query($params, '', '&amp;');
-                    echo '<option ' . $selected . ' data-url="' . esc_url( strtok( $_SERVER['REQUEST_URI'], '?' ) . '?' . $paramString ) . '">' . esc_html( strtoupper( $key ) ) . '</option>';
-                     ?>
-                </select>
-            <?php } else if ( !ct_is_woocommerce_integration_enabled() && ct_is_multi_currency() ) { ?>
-                <div class="styled-select">
-                <select class="form-control cl-switcher" name="currency" id="currency">
-                    <?php
-                        $all_currencies = ct_get_all_available_currencies();
-                        foreach ( array_filter( $ct_options['site_currencies'] ) as $key => $content) {
-                            $selected = ( ct_get_user_currency() == $key ) ? 'selected' : '';
-                            $params = $_GET;
-                            $params['selected_currency'] = $key;
-                            $paramString = http_build_query($params, '', '&amp;');
-                            echo '<option ' . $selected . ' data-url="' . esc_url( strtok( $_SERVER['REQUEST_URI'], '?' ) . '?' . $paramString ) . '">' . esc_html( strtoupper( $key ) ) . '</option>';
-                        }
-                    ?>
-                </select>
+                    <select class="form-control cl-switcher" name="currency" id="currency">
+                        <?php 
+                        $key = get_woocommerce_currency();
+                        $selected = 'selected';
+                        $params = $_GET;
+                        $params['selected_currency'] = $key;
+                        $paramString = http_build_query($params, '', '&amp;');
+                        echo '<option ' . $selected . ' data-url="' . esc_url( strtok( filter_input( INPUT_SERVER, 'REQUEST_URI' ), '?' ) . '?' . $paramString ) . '">' . esc_html( strtoupper( $key ) ) . '</option>';
+                         ?>
+                    </select>
                 </div>
-            <?php }
+
+                <?php 
+            } else if ( ! ct_is_woocommerce_integration_enabled() && ct_is_multi_currency() ) { */
+                ?>
+
+                <div class="styled-select">
+                    <select class="form-control cl-switcher" name="currency" id="currency">
+                        <?php
+                            $all_currencies = ct_get_all_available_currencies();
+                            foreach ( array_filter( $ct_options['site_currencies'] ) as $key => $content) {
+                                $selected = ( ct_get_user_currency() == $key ) ? 'selected' : '';
+                                $params = $_GET;
+                                $params['selected_currency'] = $key;
+                                $paramString = http_build_query($params, '', '&amp;');
+                                echo '<option ' . $selected . ' data-url="' . esc_url( strtok( filter_input( INPUT_SERVER, 'REQUEST_URI' ), '?' ) . '?' . $paramString ) . '">' . esc_html( strtoupper( $key ) ) . '</option>';
+                            }
+                        ?>
+                    </select>
+                </div>
+
+                <?php 
+            //}
+
             echo wp_kses_post( $after_widget );
         }
 
@@ -148,11 +162,11 @@ if ( ! class_exists( 'CTContactInfo' ) ) :
 
             <div class="contact-info">
                 <?php if ( ! empty( $phone ) ) : ?>
-                    <a href="tel:<?php echo $phone ?>" class="phone_number <?php echo $icon_class ?>"><?php echo $instance['phone'] ?></a>
+                    <a href="tel:<?php echo esc_attr( $phone ); ?>" class="phone_number <?php echo esc_attr( $icon_class ); ?>"><?php echo esc_html( $instance['phone'] ); ?></a>
                 <?php endif; ?>
 
                 <?php if ( ! empty( $instance['email'] ) ) : ?>
-                    <a href="mailto:<?php echo $instance['email'] ?>" class="email_address <?php echo $icon_class ?>"><?php echo $instance['email'] ?></a>
+                    <a href="mailto:<?php echo esc_attr( $instance['email'] ); ?>" class="email_address <?php echo esc_attr( $icon_class ); ?>"><?php echo esc_html( $instance['email'] ); ?></a>
                 <?php endif; ?>
             </div>
 

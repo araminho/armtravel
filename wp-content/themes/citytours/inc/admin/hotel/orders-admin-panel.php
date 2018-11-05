@@ -205,7 +205,7 @@ class CT_Hotel_Order_List_Table extends WP_List_Table {
 						LIMIT %5$s, %6$s' , CT_ORDER_TABLE, $post_table_name, $orderby, $order, $per_page * ( $current_page - 1 ), $per_page );
 		$data = $wpdb->get_results( $sql, ARRAY_A );
 
-		$sql = sprintf( 'SELECT COUNT(*) FROM %1$s as CT_Orders INNER JOIN %2$s as hotel ON CT_Orders.post_id=hotel.ID WHERE %3$s' , CT_ORDER_TABLE, $post_table_name, $where );
+		$sql = $wpdb->prepare( 'SELECT COUNT(*) FROM %1$s as CT_Orders INNER JOIN %2$s as hotel ON CT_Orders.post_id=hotel.ID WHERE ' . $where , CT_ORDER_TABLE, $post_table_name );
 		$total_items = $wpdb->get_var( $sql );
 
 		$this->items = $data;
@@ -224,7 +224,7 @@ endif;
 if ( ! function_exists( 'ct_hotel_order_add_menu_items' ) ) {
 	function ct_hotel_order_add_menu_items() {
 		//add hotel orders list page
-		$page = add_submenu_page( 'edit.php?post_type=hotel', 'Hotel Orders', 'Orders', 'manage_options', 'orders', 'ct_hotel_order_render_pages' );
+		$page = add_submenu_page( 'edit.php?post_type=hotel', __( 'Hotel Orders', 'citytours' ), __( 'Orders', 'citytours' ), 'edit_ct_custom_posts', 'orders', 'ct_hotel_order_render_pages' );
 		add_action( 'admin_print_scripts-' . $page, 'ct_hotel_order_admin_enqueue_scripts' );
 	}
 }
@@ -257,7 +257,7 @@ if ( ! function_exists( 'ct_hotel_order_render_list_page' ) ) {
 
 		<div class="wrap">
 
-			<h2>Hotel Orders <a href="edit.php?post_type=hotel&amp;page=orders&amp;action=add" class="add-new-h2">Add New</a></h2>
+			<h2><?php _e( 'Hotel Orders', 'citytours' ); ?> <a href="edit.php?post_type=hotel&amp;page=orders&amp;action=add" class="add-new-h2"><?php _e( 'Add New', 'citytours' ); ?></a></h2>
 			<?php if ( isset( $_REQUEST['bulk_delete'] ) && isset( $_REQUEST['items'] ) ) echo '<div id="message" class="updated below-h2"><p>' . esc_html( sprintf( esc_html__( '%d orders deleted', 'citytours' ), $_REQUEST['items'] ) ) . '</p></div>'?>
 			<?php if ( isset( $_REQUEST['bulk_update'] ) && isset( $_REQUEST['items'] ) ) echo '<div id="message" class="updated below-h2"><p>' . esc_html( sprintf( esc_html__( '%d orders updated', 'citytours' ), $_REQUEST['items'] ) ) . '</p></div>'?>
 			<select id="hotel_filter">
@@ -332,7 +332,7 @@ if ( ! function_exists( 'ct_hotel_order_render_manage_page' ) ) {
 		if ( 'edit' == $_REQUEST['action'] ) {
 
 			if ( empty( $_REQUEST['order_id'] ) ) {
-				echo "<h2>" . esc_html__( "You attempted to edit an item that doesn't exist. Perhaps it was deleted?" , "ct" ) . "</h2>";
+				echo "<h2>" . esc_html__( "You attempted to edit an item that doesn't exist. Perhaps it was deleted?" , 'citytours' ) . "</h2>";
 				return;
 			}
 
@@ -345,7 +345,7 @@ if ( ! function_exists( 'ct_hotel_order_render_manage_page' ) ) {
 			$service_data = $order->get_services();
 
 			if ( empty( $order_data ) ) {
-				echo "<h2>" . esc_html__( "You attempted to edit an item that doesn't exist. Perhaps it was deleted?" , "ct" ) . "</h2>";
+				echo "<h2>" . esc_html__( "You attempted to edit an item that doesn't exist. Perhaps it was deleted?" , 'citytours' ) . "</h2>";
 				return;
 			}
 		}
@@ -356,9 +356,9 @@ if ( ! function_exists( 'ct_hotel_order_render_manage_page' ) ) {
 		?>
 
 		<div class="wrap">
-			<?php $page_title = ( 'edit' == $_REQUEST['action'] ) ? 'Edit Hotel Order<a href="edit.php?post_type=hotel&amp;page=orders&amp;action=add" class="add-new-h2">Add New</a>' : 'Add New Hotel Order'; ?>
+			<?php $page_title = ( 'edit' == $_REQUEST['action'] ) ? __( 'Edit Hotel Order', 'citytours') . '<a href="edit.php?post_type=hotel&amp;page=orders&amp;action=add" class="add-new-h2">' . __( 'Add New', 'citytours') . '</a>' : __( 'Add New Hotel Order', 'citytours'); ?>
 			<h2><?php echo wp_kses_post( $page_title ); ?></h2>
-			<?php if ( isset( $_REQUEST['updated'] ) ) echo '<div id="message" class="updated below-h2"><p>Order saved</p></div>'?>
+			<?php if ( isset( $_REQUEST['updated'] ) ) echo '<div id="message" class="updated below-h2"><p>' . __( 'Order saved', 'citytours' ) . '</p></div>'?>
 			<form method="post" id="order-form" class="hotel-order-form" onsubmit="return manage_order_validateForm();" data-message="<?php echo esc_attr( esc_html__( 'Please select a hotel', 'citytours' ) ) ?>">
 				<input type="hidden" name="id" value="<?php echo esc_attr( $order_data['id'] ); ?>">
 				<div class="row postbox">
@@ -483,7 +483,7 @@ if ( ! function_exists( 'ct_hotel_order_render_manage_page' ) ) {
 							?>
 							<tr>
 								<th colspan="2" style="padding-top:15px;">
-									<a href="<?php echo $edit_url ?>"><?php _e( 'Related WooCommerce Order', 'citytours' ) ?></a>
+									<a href="<?php echo esc_url( $edit_url ); ?>"><?php _e( 'Related WooCommerce Order', 'citytours' ) ?></a>
 								</th>
 							</tr>
 							<?php endif; ?>
@@ -646,7 +646,7 @@ if ( ! function_exists( 'ct_hotel_order_render_manage_page' ) ) {
 					</div>
 				</div>
 				<input type="submit" class="button-primary button_save_order" name="save" value="Save order">
-				<a href="edit.php?post_type=hotel&amp;page=orders" class="button-secondary">Cancel</a>
+				<a href="edit.php?post_type=hotel&amp;page=orders" class="button-secondary"><?php _e( 'Cancel', 'citytours' ); ?></a>
 				<?php wp_nonce_field('ct_manage_orders','order_save'); ?>
 			</form>
 		</div>
@@ -845,8 +845,8 @@ if ( ! function_exists( 'ct_hotel_order_admin_enqueue_scripts' ) ) {
 		wp_enqueue_script( 'jquery-ui-sortable' );
 
 		// custom style and js
-		wp_enqueue_style( 'ct_admin_hotel_style' , get_template_directory_uri() . '/inc/admin/css/style.css' ); 
-		wp_enqueue_script( 'ct_admin_hotel_script' , CT_TEMPLATE_DIRECTORY_URI . '/inc/admin/js/order.js', array('jquery'), '1.0', true );
+		// wp_enqueue_style( 'ct_admin_hotel_style' , CT_TEMPLATE_DIRECTORY_URI . '/css/admin/admin.css' ); 
+		wp_enqueue_script( 'ct_admin_hotel_script' , CT_TEMPLATE_DIRECTORY_URI . '/js/admin/order.js', array('jquery'), '1.0', true );
 	}
 }
 

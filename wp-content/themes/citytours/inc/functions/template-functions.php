@@ -11,6 +11,7 @@ ct_start_page_url
 ct_wishlist_page_url
 ct_get_header_image_src
 ct_get_header_image_height
+ct_get_header_content
 ct_get_sidebar_position
 ct_get_current_page_url
 ct_get_template
@@ -75,11 +76,13 @@ if ( ! function_exists( 'ct_logo_sticky_url' ) ) {
 if ( ! function_exists( 'ct_favicon_url' ) ) {
     function ct_favicon_url() {
         global $ct_options;
+        
         if ( ! empty( $ct_options['favicon'] ) && ! empty( $ct_options['favicon']['url'] ) ) {
             $url = $ct_options['favicon']['url'];
         } else {
             $url = CT_IMAGE_URL . '/favicon.ico';
         }
+
         return $url;
     }
 }
@@ -90,6 +93,7 @@ if ( ! function_exists( 'ct_favicon_url' ) ) {
 if ( ! function_exists( 'ct_login_url' ) ) {
     function ct_login_url() {
         global $ct_options;
+
         $login_url = '';
         if ( ! empty( $ct_options['modal_login'] ) ) {
             $login_url = '#';
@@ -100,6 +104,7 @@ if ( ! function_exists( 'ct_login_url' ) ) {
                 $login_url = wp_login_url( ct_redirect_url() );
             }
         }
+
         return $login_url;
     }
 }
@@ -185,33 +190,43 @@ if ( ! function_exists( 'ct_get_header_image_src' ) ) {
             $post_id = $post->ID;
         }
 
-        $header_img_scr = '';
-        if ( 'blog' == $post_id ) {
-            if ( ! empty( $ct_options['blog_header_img'] ) ) $header_img_scr = $ct_options['blog_header_img']['url'];
-        } elseif ( 'hotel' == $post_id ) {
-            if ( ! empty( $ct_options['hotel_header_img'] ) ) $header_img_scr = $ct_options['hotel_header_img']['url'];
-        } elseif ( 'tour' == $post_id ) {
-            if ( ! empty( $ct_options['tour_header_img'] ) ) $header_img_scr = $ct_options['tour_header_img']['url'];
-        } elseif ( 'shop' == $post_id ) {
-            if ( ! empty( $ct_options['shop_header_img'] ) ) $header_img_scr = $ct_options['shop_header_img']['url'];
-        } else {
-            $header_img_ids = get_post_meta( $post_id, '_header_image', true );
-            if ( ! empty( $header_img_ids ) ) {
-                $header_img = wp_get_attachment_image_src( $header_img_ids, $size );
-                $header_img_scr = $header_img[0];
-            }
+        $header_img_ids = get_post_meta( $post_id, '_header_image', true );
+        if ( ! empty( $header_img_ids ) ) {
+            $header_img = wp_get_attachment_image_src( $header_img_ids, $size );
+            return $header_img[0];
         }
 
-        if ( empty( $header_img_scr ) && 'product' == get_post_type( $post_id ) ) { 
-            $header_img_scr = $ct_options['product_header_img']['url'];
+        if ( 'hotel' == get_post_type( $post_id ) ) {
+            if ( ! empty( $ct_options['hotel_header_img'] ) ) return $ct_options['hotel_header_img']['url'];
+        } elseif ( 'tour' == get_post_type( $post_id ) ) {
+            if ( ! empty( $ct_options['tour_header_img'] ) ) return $ct_options['tour_header_img']['url'];
+        } elseif ( 'car' == get_post_type( $post_id ) ) {
+            if ( ! empty( $ct_options['car_header_img'] ) ) return $ct_options['car_header_img']['url'];
+        } elseif ( 'product' == get_post_type( $post_id ) ) { 
+            if ( ! empty( $ct_options['product_header_img'] ) )  return $ct_options['product_header_img']['url'];
+        } elseif ( 'post' == get_post_type( $post_id ) ) {
+            if ( ! empty( $ct_options['post_header_img'] ) ) return $ct_options['post_header_img']['url'];
+        } elseif ( 'page' == get_post_type( $post_id ) ) {
+            if ( ! empty( $ct_options['page_header_img'] ) ) return $ct_options['page_header_img']['url'];
         }
 
-        if ( empty( $header_img_scr ) ) {
-            if ( ! empty( $ct_options['header_img'] ) ) {
-                $header_img_scr = $ct_options['header_img']['url'];
-            }
+        if ( is_post_type_archive( 'tour' ) ) {
+            if ( ! empty( $ct_options['tour_header_img'] ) ) return $ct_options['tour_header_img']['url'];
+        } elseif ( is_post_type_archive( 'hotel' ) ) {
+            if ( ! empty( $ct_options['hotel_header_img'] ) ) return $ct_options['hotel_header_img']['url'];
+        } elseif ( is_post_type_archive( 'car' ) ) {
+            if ( ! empty( $ct_options['car_header_img'] ) ) return $ct_options['car_header_img']['url'];
+        } elseif ( class_exists('WooCommerce') && is_shop() ) {
+            if ( ! empty( $ct_options['shop_header_img'] ) ) return $ct_options['shop_header_img']['url'];
+        } elseif ( is_archive() || is_home() ) {
+            if ( ! empty( $ct_options['blog_header_img'] ) ) return $ct_options['blog_header_img']['url'];
         }
-        return $header_img_scr;
+
+        if ( ! empty( $ct_options['header_img'] ) ) {
+            return $ct_options['header_img']['url'];
+            }
+
+        return '';
     }
 }
 
@@ -221,6 +236,7 @@ if ( ! function_exists( 'ct_get_header_image_src' ) ) {
 if ( ! function_exists( 'ct_get_extra_body_class' ) ) { 
     function ct_get_extra_body_class() { 
         global $post, $ct_options;
+
         $body_class = '';
 
         if ( is_single() ) { 
@@ -252,6 +268,8 @@ if ( ! function_exists( 'ct_get_extra_body_class' ) ) {
                 $post_type = 'hotel';
             } else if ( is_post_type_archive( 'tour' ) || is_tax( array('tour_type', 'tour_facility') ) ) { 
                 $post_type = 'tour';
+            } else if ( is_post_type_archive( 'car' ) || is_tax( array('car_type', 'car_facility') ) ) { 
+                $post_type = 'car';
             } else if ( is_post_type_archive( 'product' ) || is_tax( 'product_cat' ) ) { 
                 $post_type = 'shop';
             }
@@ -260,6 +278,10 @@ if ( ! function_exists( 'ct_get_extra_body_class' ) ) {
             if ( empty( $header_img_scr ) ) { 
                 $body_class = 'no-header-image';
             } 
+        }
+
+        if ( isset( $ct_options['header_sticky'] ) && empty( $ct_options['header_sticky'] ) ) { 
+            $body_class .= ' no-sticky-header';
         }
 
         return $body_class;
@@ -272,29 +294,95 @@ if ( ! function_exists( 'ct_get_extra_body_class' ) ) {
 if ( ! function_exists( 'ct_get_header_image_height' ) ) {
     function ct_get_header_image_height( $post_id = 0 ) {
         global $ct_options;
+
         if ( empty( $post_id ) ) {
             global $post;
             $post_id = $post->ID;
         }
-        $header_img_height = '';
-        if ( 'blog' == $post_id ) {
-            if ( ! empty( $ct_options['blog_header_img_height'] ) ) $header_img_height = intval( $ct_options['blog_header_img_height']['height'] );
-        } elseif ( 'hotel' == $post_id ) {
-            if ( ! empty( $ct_options['hotel_header_img_height'] ) ) $header_img_height = intval( $ct_options['hotel_header_img_height']['height'] );
-        } elseif ( 'tour' == $post_id ) {
-            if ( ! empty( $ct_options['tour_header_img_height'] ) ) $header_img_height = intval( $ct_options['tour_header_img_height']['height'] );
-        } else {
-            $header_img_height = get_post_meta( $post_id, '_header_image_height', true );
+
+        $post_header_img_height = get_post_meta( $post_id, '_header_image_height', true );
+        if ( ! empty( $post_header_img_height ) && is_numeric( $post_header_img_height ) ) {
+            return $post_header_img_height;
         }
 
-        if ( empty( $header_img_height ) || ! is_numeric( $header_img_height ) ) {
-            if ( ! empty( $ct_options['header_img_height'] ) ) {
-                $header_img_height = intval( $ct_options['header_img_height']['height'] );
-            } else {
-                $header_img_height = '470'; // header image default height
-            }
+        if ( 'hotel' == get_post_type( $post_id ) ) {
+            if ( ! empty( $ct_options['hotel_header_img_height'] ) ) return intval( $ct_options['hotel_header_img_height']['height'] );
+        } elseif ( 'tour' == get_post_type( $post_id ) ) {
+            if ( ! empty( $ct_options['tour_header_img_height'] ) ) return intval( $ct_options['tour_header_img_height']['height'] );
+        } elseif ( 'product' == get_post_type( $post_id ) ) { 
+            if ( ! empty( $ct_options['product_header_img_height'] ) )  return intval( $ct_options['product_header_img_height']['height'] );
+        } elseif ( 'post' == get_post_type( $post_id ) ) {
+            if ( ! empty( $ct_options['post_header_img_height'] ) ) return intval( $ct_options['post_header_img_height']['height'] );
+        } elseif ( 'page' == get_post_type( $post_id ) ) {
+            if ( ! empty( $ct_options['page_header_img_height'] ) ) return intval( $ct_options['page_header_img_height']['height'] );
         }
-        return $header_img_height;
+
+        if ( is_post_type_archive( 'tour' ) ) {
+            if ( ! empty( $ct_options['tour_header_img_height'] ) ) return intval( $ct_options['tour_header_img_height']['height'] );
+        } elseif ( is_post_type_archive( 'hotel' ) ) {
+            if ( ! empty( $ct_options['hotel_header_img_height'] ) ) return intval( $ct_options['hotel_header_img_height']['height'] );
+        } elseif ( class_exists('WooCommerce') && is_shop() ) {
+            if ( ! empty( $ct_options['shop_header_img_height'] ) ) return intval( $ct_options['shop_header_img_height']['height'] );
+        } elseif ( is_archive() || is_home() ) {
+            if ( ! empty( $ct_options['blog_header_img_height'] ) ) return intval( $ct_options['blog_header_img_height']['height'] );
+        }
+
+        if ( ! empty( $ct_options['header_img_height'] ) ) {
+            return intval( $ct_options['header_img_height']['height'] );
+        }
+        
+        return 470;
+    }
+}
+
+/*
+ * get header content
+ */
+if ( ! function_exists( 'ct_get_header_content' ) ) {
+    function ct_get_header_content( $post_id = 0 ) {
+        global $ct_options;
+
+        if ( empty( $post_id ) ) {
+            global $post;
+            $post_id = $post->ID;
+        }
+
+        $post_header_content = get_post_meta( $post_id, '_header_content', true );
+        if ( ! empty( $post_header_content ) ) {
+            return $post_header_content;
+        }
+
+        if ( 'hotel' == get_post_type( $post_id ) ) {
+            if ( ! empty( $ct_options['hotel_header_content'] ) ) return $ct_options['hotel_header_content'];
+        } elseif ( 'tour' == get_post_type( $post_id ) ) {
+            if ( ! empty( $ct_options['tour_header_content'] ) ) return $ct_options['tour_header_content'];
+        } elseif ( 'car' == get_post_type( $post_id ) ) {
+            if ( ! empty( $ct_options['car_header_content'] ) ) return $ct_options['car_header_content'];
+        } elseif ( 'product' == get_post_type( $post_id ) ) { 
+            if ( ! empty( $ct_options['product_header_content'] ) )  return $ct_options['product_header_content'];
+        } elseif ( 'post' == get_post_type( $post_id ) ) {
+            if ( ! empty( $ct_options['post_header_content'] ) ) return $ct_options['post_header_content'];
+        } elseif ( 'page' == get_post_type( $post_id ) ) {
+            if ( ! empty( $ct_options['page_header_content'] ) ) return $ct_options['page_header_content'];
+        }
+
+        if ( is_post_type_archive( 'tour' ) ) {
+            if ( ! empty( $ct_options['tour_header_content'] ) ) return $ct_options['tour_header_content'];
+        } elseif ( is_post_type_archive( 'hotel' ) ) {
+            if ( ! empty( $ct_options['hotel_header_content'] ) ) return $ct_options['hotel_header_content'];
+        } elseif ( is_post_type_archive( 'car' ) ) {
+            if ( ! empty( $ct_options['car_header_content'] ) ) return $ct_options['car_header_content'];
+        } elseif ( class_exists('WooCommerce') && is_shop() ) {
+            if ( ! empty( $ct_options['shop_header_content'] ) ) return $ct_options['shop_header_content'];
+        } elseif ( is_archive() || is_home() || is_search() ) {
+            if ( ! empty( $ct_options['blog_header_content'] ) ) return $ct_options['blog_header_content'];
+        }
+
+        if ( ! empty( $ct_options['header_content'] ) ) {
+            return $ct_options['header_content'];
+        }
+        
+        return '';
     }
 }
 
@@ -395,6 +483,7 @@ if ( ! function_exists( 'ct_init' ) ) {
         ob_start();
         // register header nav menu location
         register_nav_menu( 'header-menu', 'Header Menu' );
+
         add_action( 'redux/citytours/panel/before', 'ct_one_click_install_main_pages' );
     }
 }
@@ -442,8 +531,8 @@ if ( ! function_exists( 'ct_get_custom_css' ) ) {
  */
 if ( ! function_exists( 'ct_enqueue_scripts' ) ) {
     function ct_enqueue_scripts() {
-
         global $ct_options;
+
         $custom_css = ct_get_custom_css();
 
         $depends = array();
@@ -451,24 +540,34 @@ if ( ! function_exists( 'ct_enqueue_scripts' ) ) {
             $depends[] = 'js_composer_front';
         }
 
+        $suffix = defined( 'WP_DEBUG' ) && WP_DEBUG ? '' : '.min';
+
         $current_locale = get_locale();
         $current_locale = str_replace( '_', '-', $current_locale);
 
-        wp_register_style( 'ct_style_bootstrap', CT_TEMPLATE_DIRECTORY_URI . '/css/bootstrap.min.css' );
-        wp_register_style( 'ct_style_animate', CT_TEMPLATE_DIRECTORY_URI . '/css/animate.min.css' );
-        wp_register_style( 'ct_style_main', CT_TEMPLATE_DIRECTORY_URI . '/css/style.css', $depends );
-        wp_register_style( 'ct_style_responsive', CT_TEMPLATE_DIRECTORY_URI . '/css/responsive.css' );
-        wp_register_style( 'ct_style_magnific_popup', CT_TEMPLATE_DIRECTORY_URI . '/css/magnific-popup.css' );
+        wp_register_style( 'ct_style_bootstrap', CT_TEMPLATE_DIRECTORY_URI . '/css/bootstrap' . $suffix . '.css' );
+        wp_register_style( 'ct_style_animate', CT_TEMPLATE_DIRECTORY_URI . '/css/animate' . $suffix . '.css' );
+        wp_register_style( 'ct_style_main', CT_TEMPLATE_DIRECTORY_URI . '/css/style' . $suffix . '.css', $depends );
+        wp_register_style( 'ct_style_responsive', CT_TEMPLATE_DIRECTORY_URI . '/css/responsive' . $suffix . '.css' );
+        wp_register_style( 'ct_style_magnific_popup', CT_TEMPLATE_DIRECTORY_URI . '/css/magnific-popup' . $suffix . '.css' );
         wp_register_style( 'ct_style_icon_set_1', CT_TEMPLATE_DIRECTORY_URI . '/css/fontello/css/icon_set_1.css' );
         wp_register_style( 'ct_style_icon_set_2', CT_TEMPLATE_DIRECTORY_URI . '/css/fontello/css/icon_set_2.css' );
         wp_register_style( 'ct_style_fontello', CT_TEMPLATE_DIRECTORY_URI . '/css/fontello/css/fontello.css' );
-        wp_register_style( 'ct_style_date_time_picker', CT_TEMPLATE_DIRECTORY_URI . '/css/date_time_picker.css' );
-        wp_register_style( 'ct_style_owl_carousel', CT_TEMPLATE_DIRECTORY_URI . '/css/owl.carousel.css' );
-        wp_register_style( 'ct_style_owl_theme', CT_TEMPLATE_DIRECTORY_URI . '/css/owl.theme.css' );
-        wp_register_style( 'ct_style_timeline', CT_TEMPLATE_DIRECTORY_URI . '/css/timeline.css' );
-        wp_register_style( 'ct_style_jquery_switch', CT_TEMPLATE_DIRECTORY_URI . '/css/jquery.switch.css' );
+
+        wp_register_style( 'ct_style_fontawesome', CT_TEMPLATE_DIRECTORY_URI . '/css/font-awesome/css/font-awesome' . $suffix . '.css' );
+
+        wp_register_style( 'ct_style_date_time_picker', CT_TEMPLATE_DIRECTORY_URI . '/css/date_time_picker' . $suffix . '.css' );
+        wp_register_style( 'ct_style_owl_carousel', CT_TEMPLATE_DIRECTORY_URI . '/css/owl.carousel' . $suffix . '.css' );
+        wp_register_style( 'ct_style_owl_theme', CT_TEMPLATE_DIRECTORY_URI . '/css/owl.theme' . $suffix . '.css' );
+        wp_register_style( 'ct_style_timeline', CT_TEMPLATE_DIRECTORY_URI . '/css/timeline' . $suffix . '.css' );
+        wp_register_style( 'ct_style_jquery_switch', CT_TEMPLATE_DIRECTORY_URI . '/css/jquery.switch' . $suffix . '.css' );
         wp_register_style( 'ct_style_jquery_persian', CT_TEMPLATE_DIRECTORY_URI . '/css/persian-datepicker-0.4.5.min.css' );
-        wp_register_style( 'ct_style_shop', CT_TEMPLATE_DIRECTORY_URI . '/css/shop.css' );
+        wp_register_style( 'ct_style_shop', CT_TEMPLATE_DIRECTORY_URI . '/css/shop' . $suffix . '.css' );
+        wp_register_style( 'ct_style_timedropper', CT_TEMPLATE_DIRECTORY_URI . '/css/timedropper.min.css' );
+
+        if ( current_user_can( 'edit_theme_options' ) ) { 
+            wp_register_style( 'ct_admin_bar', CT_TEMPLATE_DIRECTORY_URI . '/css/admin/admin_bar.css' );
+        }
 
         wp_register_style( 'ct_gootle_fonts', ct_theme_slug_fonts_url() );
         wp_register_style( 'ct_child_theme_css', get_stylesheet_directory_uri() . '/style.css' ); //register default style.css file. only include in childthemes. has no purpose in main theme
@@ -479,11 +578,13 @@ if ( ! function_exists( 'ct_enqueue_scripts' ) ) {
         wp_enqueue_style( 'ct_style_icon_set_1');
         wp_enqueue_style( 'ct_style_icon_set_2');
         wp_enqueue_style( 'ct_style_fontello');
+        wp_enqueue_style( 'ct_style_fontawesome');
         wp_enqueue_style( 'ct_style_date_time_picker');
         wp_enqueue_style( 'ct_style_timeline');
         wp_enqueue_style( 'ct_style_jquery_switch');
         wp_enqueue_style( 'ct_style_main');
         wp_enqueue_style( 'ct_style_shop');
+        wp_enqueue_style( 'ct_style_timedropper');
         wp_enqueue_style( 'ct_style_responsive');
 
         wp_enqueue_style( 'ct_style_owl_carousel');
@@ -491,13 +592,19 @@ if ( ! function_exists( 'ct_enqueue_scripts' ) ) {
 
         wp_enqueue_style( 'ct_gootle_fonts');
 
+        if ( current_user_can( 'edit_theme_options' ) ) { 
+            wp_enqueue_style( 'ct_admin_bar' );
+        }
+
+		if ( "templates/template-dashboard.php" == get_page_template_slug() ) {
+			wp_enqueue_style( 'ct_style_admin', CT_TEMPLATE_DIRECTORY_URI . '/css/admin.css' );
+		}
         // rtl css
         $is_rtl = 'false';
         if ( is_rtl() ) {
             $is_rtl = 'true';
-            wp_enqueue_style( 'ct_rtl_bootstrap',  CT_TEMPLATE_DIRECTORY_URI . "/css/rtl/bootstrap-rtl.min.css" );
-            // wp_enqueue_style( 'ct_rtl_jqueryui',  CT_TEMPLATE_DIRECTORY_URI . "/css/rtl/jquery-no-theme-rtl.css" );
-            wp_enqueue_style( 'ct_rtl',  CT_TEMPLATE_DIRECTORY_URI . "/css/rtl/rtl.css" );
+            wp_enqueue_style( 'ct_rtl_bootstrap',  CT_TEMPLATE_DIRECTORY_URI . '/css/rtl/bootstrap-rtl' . $suffix . '.css' );
+            wp_enqueue_style( 'ct_rtl',  CT_TEMPLATE_DIRECTORY_URI . '/css/rtl/rtl' . $suffix . '.css' );
 
             if ( substr($current_locale, 0, 2) == 'fa' ) { 
                 wp_enqueue_style( 'ct_style_jquery_persian' );
@@ -510,21 +617,39 @@ if ( ! function_exists( 'ct_enqueue_scripts' ) ) {
         }
 
         if ( ! empty( $ct_options['skin'] ) && $ct_options['skin'] != 'red' ) {
-            wp_enqueue_style( 'ct_style_skin', CT_TEMPLATE_DIRECTORY_URI . "/css/color-" . $ct_options['skin'] . '.css' );
+            wp_enqueue_style( 'ct_style_skin', CT_TEMPLATE_DIRECTORY_URI . '/css/color-' . $ct_options['skin'] . $suffix . '.css' );
         }
 
         // custom css
         wp_add_inline_style( 'ct_style_main', $custom_css );
 
         // main js
+        wp_enqueue_script( 'ct_script_cookie', CT_TEMPLATE_DIRECTORY_URI . '/js/jquery.cookiebar.js', array( 'jquery' ), '', true );
         wp_register_script( 'ct_script_common', CT_TEMPLATE_DIRECTORY_URI . '/js/common_scripts_min.js', array( 'jquery' ), '', true );
-        wp_register_script( 'ct_theme_script', CT_TEMPLATE_DIRECTORY_URI . '/js/functions.js', array( 'jquery' ), '', true );
+        wp_register_script( 'ct_theme_script', CT_TEMPLATE_DIRECTORY_URI . '/js/functions' . $suffix . '.js', array( 'jquery' ), '', true );
         wp_localize_script( 'ct_theme_script', 'ajaxurl', admin_url( 'admin-ajax.php' ) );
         wp_localize_script( 'ct_theme_script', 'is_rtl', $is_rtl );
 
+        $cookie_notification = $ct_options['cookie_notification'];
+        if ( ! empty( $cookie_notification ) ) {
+            $cookie_notification_text = $ct_options['cookie_notification_text'];
+            if ( ! empty( $ct_options['terms_page'] ) ) {
+                $terms_page_url = esc_url( ct_get_permalink_clang( $ct_options['terms_page'] ) );
+            } else {
+                $terms_page_url = '#';
+            }
+            $cookie_notification = array(
+                                        'description'   => $cookie_notification_text,
+                                        'accept_text'   => __( 'OK', 'citytours' ),
+                                        'policy_text'   => __( 'Privacy Policy', 'citytours' ),
+                                        'url'           => $terms_page_url
+                                    );
+            wp_localize_script( 'ct_theme_script', 'cookie_notification', $cookie_notification );   
+        }
+
         // date and time picker
-        wp_register_script( 'ct_script_datepicker', CT_TEMPLATE_DIRECTORY_URI . '/js/bootstrap-datepicker.js', array( 'jquery' ), '', true );
-        wp_register_script( 'ct_script_timepicker', CT_TEMPLATE_DIRECTORY_URI . '/js/bootstrap-timepicker.js', array( 'jquery' ), '', true );
+        wp_register_script( 'ct_script_datepicker', CT_TEMPLATE_DIRECTORY_URI . '/js/bootstrap-datepicker' . $suffix . '.js', array( 'jquery' ), '', true );
+        wp_register_script( 'ct_script_timepicker', CT_TEMPLATE_DIRECTORY_URI . '/js/bootstrap-timepicker' . $suffix . '.js', array( 'jquery' ), '', true );
 
         wp_localize_script( 'ct_script_datepicker', 'is_rtl', $is_rtl );
 
@@ -537,28 +662,29 @@ if ( ! function_exists( 'ct_enqueue_scripts' ) ) {
                 wp_register_script( 'ct_script_localization', CT_TEMPLATE_DIRECTORY_URI . $file_name2, array('jquery'), '', true );
             } else { 
                 if ( substr($current_locale, 0, 2) == 'fa' ) { 
-                    wp_register_script( 'ct_script_localization1', CT_TEMPLATE_DIRECTORY_URI . '/js/persian-date.js', array('jquery'), '', true );
+                    wp_register_script( 'ct_script_localization1', CT_TEMPLATE_DIRECTORY_URI . '/js/persian-date' . $suffix . '.js', array('jquery'), '', true );
                     wp_register_script( 'ct_script_localization2', CT_TEMPLATE_DIRECTORY_URI . '/js/persian-datepicker-0.4.5.min.js', array('jquery'), '', true );
                 }
             }
         }
 
         // minor js
-        wp_register_script( 'ct_script_icheck', CT_TEMPLATE_DIRECTORY_URI . '/js/icheck.js', array(), '', true );
+        wp_register_script( 'ct_script_icheck', CT_TEMPLATE_DIRECTORY_URI . '/js/icheck' . $suffix . '.js', array(), '', true );
         wp_register_script( 'ct_script_jquery_validate', CT_TEMPLATE_DIRECTORY_URI . '/js/jquery.validate.min.js', array( 'jquery' ), '', true );
 
         // fixed sidebar js
-        wp_register_script( 'ct_script_fixed_sidebar', CT_TEMPLATE_DIRECTORY_URI . '/js/theia-sticky-sidebar.js', array(), '', false );
+        wp_register_script( 'ct_script_fixed_sidebar', CT_TEMPLATE_DIRECTORY_URI . '/js/theia-sticky-sidebar' . $suffix . '.js', array(), '', true );
 
         // map
         if ( ! empty( $ct_options['map_api_key'] ) ) { 
-            wp_register_script( 'ct_script_google_map', '//maps.googleapis.com/maps/api/js?key=' . $ct_options['map_api_key'], array(), '', false );
+            wp_register_script( 'ct_script_google_map', '//maps.googleapis.com/maps/api/js?key=' . $ct_options['map_api_key'], array(), '', true );
         } else { 
-            wp_register_script( 'ct_script_google_map', '//maps.googleapis.com/maps/api/js', array(), '', false );
+            wp_register_script( 'ct_script_google_map', '//maps.googleapis.com/maps/api/js', array(), '', true );
         }
-        wp_register_script( 'ct_script_infobox', CT_TEMPLATE_DIRECTORY_URI . '/js/infobox.js', array(), '', false );
-        wp_register_script( 'ct_script_map', CT_TEMPLATE_DIRECTORY_URI . '/js/map.js', array(), '', false );
+        wp_register_script( 'ct_script_infobox', CT_TEMPLATE_DIRECTORY_URI . '/js/infobox' . $suffix . '.js', array(), '', true );
+        wp_register_script( 'ct_script_map', CT_TEMPLATE_DIRECTORY_URI . '/js/map' . $suffix . '.js', array(), '', true );
         wp_localize_script( 'ct_script_map', 'theme_url', CT_TEMPLATE_DIRECTORY_URI );
+        wp_localize_script( 'ct_script_map', 'button_text', __( 'Details', 'citytours' ) );
 
         if ( ! empty( $ct_options['tour_map_icon'] ) ) { 
             wp_localize_script( 'ct_script_map', 'tour_icon', $ct_options['tour_map_icon'] );
@@ -567,10 +693,11 @@ if ( ! function_exists( 'ct_enqueue_scripts' ) ) {
             wp_localize_script( 'ct_script_map', 'hotel_icon', $ct_options['hotel_map_icon'] );
         }
 
-        wp_register_script( 'ct_script_modernizr', CT_TEMPLATE_DIRECTORY_URI . '/js/modernizr.js', array(), '', true );
+        wp_register_script( 'ct_script_modernizr', CT_TEMPLATE_DIRECTORY_URI . '/js/modernizr' . $suffix . '.js', array(), '', true );
         wp_register_script( 'ct_script_owl', CT_TEMPLATE_DIRECTORY_URI . '/js/owl.carousel.min.js', array(), '', true );
-        wp_register_script( 'ct_cat_nav_mobile', CT_TEMPLATE_DIRECTORY_URI . '/js/cat_nav_mobile.js', array(), '', true );
+        wp_register_script( 'ct_cat_nav_mobile', CT_TEMPLATE_DIRECTORY_URI . '/js/cat_nav_mobile' . $suffix . '.js', array(), '', true );
 
+        wp_enqueue_script( 'ct_script_cookie' );
         wp_enqueue_script( 'ct_script_common' );
         wp_enqueue_script( 'ct_script_jquery_validate' );
         wp_enqueue_script( 'ct_script_datepicker' );
@@ -588,9 +715,9 @@ if ( ! function_exists( 'ct_enqueue_scripts' ) ) {
         wp_enqueue_script( 'ct_script_owl' );
         
         if ( is_singular( array( 'tour', 'hotel' ) ) ) {
-            wp_enqueue_script( 'ct_script_timepicker' );
+
         }
-        if ( is_post_type_archive('tour') ) {
+        if ( is_post_type_archive('tour') or is_post_type_archive('car') ) {
             wp_enqueue_script( 'ct_cat_nav_mobile' );
         }
 
@@ -598,6 +725,24 @@ if ( ! function_exists( 'ct_enqueue_scripts' ) ) {
         wp_enqueue_script( 'ct_script_icheck' );
 
         wp_enqueue_script( 'ct_theme_script' );
+
+		if ( "templates/template-dashboard.php" == get_page_template_slug() ) {
+			wp_enqueue_script( 'ct_script_tab', CT_TEMPLATE_DIRECTORY_URI . '/js/tabs.js', array(), '', true );		
+		}
+    }
+}
+
+/*
+ * admin enqueue script function
+ */
+if ( ! function_exists( 'ct_admin_scripts' ) ) { 
+    function ct_admin_scripts() { 
+
+        wp_register_style( 'ct_admin_bar', CT_TEMPLATE_DIRECTORY_URI . '/css/admin/admin_bar.css' );
+        wp_register_style( 'ct_admin_css', CT_TEMPLATE_DIRECTORY_URI . '/css/admin/admin.css' );
+
+        wp_enqueue_style( 'ct_admin_bar' );
+        wp_enqueue_style( 'ct_admin_css' );
     }
 }
 
@@ -619,52 +764,64 @@ if ( ! function_exists( 'ct_register_required_plugins' ) ) {
             array(
                 'name'               => 'CTBooking',
                 'slug'               => 'ct-booking',
-                'source'             => CT_INC_DIR . '/plugins/ct-booking.zip',
+                'source'             => 'https://c-themes.com/plugins/ct-booking.zip',
                 'required'           => true,
-                'version'            => '1.2',
+				'version'            => '1.4.1',
                 'force_activation'   => false,
                 'force_deactivation' => false,
                 'external_url'       => '',
+                'image_url'          => CT_TEMPLATE_DIRECTORY_URI . '/img/admin/plugins/ct_booking.jpg',
+                'check_str'          => 'CT_Booking'
+            ),
+            array(
+                'name'               => 'Redux Framework',
+                'slug'               => 'redux-framework',
+                'required'           => true,
+                'image_url'          => CT_TEMPLATE_DIRECTORY_URI . '/img/admin/plugins/redux_options.jpg',
+                'check_str'          => 'ReduxFrameworkPlugin'
+            ),
+            array(
+                'name'               => 'Meta Box',
+                'slug'               => 'meta-box',
+                'required'           => true,
+                'image_url'          => CT_TEMPLATE_DIRECTORY_URI . '/img/admin/plugins/metabox.jpg',
+                'check_str'          => 'RWMB_Loader'
+            ),
+            array(
+                'name'               => 'WPBakery Page Builder',
+                'slug'               => 'js_composer',
+                'source'             => 'https://c-themes.com/plugins/js_composer.zip',
+                'required'           => true,
+                'version'            => '5.5.4',
+                'force_activation'   => false,
+                'force_deactivation' => false,
+                'external_url'       => '',
+                'image_url'          => CT_TEMPLATE_DIRECTORY_URI . '/img/admin/plugins/visual_composer.jpg',
+                'check_str'          => 'Vc_Manager'
             ),
             array(
                 'name'               => 'Slider Pro',
                 'slug'               => 'sliderpro',
-                'source'             => CT_INC_DIR . '/plugins/slider-pro-responsive-wordpress-slider-plugin.zip',
-                'required'           => false,
-                'version'            => '4.4.0',
+                'source'             => 'https://c-themes.com/plugins/slider-pro-responsive-wordpress-slider-plugin.zip',
+                'required'           => true,
+                'version'            => '4.5.0',
                 'force_activation'   => false,
                 'force_deactivation' => false,
                 'external_url'       => '',
+                'image_url'          => CT_TEMPLATE_DIRECTORY_URI . '/img/admin/plugins/slider_pro.jpg',
+                'check_str'          => 'BQW_SliderPro'
             ),
             array(
                 'name'               => 'Revolution Slider',
                 'slug'               => 'revslider',
-                'source'             => CT_INC_DIR . '/plugins/revslider.zip',
-                'required'           => false,
-                'version'            => '5.4.3.1',
+                'source'             => 'https://c-themes.com/plugins/revslider.zip',
+                'required'           => true,
+                'version'            => '5.4.8',
                 'force_activation'   => false,
                 'force_deactivation' => false,
                 'external_url'       => '',
-            ),
-            array(
-                'name'               => 'WPBakery Visual Composer',
-                'slug'               => 'js_composer',
-                'source'             => CT_INC_DIR . '/plugins/js_composer.zip',
-                'required'           => false,
-                'version'            => '5.1.1',
-                'force_activation'   => false,
-                'force_deactivation' => false,
-                'external_url'       => '',
-            ),
-            array(
-                'name'               => 'Envato Toolkit Plugin',
-                'slug'               => 'envato_toolkit',
-                'source'             => CT_INC_DIR . '/plugins/envato-toolkit.zip',
-                'required'           => false,
-                'version'            => '1.7.3',
-                'force_activation'   => false,
-                'force_deactivation' => false,
-                'external_url'       => '',
+                'image_url'          => CT_TEMPLATE_DIRECTORY_URI . '/img/admin/plugins/revolution_slider.jpg',
+                'check_str'          => 'RevSliderFront'
             ),
         );
 
@@ -677,10 +834,10 @@ if ( ! function_exists( 'ct_register_required_plugins' ) ) {
             'is_automatic' => false,
             'message'      => '',
             'strings'      => array(
-                'page_title'                      => esc_html__( 'Install Required Plugins', 'tgmpa' ),
-                'menu_title'                      => esc_html__( 'Install Plugins', 'tgmpa' ),
-                'installing'                      => esc_html__( 'Installing Plugin: %s', 'tgmpa' ), // %s = plugin name.
-                'oops'                            => esc_html__( 'Something went wrong with the plugin API.', 'tgmpa' ),
+                'page_title'                      => esc_html__( 'Install Required Plugins', 'citytours' ),
+                'menu_title'                      => esc_html__( 'Install Plugins', 'citytours' ),
+                'installing'                      => esc_html__( 'Installing Plugin: %s', 'citytours' ), // %s = plugin name.
+                'oops'                            => esc_html__( 'Something went wrong with the plugin API.', 'citytours' ),
                 'notice_can_install_required'     => _n_noop( 'This theme requires the following plugin: %1$s.', 'This theme requires the following plugins: %1$s.', 'citytours' ), // %1$s = plugin name(s).
                 'notice_can_install_recommended'  => _n_noop( 'This theme recommends the following plugin: %1$s.', 'This theme recommends the following plugins: %1$s.', 'citytours' ), // %1$s = plugin name(s).
                 'notice_cannot_install'           => _n_noop( 'Sorry, but you do not have the correct permissions to install the %s plugin. Contact the administrator of this site for help on getting the plugin installed.', 'Sorry, but you do not have the correct permissions to install the %s plugins. Contact the administrator of this site for help on getting the plugins installed.', 'citytours' ),
@@ -691,9 +848,9 @@ if ( ! function_exists( 'ct_register_required_plugins' ) ) {
                 'notice_cannot_update'            => _n_noop( 'Sorry, but you do not have the correct permissions to update the %s plugin. Contact the administrator of this site for help on getting the plugin updated.', 'Sorry, but you do not have the correct permissions to update the %s plugins. Contact the administrator of this site for help on getting the plugins updated.', 'citytours' ),
                 'install_link'                    => _n_noop( 'Begin installing plugin', 'Begin installing plugins', 'citytours' ),
                 'activate_link'                   => _n_noop( 'Begin activating plugin', 'Begin activating plugins', 'citytours' ),
-                'return'                          => esc_html__( 'Return to Required Plugins Installer', 'tgmpa' ),
-                'plugin_activated'                => esc_html__( 'Plugin activated successfully.', 'tgmpa' ),
-                'complete'                        => esc_html__( 'All plugins installed and activated successfully. %s', 'tgmpa' ),
+                'return'                          => esc_html__( 'Return to Required Plugins Installer', 'citytours' ),
+                'plugin_activated'                => esc_html__( 'Plugin activated successfully.', 'citytours' ),
+                'complete'                        => esc_html__( 'All plugins installed and activated successfully. %s', 'citytours' ),
                 'nag_type'                        => 'updated'
             )
         );
@@ -813,6 +970,17 @@ if ( ! function_exists( 'ct_register_sidebar' ) ) {
             'after_title'   => '</h4>' );
         register_sidebar( $args );
 
+        $args = array(
+            'name'          => esc_html__( 'Car Sidebar', 'citytours' ),
+            'id'            => 'sidebar-car',
+            'description'   => __( 'This will be shown on the car detail page', 'citytours' ),
+            'class'         => '',
+            'before_widget' => '<div id="%1$s" class="widget %2$s">',
+            'after_widget'  => '</div><hr>',
+            'before_title'  => '<h4 class="widgettitle">',
+            'after_title'   => '</h4>' );
+        register_sidebar( $args );
+
         if ( class_exists( 'WooCommerce' ) ) { 
             $args = array(
                 'name'          => esc_html__( 'WooCommerce Category Sidebar', 'citytours' ),
@@ -909,7 +1077,7 @@ if ( ! function_exists( 'ct_breadcrumbs' ) ) {
             }
 
             if( is_single() ) {
-                if ( ( $post->post_type == 'post' ) ) {
+                if ( ( 'post' == $post->post_type ) ) {
                     // default blog post breadcrumb
                     $categories_1 = get_the_category($post->ID);
 
@@ -933,9 +1101,17 @@ if ( ! function_exists( 'ct_breadcrumbs' ) ) {
                     endif;
 
                     echo '<li class="active">' . esc_html( get_the_title() ) . '</li>';
-                } else if ( $post->post_type == 'product' ) {
+                } else if ( 'product' == $post->post_type ) {
                     // product page breadcrumb
-                    $shop_page_id = woocommerce_get_page_id( 'shop' );
+                    global $woocommerce;
+
+                    $shop_page_id = 0;
+                    if ( version_compare( $woocommerce->version, '3.0', ">=" ) ) {
+                        $shop_page_id = wc_get_page_id( 'shop' );
+                    } else { 
+                        $shop_page_id = woocommerce_get_page_id( 'shop' );
+                    }
+
                     echo '<li><a href="' . get_permalink( $shop_page_id ) . '" title="' . esc_attr(get_the_title( $shop_page_id )) . '">' . __( 'Shop', 'citytours' ) . '</a></li>';
 
                     $categories = get_the_terms( $post->ID, 'product_cat' );
@@ -968,9 +1144,16 @@ if ( ! function_exists( 'ct_breadcrumbs' ) ) {
                     }
 
                     echo '<li class="active">' . esc_html( get_the_title() ) . '</li>';
-                } else {
-                    // other single post breadcrumb - hotel etc
+                } else if ( 'tour' == $post->post_type ) {
+                    echo '<li><a href="' . get_post_type_archive_link( 'tour' ) . '" title="' . __( 'Tours', 'citytours' ) . '">' . __( 'Tours', 'citytours' ) . '</a></li>';
 
+                    echo '<li class="active">' . esc_html( get_the_title() ) . '</li>';
+                }  else if ( 'hotel' == $post->post_type ) {
+                    echo '<li><a href="' . get_post_type_archive_link( 'hotel' ) . '" title="' . __( 'Hotels', 'citytours' ) . '">' . __( 'Hotels', 'citytours' ) . '</a></li>';
+
+                    echo '<li class="active">' . esc_html( get_the_title() ) . '</li>';
+                } else {
+                    // other single post breadcrumb
                     echo '<li class="active">' . esc_html( get_the_title() ) . '</li>';
                 }
             }
@@ -1006,7 +1189,15 @@ if ( ! function_exists( 'ct_breadcrumbs' ) ) {
 
             if ( is_tax() ) {
                 if ( is_tax( 'product_cat' ) ) { 
-                    $shop_page_id = woocommerce_get_page_id( 'shop' );
+                    global $woocommerce;
+
+                    $shop_page_id = 0;
+                    if ( version_compare( $woocommerce->version, '3.0', ">=" ) ) {
+                        $shop_page_id = wc_get_page_id( 'shop' );
+                    } else { 
+                        $shop_page_id = woocommerce_get_page_id( 'shop' );
+                    }
+
                     echo '<li><a href="' . get_permalink( $shop_page_id ) . '" title="' . get_the_title( $shop_page_id ) . '">' . __( 'Shop', 'citytours' ) . '</a></li>';
                 }
 
@@ -1199,6 +1390,7 @@ if ( ! function_exists( 'ct_theme_slug_fonts_url' ) ) {
         $montserrat = _x( 'on', 'Montserrat font: on or off', 'citytours' );
         $gochihand = _x( 'on', 'Gochi+Hand font: on or off', 'citytours' );
         $lato = _x( 'on', 'Lato font: on or off', 'citytours' );
+
         if ( 'off' !== $montserrat || 'off' !== $gochihand || 'lato' !== $gochihand ) {
             $font_families = array();
             if ( 'off' !== $montserrat ) {
@@ -1216,6 +1408,7 @@ if ( ! function_exists( 'ct_theme_slug_fonts_url' ) ) {
             );
             $fonts_url = add_query_arg( $query_args, 'https://fonts.googleapis.com/css' );
         }
+
         return esc_url_raw( $fonts_url );
     }
 }

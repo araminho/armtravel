@@ -5,7 +5,7 @@
  * @see         https://docs.woocommerce.com/document/template-structure/
  * @author      WooThemes
  * @package     WooCommerce/Templates
- * @version     2.0.0
+ * @version     3.4.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -28,15 +28,17 @@ $header_img_scr = ct_get_header_image_src( 'shop' );
 
 $woocommerce_loop['columns'] = $ct_options['shop_product_columns'];
 
-get_header( 'shop' ); ?>
+get_header( 'shop' ); 
+    ?>
 
     <?php 
 
     if ( ! empty( $header_img_scr ) ) { 
-        $header_content = ! empty( $ct_options['shop_header_content'] )? $ct_options['shop_header_content'] : '' ;
+        $header_content = ct_get_header_content( 'shop' ) ;
+        $header_img_height = ct_get_header_image_height( 'shop' );
         ?>
 
-        <section class="parallax-window" data-parallax="scroll" data-image-src="<?php echo esc_url( $header_img_scr ) ?>" data-natural-width="1400" data-natural-height="470">
+        <section class="parallax-window" data-parallax="scroll" data-image-src="<?php echo esc_url( $header_img_scr ) ?>" data-natural-width="1400" data-natural-height="<?php echo esc_attr( $header_img_height ); ?>">
             <div class="parallax-content-1">
                 <?php echo balancetags( $header_content ); ?>
             </div>
@@ -61,12 +63,12 @@ get_header( 'shop' ); ?>
         do_action( 'woocommerce_before_main_content' );
     ?>
 
-    <div class="<?php echo $wrapper_class ?>">
+    <div class="<?php echo esc_attr( $wrapper_class ); ?>">
         <div class="shop-section"> 
 
             <?php if ( apply_filters( 'woocommerce_show_page_title', true ) ) : ?>
 
-                <h1 class="page-title"><?php woocommerce_page_title(); ?></h1>
+                <h1 class="woocommerce-products-header__title page-title"><?php woocommerce_page_title(); ?></h1>
 
             <?php endif; ?>
 
@@ -94,17 +96,26 @@ get_header( 'shop' ); ?>
                     ?>
                 </div>
 
-                <?php woocommerce_product_loop_start(); ?>
+                <?php
+                woocommerce_product_loop_start();
 
-                    <?php woocommerce_product_subcategories(); ?>
+                if ( wc_get_loop_prop( 'total' ) ) {
+                    while ( have_posts() ) {
+                        the_post();
 
-                    <?php while ( have_posts() ) : the_post(); ?>
+                        /**
+                         * Hook: woocommerce_shop_loop.
+                         *
+                         * @hooked WC_Structured_Data::generate_product_data() - 10
+                         */
+                        do_action( 'woocommerce_shop_loop' );
 
-                        <?php wc_get_template_part( 'content', 'product' ); ?>
+                        wc_get_template_part( 'content', 'product' );
+                    }
+                }
 
-                    <?php endwhile; // end of the loop. ?>
-
-                <?php woocommerce_product_loop_end(); ?>
+                woocommerce_product_loop_end();
+                ?>
 
                 <hr>
 
@@ -117,11 +128,17 @@ get_header( 'shop' ); ?>
                     do_action( 'woocommerce_after_shop_loop' );
                 ?>
 
-            <?php elseif ( ! woocommerce_product_subcategories( array( 'before' => woocommerce_product_loop_start( false ), 'after' => woocommerce_product_loop_end( false ) ) ) ) : ?>
+            <?php else : 
 
-                <?php wc_get_template( 'loop/no-products-found.php' ); ?>
+                /**
+                 * Hook: woocommerce_no_products_found.
+                 *
+                 * @hooked wc_no_products_found - 10
+                 */
+                do_action( 'woocommerce_no_products_found' );
 
-            <?php endif; ?>
+            endif; 
+            ?>
 
         </div>
 
