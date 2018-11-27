@@ -207,11 +207,14 @@ if(!isset($linksEditSlides)) $linksEditSlides = '';
 					
 					<div id="rs-instagram-settings-wrapper" class="rs-settings-wrapper">
 						<div style="width:50%;display:block;float:left;">
-							<span class="rev-new-label"><?php _e('Slides (max 20)', 'revslider');?></span>
-							<input type="text" value="<?php echo RevSliderFunctions::getVal($arrFieldsParams, 'instagram-count', '');?>" name="instagram-count" title="<?php _e('Display this number of photos', 'revslider');?>">
+							<span class="rev-new-label"><?php _e('Slides', 'revslider');?></span>
+							<input type="text" value="<?php echo RevSliderFunctions::getVal($arrFieldsParams, 'instagram-count', '');?>" name="instagram-count" title="<?php _e('Display this number of photos (max. 12 photos)', 'revslider');?>">
 							<p>
 								<span class="rev-new-label"><?php _e('Cache (sec)', 'revslider');?></span>
 								<input type="text" value="<?php echo RevSliderFunctions::getVal($arrFieldsParams, 'instagram-transient', '1200');?>" name="instagram-transient" title="<?php _e('Cache the result', 'revslider');?>">
+							</p>
+							<p>
+									<span class="description"><?php _e('Please remember that you can only fetch max 12 items.', 'revslider');?></span>
 							</p>
 							<!--p>
 								<span class="rev-new-label"><?php _e('Access Token', 'revslider');?></span>
@@ -219,7 +222,7 @@ if(!isset($linksEditSlides)) $linksEditSlides = '';
 							</p>
 							<p>
 								<span class="description"><?php _e('Get your Instagram Access Token <a target="_blank" href="http://jelled.com/instagram/access-token">here</a>', 'revslider');?></span>
-							</p-->
+							</p--->
 						</div>
 						<div style="width:50%;display:block;float:left;">
 							<span class="rev-new-label"><?php _e('Source', 'revslider');?></span>
@@ -2511,14 +2514,21 @@ if(!isset($linksEditSlides)) $linksEditSlides = '';
 										<div class="clear"></div>
 
 										<!-- Progress Bar Height -->
-										<span class="label" id="label_progress_height" origmedia="show" origtitle="<?php _e("The height of the progress bar", 'revslider');?>"><?php _e("Progress Bar Heigth", 'revslider');?> </span>
+										<span class="label" id="label_progress_height" origmedia="show" origtitle="<?php _e("The height of the progress bar", 'revslider');?>"><?php _e("Progress Bar Height", 'revslider');?> </span>
 										<input type="text" class="text-sidebar withlabel"  id="progress_height" name="progress_height" value="<?php echo RevSliderFunctions::getVal($arrFieldsParams, 'progress_height', '5');?>">
 										<span><?php _e("px", 'revslider');?></span>
 										<div class="clear"></div>
 
 										<!-- Progress Bar Color -->
-										<span class="label" id="label_progressbar_color" origmedia="show" origtitle="<?php _e("Color of the progress bar.", 'revslider');?>"><?php _e("Progress Bar Color", 'revslider');?> </span>
+										<span class="label" id="label_progressbar_color" origmedia="show" origtitle="<?php _e("Color of the progress bar.", 'revslider');?>"><?php _e("Progress Bar Color", 'revslider');?> </span>										
 										<input type="text" class="my-color-field rs-layer-input-field tipsy_enabled_top withlabel"  id="progressbar_color" data-editing="Progress Bar Color" name="progressbar_color" value="<?php echo TPColorpicker::convert(RevSliderFunctions::getVal($arrFieldsParams, 'progressbar_color', 'rgba(0,0,0,0.15)'), RevSliderFunctions::getVal($arrFieldsParams, 'progress_opa', 'false'));?>" />
+										<script>
+											jQuery(document).ready(function() {	
+												var v = jQuery('#progressbar_color').val();
+												if (v.indexOf("false")>=0 && v.indexOf("rgba")>=0)									
+													jQuery('#progressbar_color').val(window.RevColor.get(jQuery('#progressbar_color').val()));
+											});
+										</script>
 										<div class="clear"></div>
 									</div>
 								</div><!-- END OF GENERAL PROGRESSBAR -->
@@ -4078,7 +4088,7 @@ if(!isset($linksEditSlides)) $linksEditSlides = '';
 										<div class="withsublabels">
 											<div class="hide_on_ddd_parallax">
 												<span id="label_parallax_type" class="label" origtitle="<?php _e("Defines on what event type the parallax should react to", 'revslider');?>"><?php _e("Event", 'revslider');?></span>
-												<select id="parallax_type" name="parallax_type"  class="withlabel">
+												<select id="parallax_type" name="parallax_type"  class="withlabel" style="width:140px">
 													<option value="mouse" <?php selected(RevSliderFunctions::getVal($arrFieldsParams, "parallax_type", "mouse"), "mouse");?>><?php _e("Mouse Move", 'revslider');?></option>
 													<option value="scroll" <?php selected(RevSliderFunctions::getVal($arrFieldsParams, "parallax_type", "mouse"), "scroll");?>><?php _e("Scroll Position", 'revslider');?></option>
 													<option value="mouse+scroll" <?php selected(RevSliderFunctions::getVal($arrFieldsParams, "parallax_type", "mouse"), "mouse+scroll");?>><?php _e("Move and Scroll", 'revslider');?></option>
@@ -4086,17 +4096,31 @@ if(!isset($linksEditSlides)) $linksEditSlides = '';
 												<div class="clear"></div>
 
 												<span id="label_parallax_origo" class="label" origtitle="<?php _e("Mouse Based parallax calculation Origo", 'revslider');?>"><?php _e("Parallax Origo", 'revslider');?></span>
-												<select id="parallax_origo" name="parallax_origo"  class="withlabel">
+												<select id="parallax_origo" name="parallax_origo"  class="withlabel" style="width:140px">
 													<option value="enterpoint" <?php selected(RevSliderFunctions::getVal($arrFieldsParams, "parallax_origo", "enterpoint"), "enterpoint");?>><?php _e("Mouse Enter Point", 'revslider');?></option>
 													<option value="slidercenter" <?php selected(RevSliderFunctions::getVal($arrFieldsParams, "parallax_origo", "enterpoint"), "slidercenter");?>><?php _e("Slider Center", 'revslider');?></option>										
 												</select>
 												<div class="clear"></div>
 											</div>
 
-											<span class="label" id="label_parallax_speed" origtitle="<?php _e("Parallax Speed for Mouse movents.", 'revslider');?>"><?php _e("Animation Speed", 'revslider');?> </span>
-											<input type="text" class="text-sidebar withlabel" id="parallax_speed" name="parallax_speed" value="<?php echo RevSliderFunctions::getVal($arrFieldsParams, "parallax_speed", "400");?>">									
-											<span ><?php _e("ms", 'revslider');?></span>
-											<div class="clear"></div>		
+											<div id="px_m_b_speed" style="display:none">
+												<span class="label" id="label_parallax_speed" origtitle="<?php _e("Parallax Speed for Mouse movements.", 'revslider');?>"><?php _e("Mouse based Speed", 'revslider');?> </span>
+												<input type="text" class="text-sidebar withlabel" id="parallax_speed" name="parallax_speed" value="<?php echo RevSliderFunctions::getVal($arrFieldsParams, "parallax_speed", "400");?>">									
+												<span ><?php _e("ms", 'revslider');?></span>
+												<div class="clear"></div>	
+											</div>
+
+											<div id="px_s_b_speed" style="display:none">
+												<span class="label" id="label_parallax_bg_speed" origtitle="<?php _e("Parallax Speed for Background movements.", 'revslider');?>"><?php _e("Background Speed", 'revslider');?> </span>
+												<input type="text" class="text-sidebar withlabel" id="parallax_bg_speed" name="parallax_bg_speed" value="<?php echo RevSliderFunctions::getVal($arrFieldsParams, "parallax_bg_speed", "0");?>">									
+												<span ><?php _e("ms", 'revslider');?></span>
+												<div class="clear"></div>			
+
+												<span class="label" id="label_parallax_ls_speed" origtitle="<?php _e("Parallax Speed for Layer movements.", 'revslider');?>"><?php _e("Layers Speed", 'revslider');?> </span>
+												<input type="text" class="text-sidebar withlabel" id="parallax_ls_speed" name="parallax_ls_speed" value="<?php echo RevSliderFunctions::getVal($arrFieldsParams, "parallax_ls_speed", "0");?>">									
+												<span ><?php _e("ms", 'revslider');?></span>
+												<div class="clear"></div>			
+											</div>
 										</div>							
 
 										<h4 class="hide_on_ddd_parallax"><?php _e("Parallax Levels", 'revslider');?></h4>
@@ -4189,6 +4213,28 @@ if(!isset($linksEditSlides)) $linksEditSlides = '';
 											jQuery('.show_on_ddd_parallax').hide();
 										}
 								});
+								
+								function showHidePXBaseds() {
+									var v = jQuery('#parallax_type').val();
+									switch(v) {
+									  case "scroll":
+										jQuery('#px_m_b_speed').hide();
+										jQuery('#px_s_b_speed').show();	
+									  break;
+									  case "mouse":									
+										jQuery('#px_m_b_speed').show();
+										jQuery('#px_s_b_speed').hide();	
+									  break;
+									  case "mouse+scroll":
+									  	jQuery('#px_m_b_speed').show();
+										jQuery('#px_s_b_speed').show();	
+									  break;
+									}						
+								}
+
+								jQuery('#parallax_type').on("change",showHidePXBaseds);		
+								showHidePXBaseds();							
+
 								jQuery('#ddd_parallax').on("change",function() {
 									drawToolBarPreview();
 									var sbi = jQuery(this);
@@ -4501,97 +4547,104 @@ if(!isset($linksEditSlides)) $linksEditSlides = '';
 						</script>
 					</div>
 
-					<div class="setting_box rs-cm-refresh" id="v_goo_fo">
-						<h3 class="box_closed"><i class="rs-rp-accordion-icon eg-icon-font"></i>
-							<div class="setting_box-arrow"></div>
-							<span><?php _e('Google Fonts', 'revslider');?></span>
-						</h3>
-
-						<div class="inside" style="display:none">
-
-							<div class="rs-gf-listing">
-								<?php
-								$subsets = RevSliderFunctions::getVal($arrFieldsParams, 'subsets', array());
-								
-								$gf = array();
-								if ($is_edit) {
-									if(!empty($sliderID)) {
-										$gf = $slider->getUsedFonts();
-									}
-								}
-								if(!empty($gf)){
-									echo '<h4 style="margin-top:0px;margin-bottom:8px">'.__('Dynamically Registered Google Fonts', 'revslider').'</h4>';
-									
-									foreach($gf as $mgf => $mgv){
-										echo '<div class="single-google-font-item">';
-										echo '<span class="label font-name-label">'.$mgf.':';
-										if(!empty($mgv['variants'])){
-											$mgfirst = true;
-											foreach($mgv['variants'] as $mgvk => $mgvv){
-												if(!$mgfirst) echo ',';
-												echo $mgvk;
-												$mgfirst = false;
-											}
-										}	
-										echo '</span>';
-										echo '<div class="single-font-setting-wrapper">';
-										if(!empty($mgv['slide'])){
-											echo '<span class="label">Used in Slide:</span>';
-											echo '<select class="google-font-slide-link-list">';
-											echo '<option value="blank">Edit Slide(s)</option>';
-											foreach($mgv['slide'] as $mgskey => $mgsval){
-												echo '<option value="'.self::getViewUrl(RevSliderAdmin::VIEW_SLIDE,'id='.$mgsval['id'].'&slider='.intval($sliderID)).'">'.__('Edit:', 'revslider').' '.esc_attr($mgsval['title']).'</option>';
-											}
-											echo '</select>';
-											
-										}
-										
-										if(!empty($mgv['subsets'])){
-											echo '<div class="clear"></div>';
-											
-											foreach($mgv['subsets'] as $ssk => $ssv){
-												echo '<span class="label subsetlabel">'.$ssv.'</span>';
-												echo '<input class="tp-moderncheckbox" type="checkbox" data-useval="true" value="'.esc_attr($mgf.'+'.$ssv).'" name="subsets[]" ';
-												if(array_search(esc_attr($mgf.'+'.$ssv), $subsets) !== false){
-													echo 'checked="checked"';
-												}
-												echo '> ';
-											}
-										}
-										echo '</div>';
-										echo '</div>';
-									}
-								} else {
-									echo '<h4 style="margin-top:0px;">'.__('No dynamic fonts registered', 'revslider').'</h4>';
-								}
-								
-								?>
-							</div>
-							<script>
-								jQuery('.google-font-slide-link-list').on('change', function() {
-									var t = jQuery(this),
-										v = t.find('option:selected').val();
-
-									if (v!="blank") {
-										var win = window.open(v,'_blank');
-										if (win) {
-											win.focus();
-										} else {
-											alert('<?php _e('Link to Slide Editor is Blocked ! Please Allow Pop Ups for this Site !', 'revslider'); ?>');
-										}
-									}
-									t.val("blank");
-									
-								});
-							</script>
-							<!--h4><?php _e("Deprecated Google Font Import",'revslider');?></h4>
-							<div id="rs-google-fonts">
-							
-							</div-->
-						</div>
-					</div>
-					
 					<?php
+					$glob_vals = RevSliderOperations::getGeneralSettingsValues();
+					$dl_fonts = RevSliderFunctions::getVal($glob_vals, 'load_google_fonts', 'off');
+					if($dl_fonts === 'off'){
+						?>
+						<div class="setting_box rs-cm-refresh" id="v_goo_fo">
+							<h3 class="box_closed"><i class="rs-rp-accordion-icon eg-icon-font"></i>
+								<div class="setting_box-arrow"></div>
+								<span><?php _e('Google Fonts', 'revslider');?></span>
+							</h3>
+
+							<div class="inside" style="display:none">
+
+								<div class="rs-gf-listing">
+									<?php
+									$subsets = RevSliderFunctions::getVal($arrFieldsParams, 'subsets', array());
+									
+									$gf = array();
+									if ($is_edit) {
+										if(!empty($sliderID)) {
+											$gf = $slider->getUsedFonts();
+										}
+									}
+									if(!empty($gf)){
+										echo '<h4 style="margin-top:0px;margin-bottom:8px">'.__('Dynamically Registered Google Fonts', 'revslider').'</h4>';
+										
+										foreach($gf as $mgf => $mgv){
+											echo '<div class="single-google-font-item">';
+											echo '<span class="label font-name-label">'.$mgf.':';
+											if(!empty($mgv['variants'])){
+												$mgfirst = true;
+												foreach($mgv['variants'] as $mgvk => $mgvv){
+													if(!$mgfirst) echo ',';
+													echo $mgvk;
+													$mgfirst = false;
+												}
+											}	
+											echo '</span>';
+											echo '<div class="single-font-setting-wrapper">';
+											if(!empty($mgv['slide'])){
+												echo '<span class="label">Used in Slide:</span>';
+												echo '<select class="google-font-slide-link-list">';
+												echo '<option value="blank">Edit Slide(s)</option>';
+												foreach($mgv['slide'] as $mgskey => $mgsval){
+													echo '<option value="'.self::getViewUrl(RevSliderAdmin::VIEW_SLIDE,'id='.$mgsval['id'].'&slider='.intval($sliderID)).'">'.__('Edit:', 'revslider').' '.esc_attr($mgsval['title']).'</option>';
+												}
+												echo '</select>';
+												
+											}
+											
+											if(!empty($mgv['subsets'])){
+												echo '<div class="clear"></div>';
+												
+												foreach($mgv['subsets'] as $ssk => $ssv){
+													echo '<span class="label subsetlabel">'.$ssv.'</span>';
+													echo '<input class="tp-moderncheckbox" type="checkbox" data-useval="true" value="'.esc_attr($mgf.'+'.$ssv).'" name="subsets[]" ';
+													if(array_search(esc_attr($mgf.'+'.$ssv), $subsets) !== false){
+														echo 'checked="checked"';
+													}
+													echo '> ';
+												}
+											}
+											echo '</div>';
+											echo '</div>';
+										}
+									} else {
+										echo '<h4 style="margin-top:0px;">'.__('No dynamic fonts registered', 'revslider').'</h4>';
+									}
+									
+									?>
+								</div>
+								<script>
+									jQuery('.google-font-slide-link-list').on('change', function() {
+										var t = jQuery(this),
+											v = t.find('option:selected').val();
+
+										if (v!="blank") {
+											var win = window.open(v,'_blank');
+											if (win) {
+												win.focus();
+											} else {
+												alert('<?php _e('Link to Slide Editor is Blocked ! Please Allow Pop Ups for this Site !', 'revslider'); ?>');
+											}
+										}
+										t.val("blank");
+										
+									});
+								</script>
+								<!--h4><?php _e("Deprecated Google Font Import",'revslider');?></h4>
+								<div id="rs-google-fonts">
+								
+								</div-->
+							</div>
+						</div>
+						
+						<?php
+					}
+					
 					$revslider_addon = apply_filters('revslider_slider_addons', array(), $arrFieldsParams);
 					if(!empty($revslider_addon)){
 						foreach($revslider_addon as $addon_handle => $addon_values){
@@ -4674,11 +4727,11 @@ if(!isset($linksEditSlides)) $linksEditSlides = '';
 
 								<div id="import-replace" style="display:none">
 
-									<span class="label label-with-subsection" id="label_replace_url_from" origtitle="<?php _e("Replace all layer and backgorund image url's. example - replace from: http://localhost", 'revslider');?>"><?php _e("Replace From", 'revslider');?> </span>
+									<span class="label label-with-subsection" id="label_replace_url_from" origtitle="<?php _e("Replace all layer and background image url's. example - replace from: http://localhost", 'revslider');?>"><?php _e("Replace From", 'revslider');?> </span>
 									<input type="text" class="text-sidebar-link withlabel" id="replace_url_from">
 									<div class="tp-clearfix"></div>
 
-									<span class="label label-with-subsection" id="label_replace_url_to" origtitle="<?php _e("Replace all layer and backgorund image url's. example - replace to: http://yoursite.com", 'revslider');?>"><?php _e("Replace To", 'revslider');?> </span>
+									<span class="label label-with-subsection" id="label_replace_url_to" origtitle="<?php _e("Replace all layer and background image url's. example - replace to: http://yoursite.com", 'revslider');?>"><?php _e("Replace To", 'revslider');?> </span>
 									<input type="text" class="text-sidebar-link withlabel" id="replace_url_to">
 									<div class="tp-clearfix"></div>
 

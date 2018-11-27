@@ -231,6 +231,17 @@ class RevSliderOperations extends RevSliderElementsBase{
 			"curtain-1"=>"Curtain from Left",
 			"curtain-2"=>"Curtain from Right",
 			"curtain-3"=>"Curtain from Middle",
+
+			"notselectable8"=>"FILTER TRANSITIONS",
+			"grayscale"=>"Grayscale Transition",
+			"grayscalecross"=>"Grayscale Cross Transition",
+			"brightness"=>"Brightness Transition",
+			"brightnesscross"=>"Brightness Cross Transition",
+			"blurlight"=>"Blur Light Transition",
+			"blurlightcross"=>"Blur Light Cross Transition",
+			"blurstrong"=>"Blur Strong Transition",
+			"blurstrongcross"=>"Blur Strong Cross Transition",
+			
 			
 			"notselectable7"=>"PREMIUM TRANSITIONS",
 			"3dcurtain-horizontal"=>"3D Curtain Horizontal",
@@ -1304,116 +1315,117 @@ class RevSliderOperations extends RevSliderElementsBase{
 		$setBase = (is_ssl()) ? "https://" : "http://";
 
 		?>
-			<html>
-				<head>
-					<link rel='stylesheet' href='<?php echo $urlPlugin; ?>css/settings.css?rev=<?php echo RevSliderGlobals::SLIDER_REVISION; ?>' type='text/css' media='all' />
-					<link rel='stylesheet' href='<?php echo $urlPlugin; ?>fonts/font-awesome/css/font-awesome.css?rev=<?php echo RevSliderGlobals::SLIDER_REVISION; ?>' type='text/css' media='all' />
-					<link rel='stylesheet' href='<?php echo $urlPlugin; ?>fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css?rev=<?php echo RevSliderGlobals::SLIDER_REVISION; ?>' type='text/css' media='all' />
-					<?php
-					$db = new RevSliderDB();
+		<html>
+			<head>
+				<link rel='stylesheet' href='<?php echo $urlPlugin; ?>css/settings.css?rev=<?php echo RevSliderGlobals::SLIDER_REVISION; ?>' type='text/css' media='all' />
+				<link rel='stylesheet' href='<?php echo $urlPlugin; ?>fonts/font-awesome/css/font-awesome.css?rev=<?php echo RevSliderGlobals::SLIDER_REVISION; ?>' type='text/css' media='all' />
+				<link rel='stylesheet' href='<?php echo $urlPlugin; ?>fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css?rev=<?php echo RevSliderGlobals::SLIDER_REVISION; ?>' type='text/css' media='all' />
+				<?php
+				$db = new RevSliderDB();
 
-					if(empty(self::$css)){
-						self::fillCSS();
-					}
-					
-					$styles = self::$css;
-					$styles = RevSliderCssParser::parseDbArrayToCss($styles, "\n");
-					$styles = RevSliderCssParser::compress_css($styles);
+				if(empty(self::$css)){
+					self::fillCSS();
+				}
+				
+				$styles = self::$css;
+				$styles = RevSliderCssParser::parseDbArrayToCss($styles, "\n");
+				$styles = RevSliderCssParser::compress_css($styles);
 
-					echo '<style type="text/css">'.$styles.'</style>'; //.$stylesinnerlayers
+				echo '<style type="text/css">'.$styles.'</style>'; //.$stylesinnerlayers
 
-					$http = (is_ssl()) ? 'https' : 'http';
-					
-					$operations = new RevSliderOperations();
-					$arrValues = $operations->getGeneralSettingsValues();
-					
-					$set_diff_font = RevSliderFunctions::getVal($arrValues, "change_font_loading",'');
-					if($set_diff_font !== ''){
-						$font_url = $set_diff_font;
-					}else{
-						$font_url = $http.'://fonts.googleapis.com/css?family=';
-					}
+				$http = (is_ssl()) ? 'https' : 'http';
+				
+				$operations = new RevSliderOperations();
+				$arrValues = $operations->getGeneralSettingsValues();
+				
+				$set_diff_font = RevSliderFunctions::getVal($arrValues, "change_font_loading",'');
+				if($set_diff_font !== ''){
+					$font_url = $set_diff_font;
+				}else{
+					$font_url = $http.'://fonts.googleapis.com/css?family=';
+				}
 
-					$custom_css = RevSliderOperations::getStaticCss();
-					echo '<style type="text/css">'.RevSliderCssParser::compress_css($custom_css).'</style>';
-					
-					$gfonts = '';
-					$googleFont = $slider->getParam("google_font");
-					if(is_array($googleFont)){
-						foreach($googleFont as $key => $font){
-							
-						}
-					}else{
-						RevSliderOperations::setCleanFontImport($googleFont);
-						//$gfonts .= RevSliderOperations::getCleanFontImport($googleFont);
-					}
-					//add all google fonts of layers
-					$gfsubsets = $slider->getParam("subsets",array());
-					$gf = $slider->getUsedFonts(false);
-					
-					foreach($gf as $gfk => $gfv){
-						$variants = array();
-						if(!empty($gfv['variants'])){
-							foreach($gfv['variants'] as $mgvk => $mgvv){
-								$variants[] = $mgvk;
-							}
-						}
+				$custom_css = RevSliderOperations::getStaticCss();
+				echo '<style type="text/css">'.RevSliderCssParser::compress_css($custom_css).'</style>';
+				
+				$gfonts = '';
+				$googleFont = $slider->getParam("google_font");
+				if(is_array($googleFont)){
+					foreach($googleFont as $key => $font){
 						
-						$subsets = array();
-						if(!empty($gfv['subsets'])){
-							foreach($gfv['subsets'] as $ssk => $ssv){
-								if(array_search(esc_attr($gfk.'+'.$ssv), $gfsubsets) !== false){
-									$subsets[] = $ssv;
-								}
-							}
+					}
+				}else{
+					RevSliderOperations::setCleanFontImport($googleFont);
+					//$gfonts .= RevSliderOperations::getCleanFontImport($googleFont);
+				}
+				//add all google fonts of layers
+				$gfsubsets = $slider->getParam("subsets",array());
+				$gf = $slider->getUsedFonts(false);
+				
+				foreach($gf as $gfk => $gfv){
+					$variants = array();
+					if(!empty($gfv['variants'])){
+						foreach($gfv['variants'] as $mgvk => $mgvv){
+							$variants[] = $mgvk;
 						}
-						RevSliderOperations::setCleanFontImport($gfk, '', '', $variants, $subsets);
-						//$gfonts .= RevSliderOperations::getCleanFontImport($gfk, '', '', $variants, $subsets);
 					}
 					
-					echo RevSliderOperations::printCleanFontImport();
-					//echo $gfonts;
-					?>
-
-					<script type='text/javascript' src='<?php echo $setBase; ?>code.jquery.com/jquery-latest.min.js'></script>
-
-					<script type='text/javascript' src='<?php echo $urlPlugin; ?>js/jquery.themepunch.tools.min.js?rev=<?php echo RevSliderGlobals::SLIDER_REVISION; ?>'></script>
-					<script type='text/javascript' src='<?php echo $urlPlugin; ?>js/jquery.themepunch.revolution.min.js?rev=<?php echo RevSliderGlobals::SLIDER_REVISION; ?>'></script>
-					<?php
-					$setRevStartSize = RevSliderFront::add_setREVStartSize();
-					echo $setRevStartSize;
-					?>
-					<?php
-					do_action('revslider_preview_slider_head');
-					?>
-				</head>
-				<body style="padding:0px;margin:0px;width:100%;height:100%;position:relative;">
-					<?php
-					if($wpmlActive == true){
-						?>
-						<div style="margin-bottom:10px;text-align:center;">
-						<?php _e("Choose language",'revslider'); ?>: <?php echo $selectLangChoose; ?>
-						</div>
-
-						<script type="text/javascript">
-							var g_previewPattern = '<?php echo $urlPreviewPattern; ?>';
-							jQuery("#select_langs").change(function(){
-								var lang = this.value;
-								var nonce = "<?php echo $nonce; ?>";
-								var pattern = g_previewPattern;
-								var urlPreview = pattern.replace("[lang]",lang).replace("[nonce]",nonce);
-								location.href = urlPreview;
-							});
-						</script>
-						<?php
+					$subsets = array();
+					if(!empty($gfv['subsets'])){
+						foreach($gfv['subsets'] as $ssk => $ssv){
+							if(array_search(esc_attr($gfk.'+'.$ssv), $gfsubsets) !== false){
+								$subsets[] = $ssv;
+							}
+						}
 					}
-					?>
+					RevSliderOperations::setCleanFontImport($gfk, '', '', $variants, $subsets);
+					//$gfonts .= RevSliderOperations::getCleanFontImport($gfk, '', '', $variants, $subsets);
+				}
+				
+				echo RevSliderOperations::printCleanFontImport();
+				//echo $gfonts;
+				?>
 
-					<?php
-						$output->putSliderBase($sliderID);
+				<script type='text/javascript' src='<?php echo $setBase; ?>code.jquery.com/jquery-latest.min.js'></script>
+
+				<script type='text/javascript' src='<?php echo $urlPlugin; ?>js/jquery.themepunch.tools.min.js?rev=<?php echo RevSliderGlobals::SLIDER_REVISION; ?>'></script>
+				<script type='text/javascript' src='<?php echo $urlPlugin; ?>js/jquery.themepunch.revolution.min.js?rev=<?php echo RevSliderGlobals::SLIDER_REVISION; ?>'></script>
+				<?php
+				$setRevStartSize = RevSliderFront::add_setREVStartSize();
+				echo $setRevStartSize;
+				?>
+				<?php
+				do_action('revslider_preview_slider_head');
+				?>
+			</head>
+			<body style="padding:0px;margin:0px;width:100%;height:100%;position:relative;">
+				<?php
+				if($wpmlActive == true){
 					?>
-				</body>
-			</html>
+					<div style="margin-bottom:10px;text-align:center;">
+					<?php _e("Choose language",'revslider'); ?>: <?php echo $selectLangChoose; ?>
+					</div>
+
+					<script type="text/javascript">
+						var g_previewPattern = '<?php echo $urlPreviewPattern; ?>';
+						jQuery("#select_langs").change(function(){
+							var lang = this.value;
+							var nonce = "<?php echo $nonce; ?>";
+							var pattern = g_previewPattern;
+							var urlPreview = pattern.replace("[lang]",lang).replace("[nonce]",nonce);
+							location.href = urlPreview;
+						});
+					</script>
+					<?php
+				}
+				?>
+
+				<?php
+					$output->putSliderBase($sliderID);
+					do_action('revslider_preview_slider_footer', $slider, $output);
+				?>
+			</body>
+		</html>
 		<?php
 	}
 
@@ -2179,6 +2191,15 @@ ob_end_clean();
 	
 	
 	/**
+	 * set the rs_google_font to current date, so that it will be redownloaded
+	 *
+	 */
+	public static function deleteGoogleFonts(){
+		update_option('rs_google_font', time());
+	}
+	
+	
+	/**
 	 * print html font import
 	 *
 	 */
@@ -2190,38 +2211,55 @@ ob_end_clean();
 		$ret = '';
 		$tcf = '';
 		$tcf2 = '';
+		$temp = '';
+		$fonts = array();
+		$glob_vals = RevSliderOperations::getGeneralSettingsValues();
+		$dl_fonts = RevSliderFunctions::getVal($glob_vals, 'load_google_fonts', 'off');
+		
+		if($dl_fonts === 'disable') return $ret;
 		
 		if(!empty($revslider_fonts)){
 			foreach($revslider_fonts as $f_n => $f_s){
 				if($f_n !== ''){
 					if(isset($f_s['variants']) && !empty($f_s['variants']) || isset($f_s['subsets']) && !empty($f_s['subsets'])){
+						$temp = '';
 						if(strpos($f_n, "href=") === false){
-							if($font_first == false) $tcf .= '|';
-							$tcf .= urlencode($f_n).':';
+							if($font_first == false) $tcf .= '%7C'; //'|';
+							$temp .= urlencode($f_n).':';
 							
 							if(isset($f_s['variants']) && !empty($f_s['variants'])){
 								$mgfirst = true;
 								foreach($f_s['variants'] as $mgvk => $mgvv){
-									if(!$mgfirst) $tcf .= urlencode(',');
-									$tcf .= urlencode($mgvv);
+									if(!$mgfirst) $temp .= urlencode(',');
+									$temp .= urlencode($mgvv);
 									$mgfirst = false;
 								}
 							}
+							
+							
+							$fonts[$f_n] = $temp; //we do not want to add the subsets
 							
 							if(isset($f_s['subsets']) && !empty($f_s['subsets'])){
 								$mgfirst = true;
 								foreach($f_s['subsets'] as $ssk => $ssv){
-									if($mgfirst) $tcf .= urlencode('&subset=');
-									if(!$mgfirst) $tcf .= urlencode(',');
-									$tcf .= urlencode($ssv);
+									if($mgfirst) $temp .= urlencode('&subset=');
+									if(!$mgfirst) $temp .= urlencode(',');
+									$temp .= urlencode($ssv);
 									$mgfirst = false;
 								}
 							}
 							
+							$tcf .= $temp;
 						}else{
 							$f_n = str_replace(array('http://', 'https://'), array($setBase, $setBase), $f_n);
-							$tcf2 .= html_entity_decode(stripslashes($f_n));
+							
+							$temp = html_entity_decode(stripslashes($f_n)); 
+							$tcf2 .= $temp;
+							
+							$fonts[$f_n] = $temp;
+							
 						}
+						
 					}
 					$font_first = false;
 				}
@@ -2230,14 +2268,81 @@ ob_end_clean();
 	
 		$setBase = (is_ssl()) ? "https://" : "http://";
 		
-		$url = RevSliderFront::modify_punch_url($setBase . 'fonts.googleapis.com/css?family=');
-		if($tcf !== ''){
-			$ret .= '<link href="'.$url.$tcf.'" rel="stylesheet" property="stylesheet" type="text/css" media="all">'; //id="rev-google-font"
+		if($dl_fonts === 'preload'){
+			if(!empty($fonts)){
+				$upload_dir	= wp_upload_dir();
+				$base_dir	= $upload_dir['basedir'];
+				$base_url	= $upload_dir['baseurl'];
+				$rs_google_ts = get_option('rs_google_font', 0);
+				
+				foreach($fonts as $key => $font){
+					//check if we downloaded the font already
+					$font_name = preg_replace('/[^-a-z0-9 ]+/i', '', $key);
+					$font_name = strtolower(str_replace(' ', '-', esc_attr($font_name)));
+					
+					if(!is_file($base_dir.'/revslider/gfonts/'. $font_name . '/' . $font_name . '.woff2') || filemtime($base_dir.'/revslider/gfonts/'. $font_name . '/' . $font_name . '.woff2') < $rs_google_ts){
+						if(!is_dir($base_dir.'/revslider/gfonts/')){
+							mkdir($base_dir.'/revslider/gfonts/');
+						}
+						
+						if(!is_dir($base_dir.'/revslider/gfonts/'.$font_name)){
+							mkdir($base_dir.'/revslider/gfonts/'.$font_name);
+						}
+						
+						$regex_url	= "/(http|https|ftp|ftps)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(\/\S*)?/";
+						$url		= $setBase.'fonts.googleapis.com/css?family='.$font;
+						$content	= wp_remote_get($url);
+						
+						$body = RevSliderFunctions::getVal($content, 'body', '');
+						
+						if(preg_match_all($regex_url, $body, $found_fonts)){
+							foreach($found_fonts as $found_font){
+								$found_font = $found_font[0];
+								$found_font = rtrim($found_font, ')');
+								
+								$f_c = wp_remote_get($found_font);
+								
+								$f_c_body = RevSliderFunctions::getVal($f_c, 'body', '');
+								
+								$file = $base_dir.'/revslider/gfonts/'. $font_name . '/' . $font_name . '.woff2';
+								@mkdir(dirname($file));
+								@file_put_contents($file, $f_c_body);
+								
+								break;
+							}
+						}
+					}
+					
+					$f_raw		= explode(':', $font);
+					$weights	= (!empty($f_raw) && is_array($f_raw) && isset($f_raw[1])) ? explode(',', $f_raw[1]) : array('400');
+					$f_family	= str_replace('+', ' ', $f_raw[0]);
+					
+					if(!empty($weights) && is_array($weights)){
+						$ret .= '<style type="text/css">';
+						foreach($weights as $weight){
+							$ret .=
+"@font-face {
+  font-family: '".$f_family."';
+  font-style: normal;
+  font-weight: ".$weight.";
+  src: local('".$f_family."'), local('".$f_family."'), url(".$base_url.'/revslider/gfonts/'. $font_name . '/' . $font_name . '.woff2'.") format('woff2');
+}";
+						}
+						$ret .= '</style>';
+					}
+				}
+			}
+			
+		}else{
+			$url = RevSliderFront::modify_punch_url($setBase . 'fonts.googleapis.com/css?family=');
+			
+			if($tcf !== ''){
+				$ret .= '<link href="'.$url.$tcf.'" rel="stylesheet" property="stylesheet" type="text/css" media="all">'; //id="rev-google-font"
+			}
+			if($tcf2 !== ''){
+				$ret .= html_entity_decode(stripslashes($tcf2));
+			}
 		}
-		if($tcf2 !== ''){
-			$ret .= html_entity_decode(stripslashes($tcf2));
-		}
-		
 		return apply_filters('revslider_printCleanFontImport', $ret);
 	}
 	
@@ -2245,6 +2350,7 @@ ob_end_clean();
 	/**
 	 *
 	 * get html font import
+	 * OBSOLOETE FUNCTION
 	 */
 	public static function getCleanFontImport($font, $class = '', $url = '', $variants = array(), $subsets = array()){
 		global $revslider_fonts;
@@ -2312,7 +2418,6 @@ ob_end_clean();
 			}
 		}
 		
-		
 		if($do_print){
 			$setBase = (is_ssl()) ? "https://" : "http://";
 			
@@ -2324,33 +2429,49 @@ ob_end_clean();
 			if(strpos($font, "href=") === false){ //fallback for old versions
 				$url = RevSliderFront::modify_punch_url($setBase . 'fonts.googleapis.com/css?family=');
 				$ret = '<link href="'.$url.urlencode($font.$tcf).'"'.$class.' rel="stylesheet" property="stylesheet" type="text/css" media="all">'; //id="rev-google-font"
+				
 			}else{
 				$font = str_replace(array('http://', 'https://'), array($setBase, $setBase), $font);
 				$ret = html_entity_decode(stripslashes($font));
+				
+				echo $ret;
 			}
+			
 		}
-		
 		
 		return apply_filters('revslider_getCleanFontImport', $ret, $font, $class, $url, $variants, $subsets);
 	}
 
 
 	public function checkPurchaseVerification($data){
-		global $wp_version;
+		global $wp_version, $rslb;
+		
+		$done	= false;
+		$count	= 0;
+		do{	
+			$url = $rslb->get_url('updates');
+			$response = wp_remote_post($url.'/activate.php', array(
+				'user-agent' => 'WordPress/'.$wp_version.'; '.get_bloginfo('url'),
+				'body' => array(
+					'code' => urlencode($data['code']),
+					//'email' => urlencode($data['email']),
+					'version' => urlencode(RevSliderGlobals::SLIDER_REVISION),
+					'product' => urlencode(RS_PLUGIN_SLUG)
+				)
+			));
 
-		$response = wp_remote_post('http://updates.themepunch.tools/activate.php', array(
-			'user-agent' => 'WordPress/'.$wp_version.'; '.get_bloginfo('url'),
-			'body' => array(
-				'code' => urlencode($data['code']),
-				//'email' => urlencode($data['email']),
-				'version' => urlencode(RevSliderGlobals::SLIDER_REVISION),
-				'product' => urlencode('revslider')
-			)
-		));
-
-		$response_code = wp_remote_retrieve_response_code( $response );
-		$version_info = wp_remote_retrieve_body( $response );
-
+			$response_code = wp_remote_retrieve_response_code( $response );
+			$version_info = wp_remote_retrieve_body( $response );
+		
+			if($response_code == 200){
+				$done = true;
+			}else{
+				$rslb->move_server_list();
+			}
+			
+			$count++;
+		}while($done == false && $count < 5);
+		
 		if ( $response_code != 200 || is_wp_error( $version_info ) ) {
 			return false;
 		}
@@ -2383,21 +2504,32 @@ ob_end_clean();
 	}
 
 	public function doPurchaseDeactivation($data){
-		global $wp_version;
+		global $wp_version, $rslb;
+		
+		$code	= get_option('revslider-code', '');
+		$done	= false;
+		$count	= 0;
+		do{	
+			$url 		= $rslb->get_url('updates');
+			$response	= wp_remote_post($url.'/deactivate.php', array(
+				'user-agent' => 'WordPress/'.$wp_version.'; '.get_bloginfo('url'),
+				'body' => array(
+					'code' => urlencode($code),
+					'product' => urlencode(RS_PLUGIN_SLUG)
+				)
+			));
 
-		$code = get_option('revslider-code', '');
-
-		$response = wp_remote_post('http://updates.themepunch.tools/deactivate.php', array(
-			'user-agent' => 'WordPress/'.$wp_version.'; '.get_bloginfo('url'),
-			'body' => array(
-				'code' => urlencode($code),
-				'product' => urlencode('revslider')
-			)
-		));
-
-		$response_code = wp_remote_retrieve_response_code( $response );
-		$version_info = wp_remote_retrieve_body( $response );
-
+			$response_code = wp_remote_retrieve_response_code( $response );
+			$version_info = wp_remote_retrieve_body( $response );
+			if($response_code == 200){
+				$done = true;
+			}else{
+				$rslb->move_server_list();
+			}
+			
+			$count++;
+		}while($done == false && $count < 5);
+		
 		if ( $response_code != 200 || is_wp_error( $version_info ) ) {
 			return false;
 		}

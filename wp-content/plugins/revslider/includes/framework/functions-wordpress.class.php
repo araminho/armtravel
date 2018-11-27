@@ -255,7 +255,11 @@ class RevSliderFunctionsWP {
 	 * register widget (must be class)
 	 */
 	public static function registerWidget($widgetName){
-		add_action('widgets_init', create_function('', 'return register_widget("'.$widgetName.'");'));
+		add_action('widgets_init', array('RevSliderFunctionsWP', 'revSliderRegisterWidget'));
+	}
+	
+	public static function revSliderRegisterWidget(){
+	   register_widget( 'RevSliderWidget' );
 	}
 
 	/**
@@ -477,7 +481,7 @@ class RevSliderFunctionsWP {
 	 * get posts by some category
 	 * could be multiple
 	 */
-	public static function getPostsByCategory($slider_id,$catID,$sortBy = self::SORTBY_ID,$direction = self::ORDER_DIRECTION_DESC,$numPosts=-1,$postTypes="any",$taxonomies="category",$arrAddition = array()){
+	public static function getPostsByCategory($slider_id,$catID,$sortBy = self::SORTBY_ID,$direction = self::ORDER_DIRECTION_DESC,$numPosts=-1,$postTypes="any",$taxonomies="category",$arrAddition = array(), $tax_addition = array()){
 		
 		//get post types
 		if(strpos($postTypes,",") !== false){
@@ -559,6 +563,16 @@ class RevSliderFunctionsWP {
 			$query['tax_query'] = $taxQuery;
 		} //if exists taxanomies
 		
+		if(!empty($tax_addition)){
+			
+			if(!isset($query['tax_query'])) $query['tax_query'] = array();
+			
+			foreach($tax_addition as $tak => $tav){
+				$query['tax_query'][] = $tav;
+			}
+			
+			$query['tax_query']['relation'] = 'AND';
+		}
 		
 		if(!empty($arrAddition))
 			$query = array_merge($query, $arrAddition);
