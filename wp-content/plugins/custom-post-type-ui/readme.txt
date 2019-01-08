@@ -3,8 +3,8 @@ Contributors: webdevstudios, pluginize, tw2113, vegasgeek, modemlooper, williams
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3084056
 Tags: custom post types, CPT, CMS, post, types, post type, taxonomy, tax, custom, content types, post types
 Requires at least: 4.7
-Tested up to: 4.9.8
-Stable tag: 1.6.0
+Tested up to: 5.0.2
+Stable tag: 1.6.1
 License: GPL-2.0+
 Requires PHP: 5.2
 
@@ -31,7 +31,14 @@ Official development of Custom Post Type UI is on GitHub, with official stable r
 
 == Changelog ==
 
-= 1.6.0 - TBD =
+= 1.6.1 - 2018-12-03 =
+* Fixed: Missed quote for "publicly_queryable" in taxonomy "get code" output.
+* Fixed: Adjusted handling of capitalization on the word "false" when being used to disable a taxonomy metabox via the "metabox callback" setting. The word "false" needs to be all lowercase to disable.
+* Updated: Added note about ability to pass "false" for the "metabox callback" setting to disable the metabox.
+* Updated: Fall back to "custom-post-type-ui" textdomain in "get code" output if theme does not have their own.
+* Updated: Make "Show In Rest" setting default to true taxonomies for sake of easier Gutenberg integration in the future. 1.6.0 had just post types doing this.
+
+= 1.6.0 - 2018-10-22 =
 * Added: Support for `meta_box_cb` parameter for `register_taxonomy` and taxonomies.
 * Added: Dynamically warn about existing slugs.
 * Added: "delete_with_user" support for post types.
@@ -121,7 +128,14 @@ Official development of Custom Post Type UI is on GitHub, with official stable r
 
 == Upgrade Notice ==
 
-= 1.6.0 - TBD =
+= 1.6.1 - 2018-12-03 =
+* Fixed: Missed quote for "publicly_queryable" in taxonomy "get code" output.
+* Fixed: Adjusted handling of capitalization on the word "false" when being used to disable a taxonomy metabox via the "metabox callback" setting. The word "false" needs to be all lowercase to disable.
+* Updated: Added note about ability to pass "false" for the "metabox callback" setting to disable the metabox.
+* Updated: Fall back to "custom-post-type-ui" textdomain in "get code" output if theme does not have their own.
+* Updated: Make "Show In Rest" setting default to true taxonomies for sake of easier Gutenberg integration in the future. 1.6.0 had just post types doing this.
+
+= 1.6.0 - 2018-10-22 =
 * Added: Support for `meta_box_cb` parameter for `register_taxonomy` and taxonomies.
 * Added: Dynamically warn about existing slugs.
 * Added: "delete_with_user" support for post types.
