@@ -20,6 +20,9 @@
 
     <link rel="profile" href="https://gmpg.org/xfn/11">
 
+    <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+
 	<?php wp_head(); ?>
 
 </head>
@@ -33,81 +36,45 @@ wp_body_open();
 
 <header id="site-header" class="header-footer-group" role="banner">
 
-    <div class="header-inner section-inner">
-
-        <div class="header-titles-wrapper">
-
-
-            <div class="logo">
-
-				<?php
-				// Site title or logo.
-				twentytwenty_site_logo();
-
-				wp_list_pages( [
-					'match_menu_classes'  => true,
-					'show_sub_menu_icons' => true,
-					'title_li'            => false,
-				] );
-				?>
-
-
-            </div>
-
-           <!-- <button class="toggle nav-toggle mobile-nav-toggle" data-toggle-target=".menu-modal"
-                    data-toggle-body-class="showing-menu-modal" aria-expanded="false"
-                    data-set-focus=".close-nav-toggle">
-						<span class="toggle-inner">
-							<span class="toggle-icon">
-								<?php /*twentytwenty_the_theme_svg( 'ellipsis' ); */?>
-							</span>
-							<span class="toggle-text"><?php /*_e( 'Menu', 'twentytwenty' ); */?></span>
-						</span>
-            </button>-->
-
-
-            <!-- .nav-toggle -->
-
-        </div><!-- .header-titles-wrapper -->
+        <div class="logo">
+            <?php
+            // Site title or logo.
+            twentytwenty_site_logo();
+            ?>
+        </div>
 
         <div class="desctop-manu">
 
 			<?php if ( has_nav_menu( 'primary' ) || ! has_nav_menu( 'expanded' ) ) { ?>
 
+                <ul class="primary-menu reset-list-style">
 
+                    <?php
+                    if ( has_nav_menu( 'primary' ) ) {
 
-                    <ul class="primary-menu reset-list-style">
+                        wp_nav_menu( [
+                            'container'      => '',
+                            'items_wrap'     => '%3$s',
+                            'theme_location' => 'primary',
+                        ] );
 
-						<?php
-						if ( has_nav_menu( 'primary' ) ) {
+                    } elseif ( ! has_nav_menu( 'expanded' ) ) {
 
-							wp_nav_menu( [
-								'container'      => '',
-								'items_wrap'     => '%3$s',
-								'theme_location' => 'primary',
-							] );
+                        wp_list_pages( [
+                            'match_menu_classes'  => true,
+                            'show_sub_menu_icons' => true,
+                            'title_li'            => false,
+                            'walker'              => new TwentyTwenty_Walker_Page(),
+                        ] );
 
-						} elseif ( ! has_nav_menu( 'expanded' ) ) {
+                    }
+                    ?>
 
-							wp_list_pages( [
-								'match_menu_classes'  => true,
-								'show_sub_menu_icons' => true,
-								'title_li'            => false,
-								'walker'              => new TwentyTwenty_Walker_Page(),
-							] );
-
-						}
-						?>
-
-                    </ul>
-
+                </ul>
 
             <?php } ?>
 
         </div><!-- .header-navigation-wrapper -->
-
-    </div><!-- .header-inner -->
-
 
 </header><!-- #site-header -->
 
