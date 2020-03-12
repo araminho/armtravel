@@ -15,16 +15,16 @@
 <footer>
     <div class="main-footer">
         <div class="social">
-            <a href="" class="shutterstock" title="Shutterstock">
+            <a href="https://www.shutterstock.com/ru/g/Vahagn+Grigoryan" class="social" title="Shutterstock" target="_blank">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><g><g><path fill="#868686" d="M15.065 12.644a2.796 2.796 0 0 1-2.792 2.793H9.525v-2.292h2.748a.5.5 0 0 0 .5-.5V10h2.292v2.643zm-7.083-7.46H5.234a.5.5 0 0 0-.5.5v2.644H2.44V5.685a2.796 2.796 0 0 1 2.793-2.793h2.748v2.292zM0 1.41V16.92a1 1 0 0 0 1 .999h15.508a1 1 0 0 0 .999-1V1.41a1 1 0 0 0-1-.999H1a1 1 0 0 0-.999 1z"/></g></g></svg>
             </a>
-            <a href="" class="instagram" title="Instagram">
+            <a href="https://www.instagram.com/vahagn.grigoryan/" class="social" title="Instagram" target="_blank">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><g><g><path fill="#868686" d="M10 7.994a2 2 0 1 1-4.002 0 2 2 0 0 1 4.002 0zm2 0c0-2.235-1.869-4-4.029-4-2.161 0-3.972 1.765-3.972 4 0 2.177 1.753 4 3.972 4 2.219 0 4.029-1.765 4.029-4zm1-4a.987.987 0 0 0-1-.999c-.563 0-1 .437-1 .999 0 .563.437 1 1 1 .562 0 1-.437 1-1zm1 7.069c0 .886-.277 1.66-.83 2.157-.497.498-1.271.774-2.156.774H4.986c-.884 0-1.603-.276-2.156-.774-.553-.553-.83-1.327-.83-2.212V4.925c0-.885.277-1.658.774-2.157.498-.497 1.272-.774 2.157-.774h6.083c.94 0 1.659.277 2.212.83.497.553.774 1.272.774 2.156zm.672 3.669c.845-.843 1.328-2.046 1.328-3.429V4.686c0-1.384-.423-2.526-1.268-3.369-.846-.842-1.993-1.323-3.381-1.323H4.71C1.871-.006 0 1.919 0 4.686v6.617c0 1.383.423 2.586 1.328 3.429.845.841 2.053 1.262 3.382 1.262h6.581c1.328 0 2.536-.421 3.381-1.262z"/></g></g></svg>
             </a>
-            <a href="https://www.facebook.com/armtravel/" class="facebook" title="Facebook">
+            <a href="https://www.facebook.com/armtravel/" class="social" title="Facebook" target="_blank">
                 <svg xmlns="http://www.w3.org/2000/svg" width="8" height="15" viewBox="0 0 8 15"><g><g><path fill="#868686" d="M5.188 14.989V8.151h2.356l.352-2.666H5.188V3.784c0-.771.22-1.297 1.356-1.297l1.448-.001V.103a19.751 19.751 0 0 0-2.111-.105c-2.089 0-3.518 1.242-3.518 3.523v1.964H.001v2.666h2.362v6.838z"/></g></g></svg>
             </a>
-            <a href="" class="shutterstock" title="Youtube">
+            <a href="https://www.youtube.com/channel/UCR8ZwZfkHLT2Mwz1ilk68kQ" class="social" title="Youtube" target="_blank">
                 <svg xmlns="http://www.w3.org/2000/svg" width="19" height="13" viewBox="0 0 19 13"><g><g><path fill="#868686" d="M6.92 10.117v-6.92l5.767 3.46zm10.75-8.581C17.17.646 16.626.48 15.52.419 14.415.344 11.636.313 9.23.313c-2.412 0-5.192.031-6.296.105C1.83.48 1.286.644.781 1.536.265 2.425 0 3.956 0 6.653V6.662c0 2.685.265 4.229.78 5.109.506.89 1.05 1.052 2.153 1.127 1.105.064 3.885.102 6.296.102 2.407 0 5.186-.038 6.292-.101 1.106-.075 1.65-.237 2.15-1.127.52-.88.783-2.423.783-5.108v-.006-.004c0-2.697-.263-4.23-.784-5.118z"/></g></g></svg>
             </a>
         </div>

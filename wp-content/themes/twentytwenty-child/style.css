@@ -756,6 +756,7 @@ input::-webkit-inner-spin-button {
   border: 0;
   border-radius: 50%;
   cursor: pointer;
+  padding: inherit; /** Overrides parent theme css */
 }
 
 .tour .more-info {

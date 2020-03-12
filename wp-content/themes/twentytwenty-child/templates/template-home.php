@@ -47,14 +47,7 @@ if ( function_exists( 'cyclone_slider' ) ) {
                         </div>
                         <div>
                             <button class="go">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="21" height="14" viewBox="0 0 21 14">
-                                    <g>
-                                        <g>
-                                            <path fill="#fff"
-                                                  d="M.366 6.181h15.733L12.11 2.292 13.662.78l6.647 6.48-6.647 6.483-1.552-1.512 3.99-3.889H.365z"/>
-                                        </g>
-                                    </g>
-                                </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="21" height="14" viewBox="0 0 21 14"><g><g><path fill="#fff" d="M.366 6.181h15.733L12.11 2.292 13.662.78l6.647 6.48-6.647 6.483-1.552-1.512 3.99-3.889H.365z"/></g></g></svg>
                             </button>
                         </div>
                     </div>
@@ -65,7 +58,87 @@ if ( function_exists( 'cyclone_slider' ) ) {
     </div>
     <div class="horizontal-line hide-md"></div>
 </div>
-
+<div class="tour-container" style="display: none;">
+    <div class="container-padding tours">
+        <div class="tour">
+            <a class="main-content">
+                <div class="image">
+                    <img src="<?php echo get_stylesheet_directory_uri(); ?>/images/tours/tour1.png" alt="">
+                    <div class="shadow"></div>
+                    <div class="info">
+                        <div>
+                            <span class="title">Thailand</span>
+                            <span class="description">$900 - $1900 days</span>
+                        </div>
+                        <div>
+                            <button class="go">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="21" height="14" viewBox="0 0 21 14"><g><g><path fill="#fff" d="M.366 6.181h15.733L12.11 2.292 13.662.78l6.647 6.48-6.647 6.483-1.552-1.512 3.99-3.889H.365z"/></g></g></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="tour">
+            <a class="main-content">
+                <div class="image">
+                    <img src="<?php echo get_stylesheet_directory_uri(); ?>/images/tours/tour2.png" alt="">
+                    <div class="shadow"></div>
+                    <div class="info">
+                        <div>
+                            <span class="title">Thailand</span>
+                            <span class="description">$900 - $1900 days</span>
+                        </div>
+                        <div>
+                            <button class="go">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="21" height="14" viewBox="0 0 21 14"><g><g><path fill="#fff" d="M.366 6.181h15.733L12.11 2.292 13.662.78l6.647 6.48-6.647 6.483-1.552-1.512 3.99-3.889H.365z"/></g></g></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="tour hide-xs">
+            <a class="main-content">
+                <div class="image">
+                    <img src="<?php echo get_stylesheet_directory_uri(); ?>/images/tours/tour3.png" alt="">
+                    <div class="shadow"></div>
+                    <div class="info">
+                        <div>
+                            <span class="title">Thailand</span>
+                            <span class="description">$900 - $1900 days</span>
+                        </div>
+                        <div>
+                            <button class="go">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="21" height="14" viewBox="0 0 21 14"><g><g><path fill="#fff" d="M.366 6.181h15.733L12.11 2.292 13.662.78l6.647 6.48-6.647 6.483-1.552-1.512 3.99-3.889H.365z"/></g></g></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="tour hide-md">
+            <a class="main-content">
+                <div class="image">
+                    <img src="<?php echo get_stylesheet_directory_uri(); ?>/images/tours/tour1.png" alt="">
+                    <div class="shadow"></div>
+                    <div class="info">
+                        <div>
+                            <span class="title">Thailand</span>
+                            <span class="description">$900 - $1900 days</span>
+                        </div>
+                        <div>
+                            <button class="go">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="21" height="14" viewBox="0 0 21 14"><g><g><path fill="#fff" d="M.366 6.181h15.733L12.11 2.292 13.662.78l6.647 6.48-6.647 6.483-1.552-1.512 3.99-3.889H.365z"/></g></g></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+    <div class="horizontal-line hide-md"></div>
+</div>
 <div class="container-with-bg container-padding download-container">
     <div class="image-block">
         <img src="<?php echo get_stylesheet_directory_uri(); ?>/images/phone.png" alt="">
