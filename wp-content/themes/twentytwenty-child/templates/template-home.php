@@ -36,7 +36,7 @@ if ( function_exists( 'cyclone_slider' ) ) {
     <div class="container-padding tours">
 	    <?php while($featuredTours->have_posts()): $featuredTours->the_post(); ?>
         <div class="tour">
-            <a class="main-content">
+            <a class="main-content" href="<?php the_sub_field('url') ?>">
                 <div class="image">
                     <img src="<?php the_post_thumbnail(); ?>" alt="">
                     <div class="shadow"></div>
