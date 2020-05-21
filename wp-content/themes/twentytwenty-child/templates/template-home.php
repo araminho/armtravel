@@ -43,7 +43,7 @@ if ( function_exists( 'cyclone_slider' ) ) {
                     <div class="info">
                         <div>
                             <span class="title"><?php the_title(); ?></span>
-                            <span class="description"><?php the_field('duration')?> days</span>
+                            <span class="description"><?php the_field('price')?> <?php the_field('duration')?> days</span>
                         </div>
                         <div>
                             <button class="go">

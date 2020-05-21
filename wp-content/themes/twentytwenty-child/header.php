@@ -30,17 +30,17 @@
 <body <?php body_class(); ?>>
 <article>
 
-<?php
-wp_body_open();
-?>
+	<?php
+	wp_body_open();
+	?>
 
-<header id="site-header" class="header-footer-group" role="banner">
+    <header id="site-header" class="header-footer-group" role="banner">
 
         <div class="logo">
-            <?php
-            // Site title or logo.
-            twentytwenty_site_logo();
-            ?>
+			<?php
+			// Site title or logo.
+			twentytwenty_site_logo();
+			?>
         </div>
 
         <div class="desctop-manu">
@@ -49,34 +49,34 @@ wp_body_open();
 
                 <ul class="primary-menu reset-list-style">
 
-                    <?php
-                    if ( has_nav_menu( 'primary' ) ) {
+					<?php
+					if ( has_nav_menu( 'primary' ) ) {
 
-                        wp_nav_menu( [
-                            'container'      => '',
-                            'items_wrap'     => '%3$s',
-                            'theme_location' => 'primary',
-                        ] );
+						wp_nav_menu( [
+							'container'      => '',
+							'items_wrap'     => '%3$s',
+							'theme_location' => 'primary',
+						] );
 
-                    } elseif ( ! has_nav_menu( 'expanded' ) ) {
+					} elseif ( ! has_nav_menu( 'expanded' ) ) {
 
-                        wp_list_pages( [
-                            'match_menu_classes'  => true,
-                            'show_sub_menu_icons' => true,
-                            'title_li'            => false,
-                            'walker'              => new TwentyTwenty_Walker_Page(),
-                        ] );
+						wp_list_pages( [
+							'match_menu_classes'  => true,
+							'show_sub_menu_icons' => true,
+							'title_li'            => false,
+							'walker'              => new TwentyTwenty_Walker_Page(),
+						] );
 
-                    }
-                    ?>
+					}
+					?>
 
                 </ul>
 
-            <?php } ?>
+			<?php } ?>
 
         </div><!-- .header-navigation-wrapper -->
 
-</header><!-- #site-header -->
+    </header><!-- #site-header -->
 
 <?php
 // Output the menu modal.
