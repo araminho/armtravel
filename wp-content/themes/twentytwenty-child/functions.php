@@ -22,6 +22,8 @@ function add_theme_scripts() {
 	wp_enqueue_style( 'twentytwenty-child-style', get_stylesheet_uri() );
 
 	wp_enqueue_style( 'normalize', get_stylesheet_directory_uri() . '/css/normalize.css', array(), '1.1', 'all');
+	wp_enqueue_style( 'slick-slider', 'http://kenwheeler.github.io/slick/slick/slick.css', array( ), '1.1', 'all' );
+	wp_enqueue_style( 'slick-theme', 'http://kenwheeler.github.io/slick/slick/slick-theme.css', array( ), '1.1', 'all' );
 
 	//wp_enqueue_script( 'script', get_template_directory_uri() . '/js/script.js', array ( 'jquery' ), 1.1, true);
 

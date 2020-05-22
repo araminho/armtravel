@@ -2,26 +2,26 @@
 
 get_header();
 
-$tags  = get_the_terms( $id, 'post_tag');
+$tags = get_the_terms( $id, 'post_tag' );
 //echo "<pre>"; print_r($tags); exit;
 ?>
 
     <main>
         <div class="img-bg-container">
-            <img src="images/img_bg.png" alt="">
+            <img src="<?php echo get_stylesheet_directory_uri(); ?>/images/img_bg.png" alt="">
             <div class="shadow"></div>
         </div>
         <div class="horizontal-line"></div>
         <div class="tour-container">
             <div class="container-with-bg container-padding container-title">
-                <?php while ( have_posts() ) : the_post(); ?>
+				<?php while ( have_posts() ) : the_post(); ?>
                     <div class="title">
                         <h1><?php the_title(); ?></h1>
                     </div>
                     <div class="description">
-	                    <?php the_content(); ?>
+						<?php the_content(); ?>
                     </div>
-                <?php endwhile; // end of the loop. ?>
+				<?php endwhile; // end of the loop. ?>
             </div>
 
             <!--<div class="container-with-bg container-padding search-block-container">
@@ -49,17 +49,18 @@ $tags  = get_the_terms( $id, 'post_tag');
                     </form>
                 </div>
             </div> -->
-            <div class="container-with-bg container-padding tags-container">
-                <form>
-	                <?php foreach ($tags as $tag){ ?>
-                        <div class="formrow">
-                            <input class="checkbox" type="checkbox" name="check1" id="check1">
-                            <label class="checklabel" for="check1"><?php echo $tag->name ?></label>
-                        </div>
-	                <?php } ?>
-                </form>
-
-            </div>
+			<?php if ( ! empty( $tags ) ) { ?>
+                <div class="container-with-bg container-padding tags-container">
+                    <form>
+						<?php foreach ( $tags as $tag ) { ?>
+                            <div class="formrow">
+                                <input class="checkbox" type="checkbox" name="check1" id="check1">
+                                <label class="checklabel" for="check1"><?php echo $tag->name ?></label>
+                            </div>
+						<?php } ?>
+                    </form>
+                </div>
+			<?php } ?>
             <div class="container-with-bg tour-slider container-padding">
                 <div class="info-block">
                     <div class="content">
@@ -84,7 +85,8 @@ $tags  = get_the_terms( $id, 'post_tag');
                                 <img src="<?php echo get_stylesheet_directory_uri(); ?>/images/slider/img3.png" alt="">
                             </div>
                             <div>
-                                <video src="<?php echo get_stylesheet_directory_uri(); ?>/images/slider/vertical_video.mp4" controls></video>
+                                <video src="<?php echo get_stylesheet_directory_uri(); ?>/images/slider/vertical_video.mp4"
+                                       controls></video>
                             </div>
                             <div>
                                 <img src="<?php echo get_stylesheet_directory_uri(); ?>/images/slider/img3.png" alt="">
@@ -187,11 +189,10 @@ $tags  = get_the_terms( $id, 'post_tag');
                         </div>
                         <button class="book btn-hover">Book Now</button>
                     </div>
-                </div>-->
-            </div>
+                </div>
+            </div>-->
         </div>
     </main>
-
 
 
 <?php
