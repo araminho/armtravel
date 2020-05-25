@@ -38,7 +38,7 @@ if ( function_exists( 'cyclone_slider' ) ) {
         <div class="tour">
             <a class="main-content" href="<?php the_permalink() ?>">
                 <div class="image">
-                    <img src="<?php the_post_thumbnail(); ?>" alt="">
+                    <img src="<?php the_post_thumbnail_url(); ?>" alt="">
                     <div class="shadow"></div>
                     <div class="info">
                         <div>
