@@ -16,13 +16,13 @@ $allTours = new WP_Query( [
 
 	<main>
 		<div class="img-bg-container">
-			<img src="<?php echo get_stylesheet_directory_uri(); ?>/images/img_bg.png" alt="">
+			<img src="<?php the_post_thumbnail_url($post->ID); ?>" alt="">
 			<div class="shadow"></div>
 		</div>
 		<div class="horizontal-line"></div>
 		<div class="tour-container">
-			<div class="container-with-bg container-padding container-title">
-                <?php while ( have_posts() ) : the_post(); ?>
+			<?php while ( have_posts() ) : the_post(); ?>
+                <div class="container-with-bg container-padding container-title">
                     <div class="title">
                         <h1><?php the_title(); ?></h1>
                     </div>
@@ -84,7 +84,7 @@ $allTours = new WP_Query( [
 						<div class="more-info hide-md">
 							<div class="title">
 								<span class="name"><?php the_title(); ?></span>
-								<span class="days"><?php the_field('duration')?></span>
+								<span class="days"><?php the_field('duration')?> days</span>
 							</div>
 							<div class="description">
 								<span>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy</span>
