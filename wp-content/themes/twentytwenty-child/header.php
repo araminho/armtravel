@@ -43,7 +43,7 @@
 			?>
         </div>
 
-        <div class="desctop-manu">
+        <div class="desktop-menu">
 
 			<?php if ( has_nav_menu( 'primary' ) || ! has_nav_menu( 'expanded' ) ) { ?>
 
@@ -75,7 +75,7 @@
 			<?php } ?>
 
         </div><!-- .header-navigation-wrapper -->
-        <div class="mobile-manu">
+        <div class="mobile-menu">
             <nav role="navigation">
                 <div id="menuToggle">
                     <input type="checkbox" />
@@ -83,11 +83,26 @@
                     <span></span>
                     <span></span>
                     <ul id="menu">
-                        <a href="file:///C:/xampp/htdocs/tourism/home.html" class="active"><li>Home</li></a>
-                        <a href="file:///C:/xampp/htdocs/tourism/tour-packages.html"><li>Tour packages</li></a>
-                        <a href="file:///C:/xampp/htdocs/tourism/blog.html"><li>Blog</li></a>
-                        <a href="file:///C:/xampp/htdocs/tourism/sightseeings.html"><li>Sightseeings</li></a>
-                        <a href="file:///C:/xampp/htdocs/tourism/contact-us.html"><li>Contact us</li></a>
+	                    <?php
+	                    if ( has_nav_menu( 'primary' ) ) {
+
+		                    wp_nav_menu( [
+			                    'container'      => '',
+			                    'items_wrap'     => '%3$s',
+			                    'theme_location' => 'primary',
+		                    ] );
+
+	                    } elseif ( ! has_nav_menu( 'expanded' ) ) {
+
+		                    wp_list_pages( [
+			                    'match_menu_classes'  => true,
+			                    'show_sub_menu_icons' => true,
+			                    'title_li'            => false,
+			                    'walker'              => new TwentyTwenty_Walker_Page(),
+		                    ] );
+
+	                    }
+	                    ?>
                     </ul>
                 </div>
             </nav>

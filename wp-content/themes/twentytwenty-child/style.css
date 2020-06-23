@@ -106,14 +106,14 @@ header {
     justify-content: space-between;
 }
 
-header .desctop-manu ul {
+header .desktop-menu ul {
     list-style-type: none;
     display: flex;
     justify-content: center;
     margin: 0;
 }
 
-header .desctop-manu ul li {
+header .desktop-menu ul li {
     cursor: pointer;
     position: relative;
     color: #303134;
@@ -123,7 +123,7 @@ header .desctop-manu ul li {
     padding: 7px 18px;
 }
 
-header .desctop-manu ul li a {
+header .desktop-menu ul li a {
     font-family: Raleway;
     text-decoration: none;
     color: #303134;
@@ -132,8 +132,8 @@ header .desctop-manu ul li a {
     line-height: 16px;
 }
 
-.primary-menu li.current-menu-item > a,
-.primary-menu li.current-menu-item > .link-icon-wrapper > a {
+.primary-menu li.current_page_item > a,
+.primary-menu li.current_page_item > .link-icon-wrapper > a {
     text-decoration: none;
 }
 
@@ -143,7 +143,7 @@ header .desctop-manu ul li a {
     text-decoration: none;
 }
 
-header .desctop-manu ul li::after {
+header .desktop-menu ul li::after {
     position: absolute;
     bottom: -5px;
     left: 5%;
@@ -154,15 +154,15 @@ header .desctop-manu ul li::after {
     transition: width .5s;
 }
 
-header .desctop-manu ul li:hover::after {
+header .desktop-menu ul li:hover::after {
     width: 90%;
 }
 
-header .desctop-manu ul li.current-menu-item a {
+header .desktop-menu ul li.current-menu-item a {
     color: #3ec6ff;
 }
 
-.mobile-manu {
+.mobile-menu {
     display: none;
 }
 
@@ -1881,15 +1881,15 @@ footer .copyrights-wrapper span {
     }
 
     /*-------Hamburger Style Start--------*/
-    .mobile-manu {
+    .mobile-menu {
         display: block;
     }
 
-    .desctop-manu {
+    .desktop-menu {
         display: none;
     }
 
-    .mobile-manu #menuToggle {
+    .mobile-menu #menuToggle {
         display: block;
         position: relative;
         top: 5px;
@@ -1900,10 +1900,9 @@ footer .copyrights-wrapper span {
         user-select: none;
     }
 
-    .mobile-manu #menuToggle a {
+    .mobile-menu #menuToggle li {
         text-align: center;
-        text-decoration: none;
-        color: #707070;
+
         font-family: "Segoe UI";
         font-size: 27px;
         font-weight: 400;
@@ -1911,19 +1910,24 @@ footer .copyrights-wrapper span {
         transition: color 0.3s ease;
     }
 
-    .mobile-manu #menuToggle a.current-menu-item {
+    .mobile-menu #menuToggle li  a {
+        color: #707070;
+        text-decoration: none;
+    }
+
+    .mobile-menu #menuToggle li.current_page_item a{
         color: #3EC6FF;
     }
 
-    .mobile-manu #menuToggle a li {
+    .mobile-menu #menuToggle li{
         border-bottom: 1px solid #3ec6ff;
     }
 
-    .mobile-manu #menuToggle a:hover {
+    .mobile-menu #menuToggle a:hover {
         color: tomato;
     }
 
-    .mobile-manu #menuToggle input {
+    .mobile-menu #menuToggle input {
         display: block;
         width: 40px;
         height: 32px;
@@ -1942,7 +1946,7 @@ footer .copyrights-wrapper span {
     /*
     * Just a quick hamburger
     */
-    .mobile-manu #menuToggle span {
+    .mobile-menu #menuToggle span {
         display: block;
         width: 33px;
         height: 4px;
@@ -1958,11 +1962,11 @@ footer .copyrights-wrapper span {
         opacity 0.55s ease;
     }
 
-    .mobile-manu #menuToggle span:first-child {
+    .mobile-menu #menuToggle span:first-child {
         transform-origin: 0% 0%;
     }
 
-    .mobile-manu #menuToggle span:nth-last-child(2) {
+    .mobile-menu #menuToggle span:nth-last-child(2) {
         transform-origin: 0% 100%;
     }
 
@@ -1970,7 +1974,7 @@ footer .copyrights-wrapper span {
     * Transform all the slices of hamburger
     * into a crossmark.
     */
-    .mobile-manu #menuToggle input:checked ~ span {
+    .mobile-menu #menuToggle input:checked ~ span {
         opacity: 1;
         transform: rotate(45deg) translate(-2px, -1px);
         background: #232323;
@@ -1979,7 +1983,7 @@ footer .copyrights-wrapper span {
     /*
     * But let's hide the middle one.
     */
-    .mobile-manu #menuToggle input:checked ~ span:nth-last-child(3) {
+    .mobile-menu #menuToggle input:checked ~ span:nth-last-child(3) {
         opacity: 0;
         transform: rotate(0deg) scale(0.2, 0.2);
     }
@@ -1987,7 +1991,7 @@ footer .copyrights-wrapper span {
     /*
     * Ohyeah and the last one should go the other direction
     */
-    .mobile-manu #menuToggle input:checked ~ span:nth-last-child(2) {
+    .mobile-menu #menuToggle input:checked ~ span:nth-last-child(2) {
         transform: rotate(-45deg) translate(0, -1px);
     }
 
@@ -1995,7 +1999,7 @@ footer .copyrights-wrapper span {
     * Make this absolute positioned
     * at the top left of the screen
     */
-    .mobile-manu #menu {
+    .mobile-menu #menu {
         position: absolute;
         left: 100px;
         top: -20px;
@@ -2016,7 +2020,7 @@ footer .copyrights-wrapper span {
         transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0);
     }
 
-    .mobile-manu #menu li {
+    .mobile-menu #menu li {
         padding: 10px 0;
         font-size: 22px;
     }
@@ -2024,7 +2028,7 @@ footer .copyrights-wrapper span {
     /*
     * And let's slide it in from the left
     */
-    .mobile-manu #menuToggle input:checked ~ ul {
+    .mobile-menu #menuToggle input:checked ~ ul {
         transform: translate(-306px, 0);
         /* transform: none; */
     }
@@ -2613,7 +2617,7 @@ footer .copyrights-wrapper span {
         height: 27px;
     }
 
-    .mobile-manu #menuToggle {
+    .mobile-menu #menuToggle {
         top: 3px;
     }
 
@@ -2621,4 +2625,12 @@ footer .copyrights-wrapper span {
 
 .skip-link {
     display: none;
+}
+
+.site-logo .screen-reader-text {
+    display: none;
+}
+
+.cycloneslider-slides {
+    z-index: 0;
 }
