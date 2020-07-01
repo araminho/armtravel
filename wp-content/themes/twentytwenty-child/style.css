@@ -983,6 +983,7 @@ input::-webkit-inner-spin-button {
     font-size: 25px;
     font-weight: 400;
     cursor: pointer;
+    text-decoration: none;
 }
 
 /*-------Pagination Style--------*/
@@ -1039,6 +1040,7 @@ input::-webkit-inner-spin-button {
     font-family: "Segoe UI";
     font-size: 18px;
     font-weight: 400;
+    text-decoration: none;
 }
 
 /*-------Pagination Style--------*/

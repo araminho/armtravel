@@ -97,5 +97,5 @@
       return calendares.init();
     }
   })(jQuery)
-  $("#ele1").calendar();
-  $("#ele2").calendar();
+jQuery("#ele1").calendar();
+jQuery("#ele2").calendar();

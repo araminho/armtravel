@@ -30,6 +30,7 @@ function add_theme_scripts() {
 	wp_enqueue_script( 'custom-script', get_stylesheet_directory_uri() . '/js/armtravel.js', array( 'jquery' ), '1.1', true );
 	wp_enqueue_script('jquery', '//ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js', array(), '3', false);
 	wp_enqueue_script('slick-slider', '//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js', array(), '3', false);
+	// wp_enqueue_script( 'calendar', get_stylesheet_directory_uri() . '/js/calendar.js', array( 'jquery' ), '1.1', true );
 
 }
 add_action( 'wp_enqueue_scripts', 'add_theme_scripts' );
