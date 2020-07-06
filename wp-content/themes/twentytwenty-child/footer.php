@@ -29,8 +29,10 @@
             </a>
         </div>
         <div class="subscribe">
-            <input type="email" name="email" placeholder="Your Email">
-            <button class="btn-hover">Subscribe</button>
+            <!--<input type="email" name="email" placeholder="Your Email">
+            <button class="btn-hover">Subscribe</button>-->
+
+	        <?php echo do_shortcode('[contact-form-7 id="79" title="Newsletter form"]'); ?>
         </div>
         <div class="info">
             <div class="info-content">

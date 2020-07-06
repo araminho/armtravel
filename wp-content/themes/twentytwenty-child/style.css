@@ -1163,6 +1163,10 @@ input::-webkit-inner-spin-button {
     margin-bottom: 15px;
 }
 
+.contact-container .form-content .form .form-group span.wpcf7-form-control-wrap{
+    display: inherit;
+}
+
 .contact-container .form-content .form .form-group input, .contact-container .form-content .form .form-group textarea {
     padding: 15px 30px;
     color: #b7b7b7;
@@ -1172,6 +1176,7 @@ input::-webkit-inner-spin-button {
     border: 0;
     border-radius: 4px;
     box-shadow: 0 0 20px rgba(101, 101, 101, 0.25);
+    width: 100%;
 }
 
 .contact-container .form-content .form .form-group input::placeholder, .contact-container .form-content .form .form-group textarea::placeholder {
@@ -1189,7 +1194,7 @@ input::-webkit-inner-spin-button {
     justify-content: flex-end;
 }
 
-.contact-container .form-content .form .submit button {
+.contact-container .form-content .form .submit button, .contact-container .form-content .form .submit input[type=submit] {
     width: 272px;
     height: 50px;
     background-color: #3ec6ff;
@@ -1442,7 +1447,7 @@ footer .main-footer .subscribe input {
     padding-left: 18px;
 }
 
-footer .main-footer .subscribe button {
+footer .main-footer .subscribe button, footer .main-footer .subscribe input[type=submit] {
     width: 169px;
     height: 45px;
     display: flex;
@@ -1589,7 +1594,7 @@ footer .copyrights-wrapper span {
         color: #868686;
     }
 
-    footer .main-footer .subscribe button {
+    footer .main-footer .subscribe button, footer .main-footer .subscribe input[type=submit] {
         width: 40%;
         height: 21px;
         border-radius: 6px;
@@ -1672,7 +1677,7 @@ footer .copyrights-wrapper span {
         padding: 5px 0;
     }
 
-    .contact-container .form-content .form .submit button {
+    .contact-container .form-content .form .submit button, .contact-container .form-content .form .submit input[type=submit] {
         width: 192.4px;
         height: 36.1px;
         font-size: 15px;
@@ -2326,7 +2331,7 @@ footer .copyrights-wrapper span {
         font-size: 8px;
     }
 
-    footer .main-footer .subscribe button {
+    footer .main-footer .subscribe button, footer .main-footer .subscribe input[type=submit] {
         height: 17px;
         font-size: 8px;
     }
@@ -2511,7 +2516,7 @@ footer .copyrights-wrapper span {
         color: #868686;
     }
 
-    .contact-container .form-content .form .submit button {
+    .contact-container .form-content .form .submit button, .contact-container .form-content .form .submit input[type=submit] {
         width: 111.7px;
         height: 21px;
         font-size: 12px;

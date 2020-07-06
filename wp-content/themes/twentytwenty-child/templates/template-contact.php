@@ -30,7 +30,7 @@ get_header();
                             <h1><?php the_title(); ?></h1>
                         </div>
 
-                        <?php echo do_shortcode('[wpforms id="53"]'); ?>
+                        <?php echo do_shortcode('[contact-form-7 id="78" title="Contact form 1"]'); ?>
 
                     </div>
                     <div class="contact-image hide-xs">

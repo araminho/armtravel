@@ -123,3 +123,8 @@ Tourism.prototype = {
 
 };
 let TourismClass = new Tourism();
+
+jQuery(document).ready(function(){
+    // console.log(jQuery('#contact-message-field').length);
+    // jQuery('#contact-message-field').unwrap();
+});
