@@ -480,7 +480,7 @@ else if(in_array($type,array('checkbox','radio'))){
        }
    }   
    $n=$type == 'checkbox' ? "lead[{$f_name}][]" : "lead[$f_name]";
-       $check='';  
+       $check='';   //var_dump($val,$value);
     // if(!empty($value)){ 
      if((is_array($value)&& in_array($val,$value)) || (!is_array($value) && $val == $value)){
      $check='checked="checked"'; 

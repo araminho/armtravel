@@ -1,10 +1,10 @@
 <?php
 /**
 * Plugin Name: Contact Form Entries
-* Description: Save form submissions to the database from <a href="https://wordpress.org/plugins/contact-form-7/">Contact Form 7</a>, <a href="https://wordpress.org/plugins/jetpack/">JetPack Contact Form</a>, <a href="https://wordpress.org/plugins/ninja-forms/">Ninja Forms</a>, <a href="https://wordpress.org/plugins/formidable/">Formidable Forms</a>, <a href="http://codecanyon.net/item/quform-wordpress-form-builder/706149">Quform</a>, <a href="https://wordpress.org/plugins/cforms2/">cformsII</a>, <a href="https://wordpress.org/plugins/contact-form-plugin/">Contact Form by BestWebSoft</a>, <a href="https://wordpress.org/plugins/ultimate-form-builder-lite/">Ultimate Form Builder</a>, <a href="https://wordpress.org/plugins/caldera-forms/">Caldera Forms</a> and <a href="https://wordpress.org/plugins/wpforms-lite/">WP Forms</a>. 
-* Version: 1.1.1
+* Description: Save form submissions to the database from <a href="https://wordpress.org/plugins/contact-form-7/">Contact Form 7</a>, <a href="https://wordpress.org/plugins/ninja-forms/">Ninja Forms</a>, <a href="https://wordpress.org/plugins/formidable/">Formidable Forms</a>, <a href="https://elementor.com/widgets/form-widget/">Elementor Forms</a> and <a href="https://wordpress.org/plugins/wpforms-lite/">WP Forms</a>. 
+* Version: 1.1.4
 * Requires at least: 3.8
-* Tested up to: 5.4
+* Tested up to: 5.5
 * Author URI: https://www.crmperks.com
 * Plugin URI: https://www.crmperks.com/plugins/contact-form-plugins/crm-perks-forms/
 * Author: CRM Perks
@@ -26,7 +26,7 @@ class vxcf_form {
   public static $type = "vxcf_form";
   public static $path = ''; 
 
-  public static  $version = '1.1.1';
+  public static  $version = '1.1.4';
   public static $upload_folder = 'crm_perks_uploads';
   public static $db_version='';  
   public static $base_url='';  
@@ -73,13 +73,12 @@ wp_register_script( 'vx-tablesorter-js', self::$base_url. 'js/jquery.tablesorter
 wp_register_script( 'vx-tablepager-js', self::$base_url. 'js/jquery.tablesorter.pager.js',array('jquery') );
 wp_register_script( 'vx-tablewidgets-js', self::$base_url. 'js/jquery.tablesorter.widgets.js',array('jquery') );
 
-//$fields=$this->get_form_fields('wp_118');
-//$form=cfx_form::get_form('1'); var_dump($form['fields']); die();
+//$form=vxcf_form::get_form_fields('el_2669e21_5190');
+//$form=cfx_form::get_form('1'); var_dump($form); die();
+
 }
 
 public  function setup_main(){ 
- 
-
   //handling post submission.
 //  add_action("gform_entry_created", array($this, 'gf_entry_created'), 40, 2);
 // add_filter('wpcf7_mail_components', array($this, 'submission'), 999, 3);
@@ -104,7 +103,8 @@ public  function setup_main(){
   add_action( 'wpforms_process_entry_save',array(&$this,'create_entry_wp'), 30, 4 );
  //   add_action('cntctfrm_get_attachment_data', array(&$this, 'create_entry_be'),30);
 // add_filter('si_contact_email_fields_posted', array($this, 'test'),10,2);
- 
+//elemntor form
+ add_action( 'elementor_pro/forms/new_record', array($this,'create_entry_el'), 10 );
 // add_action('wpcf7_submit', array($this, 'submit'),10, 2);
 //add_action('wpcf7_init', array($this, 'create_entry'));
 //$this->create_entry();
@@ -114,19 +114,13 @@ add_shortcode('vx-entries', array($this, 'entries_shortcode'));
 load_plugin_textdomain('contact-form-entries', FALSE,  self::plugin_dir_name(). '/languages/' );     
   self::$db_version=get_option(vxcf_form::$type."_version");
   if(self::$db_version != self::$version && current_user_can( 'manage_options' )){
-  $data=vxcf_form::get_data_object();
-  $data->update_table();
   
+  $this->install_plugin();    
   
 /*  $install_data=get_option(vxcf_form::$type."_install_data");
   if(empty($install_data)){
   update_option(vxcf_form::$type."_install_data", array('time'=>current_time( 'timestamp' , 1 )));
   }*/
-  
-  require_once(self::$path . "includes/install.php"); 
-  $install=new vxcf_form_install();
-  $install->create_roles();   
-  $install->create_upload_dir();  
 $meta=$this->get_meta();  
   if(!empty($meta['save_forms'])){
  $forms=vxcf_form::get_forms();
@@ -142,11 +136,7 @@ if(!empty($new_ids)){
     self::$meta=$meta;
  update_option(vxcf_form::$id.'_meta',$meta);   
 }
-}
-
-update_option(vxcf_form::$type."_version", self::$version);
- 
-  }
+} }
 //plugin api
 $this->plugin_api(true);
 require_once(self::$path . "includes/crmperks-cf.php");
@@ -190,6 +180,17 @@ if($start_instance){
 self::$plugin->instance();
 } }
 } 
+}
+
+public function install_plugin(){
+$data=vxcf_form::get_data_object();
+$data->update_table();
+if(empty(self::$path)){   self::$path=$this->get_base_path(); }
+  require_once(self::$path . "includes/install.php"); 
+  $install=new vxcf_form_install();
+  $install->create_roles();   
+  $install->create_upload_dir();
+  update_option(vxcf_form::$type."_version", self::$version);
 }
 public function entries_shortcode($atts){
  
@@ -417,6 +418,7 @@ $entry_id=$data->get_vis_info_of_day($vis_id,$form_id,'1');
 } 
 $main['type']='0'; $main['is_read']='0';
 $entry_id=$this->create_update_lead($lead,$main,$entry_id);
+
 }
 
 /*
@@ -468,7 +470,8 @@ return $entry_id;
 public function create_update_lead($detail,$lead,$entry_id=''){
     $data=vxcf_form::get_data_object();
   if(empty($entry_id)){ //no partial entry
-$entry_id=$data->update_lead('',$detail,'',$lead);      
+$entry_id=$data->update_lead('',$detail,'',$lead);  
+
 }else{
 $detail_db= $data->get_lead_detail($entry_id);
 $update=$insert=array();
@@ -572,6 +575,54 @@ if(!empty($form_data['fields']['settings']['form_title'])){
     $form_arr['name']=$form_data['fields']['settings']['form_title'];
 }
 $this->create_entry($lead,$form_arr,'wp','',$track); 
+}
+//var_dump($fields); die();
+}
+public function create_entry_el( $record){
+    if(empty(self::$is_pr)){ return; }
+    $data=$record->get_formatted_data();
+    $form_id_p=$this->post('form_id');
+    $post_id_p=$this->post('post_id');
+    
+    $form_id=$form_id_p.'_'.$post_id_p;
+    $track=$this->track_form_entry('el',$form_id);
+    $fields=self::get_form_fields('el_'.$form_id);
+$upload_files=$lead=array();
+if(!empty($fields)){
+    foreach($fields as $v){
+    if(isset($data[$v['label']])){    
+$val=$data[$v['label']];
+if($v['type'] == 'upload'){
+  $upload_files[$v['id']]=$val;  
+}else{
+
+ if(in_array($v['type'],array('checkbox','multiselect'))){
+  $val=array_map('trim',explode(',',$val));     
+}
+$lead[$v['id']]=$val;
+}    } }
+if($track){
+  $upload_files=$this->copy_files($upload_files); 
+}  
+       if(is_array($upload_files)){
+       foreach($upload_files as $k=>$v){
+       $lead[$k]=$v;    
+       } }
+ //var_dump($lead,$data);  die();        
+$form_arr=array('id'=>$form_id,'name'=>'Elementor Forms','fields'=>$fields);
+
+$all_forms=get_option('vxcf_all_forms',array());
+if(!isset($all_forms['el'])){
+ $all_forms['el']=array('label'=>'Elementor Forms','forms'=>array());
+}
+
+ if(!isset($all_forms['el']['forms'][$form_id])){
+   $all_forms['el']['forms'][$form_id]='Post '.$post_id_p.' Form #'.$form_id_p;  
+ update_option('vxcf_all_forms',$all_forms);
+ } 
+
+$this->create_entry($lead,$form_arr,'el','',$track); 
+
 }
 //var_dump($fields); die();
 }
@@ -1465,7 +1516,7 @@ public function uninstall(){
   */
   public function activate(){ 
 $this->plugin_api(true);
-
+  $this->install_plugin();    
 do_action('plugin_status_'.vxcf_form::$type,'activate');  
   }
 /**
@@ -1572,7 +1623,7 @@ public static function get_forms(){
       //    function submission($components, $contact_form, $mail)
     //prepare list of contact forms --
     /// *NOTE* CF7 changed how it stores forms at some point, support legacy?
- //$all_forms=get_option('vxcf_all_forms',array()); //disable saving forms
+ $all_forms_db=get_option('vxcf_all_forms',array()); //disable saving forms
  $all_forms=array(); 
 
  if(!is_array($all_forms)){
@@ -1632,6 +1683,10 @@ $forms =cfx_form::get_forms();
         $all_forms['vf']=array('label'=>'CRM Perks Forms','forms'=>$forms_arr); 
     } 
  ///////   
+    }
+    
+    if(!empty($all_forms_db['el'])){
+        $all_forms['el']=$all_forms_db['el'];
     }
    if(class_exists('GFFormsModel')){
      $gf_forms=GFFormsModel::get_forms();
@@ -1842,12 +1897,17 @@ if(is_array($tags)){
      if(is_object($tag)){ $tag=(array)$tag; }
      
    if(!empty($tag['name'])){
+ 
        $id=str_replace(' ','',$tag['name']);
        $field=array('name'=>$id);
        $field['label']=ucwords(str_replace(array('-','_')," ",$tag['name']));
        $field['type_']=$tag['type'];
        $field['type']=$tag['basetype'];
        $field['req']=strpos($tag['type'],'*') !==false ? 'true' : '';
+       
+        if($field['type'] == 'select' && !empty($tag['options']) && array_search('multiple',$tag['options'])!== false){
+          $field['type']='multiselect'; 
+       }
        if(!empty($tag['raw_values'])){
           $ops=array();
            foreach($tag['raw_values'] as $v){
@@ -2141,6 +2201,58 @@ foreach($be_fields as $k=>$v){
      $type='file';   
     }
   $fields[$k]=array('name'=>$k,'label'=>$v,'type'=>$type);  
+}
+break;
+case'vxad':
+ global $vxcf_crm;
+  if(method_exists($vxcf_crm,'get_form_fields')){
+ $fields=$vxcf_crm->get_form_fields(true);
+  }
+  
+
+break;
+case'el':
+
+if(isset($form_arr[2])){
+$post_id=$form_arr[2];
+$forms=get_post_meta($post_id,'_elementor_data',true);
+$forms=json_decode($forms,true);
+if(!empty($forms)){
+$form=self::find_el_form($forms,$id);   
+$fields=array();
+if(!empty($form['form_fields'])){
+  foreach($form['form_fields'] as $tag){
+   if(!empty($tag['custom_id']) && !in_array($tag['field_type'],array('html','step','honeypot','recaptcha','recaptcha_v3'))){
+       $field=array('id'=>$tag['custom_id']);
+       $field['name']=$tag['custom_id'];
+       $field['label']=$tag['field_label'];
+       $field['type']=$tag['field_type'];
+       $field['req']=!empty($tag['required']) ? 'true' : '';
+  if(!empty($tag['allow_multiple']) ){
+  $field['type']='multiselect';   
+  }
+  if($field['type'] == 'acceptance'){
+      $field['type']='checkbox';
+  }
+  if($field['type'] == 'upload'){
+      $field['type']='file';
+  }
+if(!empty($tag['field_options'])){
+$opts_array=explode("\n",$tag['field_options']);
+$ops=array();
+foreach($opts_array as $v){
+$v_arr=explode('|',$v); 
+if(!isset($v_arr[1])){ $v_arr[1]=$v_arr[0]; }
+$ops[]=array('label'=>$v_arr[0],'value'=>$v_arr[1]);  
+}
+$field['values']=$ops;  
+   }
+   $fields[$tag['custom_id']]=$field;    
+   }   
+  }  
+} 
+}
+
 }
 break;
 case'vxad':
@@ -2673,6 +2785,21 @@ $extra_keys=array('vxbrowser'=>'browser','vxurl'=>'url','vxscreen'=>'screen','vx
   }
   fclose($fp);
 
+}
+public static function find_el_form($var,$key=''){
+
+if(is_array($var) && isset($var[0]) ){        
+    foreach($var as $v){
+     if (!empty($v['elements']) &&  is_array( $v['elements'] ) ) {
+  $se=self::find_el_form($v['elements'],$key);
+  if(!empty($se)){ return $se; }
+    } 
+         if($v['id'] == $key){  // var_dump($v);   echo '----<hr>';
+          return  $v['settings'];
+        } 
+    }
+    
+} 
 }
 public function vx_id(){
       $vx_id='';

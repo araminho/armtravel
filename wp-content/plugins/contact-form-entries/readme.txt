@@ -2,9 +2,9 @@
 Contributors: crmperks, sbazzi
 Tags: contact form 7, contact form 7 database, contact form db, save contact form, wpforms database
 Requires at least: 3.8
-Tested up to: 5.4
-Stable tag: 1.1.1
-Version: 1.1.1
+Tested up to: 5.5
+Stable tag: 1.1.4
+Version: 1.1.4
 Requires PHP: 5.3
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -20,6 +20,7 @@ Contact Form 7 Entries Plugin automatically saves form submissions from Contact 
 * [Contact Form 7](https://wordpress.org/plugins/contact-form-7/)
 * [CRM Perks Forms](https://wordpress.org/plugins/crm-perks-forms/)
 * [WP Forms](https://wordpress.org/plugins/wpforms-lite/)
+* [Elementor Forms](https://elementor.com/widgets/form-widget/) (Premium feature)
 
 == Contact form 7 entries features ==
 
@@ -67,6 +68,7 @@ You can add notes to any contact form entry and you can edit old notes. Also you
 <p>Following features are available in premium add-ons <a href="https://www.crmperks.com/plugins/contact-form-plugins/crm-forms/?utm_source=wordpress&utm_medium=directory&utm_campaign=readme">Get all add-ons and CRM Perks forms</a>.</p>
 <ul>
 <li>Don't miss out on any potential leads. Collect data in real time as it is entered on your forms.</li>
+<li>Save Elementor Forms submissions in database.</li>
 <li>Search field and Download CSV button for front end entries table.</li>
 <li>Google Analytics Parameters and Geolocation of a visitor who submitted the form.</li>
 <li>Lookup lead's email and phone using email and phone lookup apis.</li>
@@ -144,6 +146,13 @@ Yes, You can search contact form 7 submissions by a specific field or all fields
 * When anyone submits a form, it will be saved in wordpress database.
 * You can view all form submissions in wordpress from "CRM Entries" menu. 
 
+
+= Elementor forms database =
+
+* Install our elementor contact form entries plugin for saving form submissions to database. 
+* Plugin automatically saves all elementor forms entries in wordpress database.
+* You can add notes and send emails to elementor forms entries. 
+
 = How can i restrict plugin storing IP address and User Agent =
 
 You can select this in plugin settings.
@@ -193,7 +202,8 @@ from main wordpress menu select "CRM Entries" then you can view any entry.
 
 * Install our entries plugin for saving WPforms submissions to database. 
 * Plugin automatically saves all WPforms entries in wordpress database.
-* You can add notes and send emails to WPforms entries.  
+* You can add notes and send emails to WPforms entries. 
+ 
 
 = CRM Entries Plugin =
 
@@ -216,6 +226,15 @@ Contact form 7 entries plugin allows you to save contact form 7 entries to local
 
 
 == Changelog ==
+
+= 1.1.4 =
+* fixed contact form 7 dropdown field.
+
+= 1.1.3 =
+*	added elementor forms support.
+
+= 1.1.2 =
+*	fixed "timestamp" on front end entries.
 
 = 1.1.1 =
 *	fixed "per-page" option in front end entries table.
