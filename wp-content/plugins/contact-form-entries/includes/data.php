@@ -165,16 +165,17 @@ public function get_lead_counts($form_id){
     if(is_array($form_id)){
   $search=" l.form_id in ('".implode("','",$form_id)."')";      
     }else{
-  $search=' l.form_id="'.$form_id.'"';      
+  $search=" l.form_id='".$form_id."'";      
     }
 $res=array();
  $sql_all="SELECT count(distinct l.id) FROM {$leads} l where $search and l.status=0";
    $res['all']= $wpdb->get_var($sql_all); 
    
    $sql_star="SELECT count(distinct l.id) FROM {$leads} l where $search and l.is_star=1 and l.status=0";
-   $res['starred']= $wpdb->get_var($sql_star); 
-     
-
+   $res['starred']= $wpdb->get_var($sql_star);   
+    
+   $sql_star="SELECT count(distinct l.id) FROM {$leads} l where $search and l.is_star=0 and l.status=0";
+  // $res['nonstarred']= $wpdb->get_var($sql_star); 
      
    $sql_unread="SELECT count(distinct l.id) FROM {$leads} l where $search and l.is_read=0 and l.status=0";
      $res['unread']= $wpdb->get_var($sql_unread);  
@@ -228,17 +229,17 @@ $main_fields=array('vxurl','vxscreen','vxbrowser','vxcreated','vxupdated');
          if(is_array($form_id)){
   $form_id_q=' l.form_id in ("'.implode('","',$form_id).'")';      
     }else{
-      $form_id_q=' l.form_id ="'.esc_sql($form_id).'"';
+      $form_id_q=" l.form_id ='".esc_sql($form_id)."'";
     }
      }else{ 
-       $form_id_q=' l.form_id !=""'; 
+       $form_id_q=" l.form_id !=''"; 
      }
     $search=$form_id_q;
 $status_f=0;
  if($status == 'trash'){
 $status_f=1;    
 }
-  $search.=' and l.status ="'.$status_f.'"'; 
+  $search.=' and l.status ='.$status_f.''; 
 if($status == 'unread'){
  $search.=' and l.is_read =0'; 
 }
@@ -461,7 +462,7 @@ return $search;
 public function get_lead_notes($id){
          global $wpdb;
  $table_n= $this->get_crm_table_name('notes');
-  $table_u= $wpdb->prefix . 'users';
+  $table_u= $wpdb->base_prefix . 'users';
   $id=(int)$id;
   $sql="select n.id,n.note,n.color,n.email,n.created,n.user_id,u.display_name from $table_n n left join $table_u u on(n.user_id=u.ID) where n.lead_id='$id' limit 300";
   return $wpdb->get_results( $sql,ARRAY_A );

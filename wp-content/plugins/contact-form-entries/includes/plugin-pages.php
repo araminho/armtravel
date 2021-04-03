@@ -29,10 +29,11 @@ global $pagenow;
   if(in_array($pagenow, array("admin-ajax.php"))){
 add_action('wp_ajax_actions_'.vxcf_form::$id, array($this, 'ajax_actions')); 
 add_action('wp_ajax_print_'.vxcf_form::$id, array($this, 'print_page')); 
+  }
 //update previous form's hidden fields
 add_filter( 'update_user_metadata',array($this,'update_hidden_cols'), 10, 5 );
 add_filter( 'set-screen-option', array($this,'set_per_page'), 10, 3 );  
-}
+
 add_action( 'admin_notices', array( $this, 'admin_notices' ) ); 
 add_filter('plugin_action_links', array($this, 'plugin_action_links'), 10, 2); 
 
@@ -694,6 +695,7 @@ vxcf_form::download_csv($form_id);
       if ( $option == vxcf_form::$id.'_per_page' ) {
             $save = (int) $value; 
         }
+
         return $save;    
  }
  public function screen_options(){

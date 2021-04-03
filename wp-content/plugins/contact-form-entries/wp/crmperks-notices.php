@@ -105,7 +105,7 @@ public function review_notice() {
       update_option($this->option."_install_data",$install_time,false); 
    }
   // $install_time['review_closed']='';
-    $time=current_time( 'timestamp' , 1 )-(3600*24);
+    $time=current_time( 'timestamp' , 1 )-(3600*48);
  if(!empty($install_time) && is_array($install_time) && !empty($install_time['time']) && empty($install_time['review_closed'])){
    $time_i=(int)$install_time['time'];
     if($time > $time_i){ 

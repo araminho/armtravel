@@ -139,7 +139,10 @@ foreach($forms_arr as $k=>$v){
 ?>
 </td>
 </tr>
-<?php } ?>  
+<?php } ?> 
+
+
+   
   <tr>
   <th scope="row"><label for="vx_cookies">
   <?php _e('Disable Cookies', 'contact-form-entries'); ?>
@@ -169,6 +172,17 @@ foreach($forms_arr as $k=>$v){
 <label for="vx_plugin_data"><input type="checkbox" name="meta[plugin_data]" value="yes" <?php if(vxcf_form::post('plugin_data',$meta) == "yes"){echo 'checked="checked"';} ?> id="vx_plugin_data"><?php _e('Remove all plugin data during plugin uninstall','contact-form-entries'); ?></label>
   </td>
   </tr>
+  
+    <tr>
+  <th scope="row"><label for="vx_sep">
+  <?php _e('CSV Separator ', 'contact-form-entries'); ?>
+  </label>
+  </th>
+  <td>
+<label for="vx_sep"><input type="text" name="meta[sep]" placeholder="<?php _e(',','contact-form-entries'); ?>" value="<?php echo vxcf_form::post('sep',$meta) ?>" id="vx_sep" class="crm_text"></label>
+  </td>
+  </tr>
+  
   </table>
   <?php
   do_action('add_settings_section_'.vxcf_form::$id,$meta,$forms);

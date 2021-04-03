@@ -1,10 +1,10 @@
 <?php
 /**
 * Plugin Name: Contact Form Entries
-* Description: Save form submissions to the database from <a href="https://wordpress.org/plugins/contact-form-7/">Contact Form 7</a>, <a href="https://wordpress.org/plugins/ninja-forms/">Ninja Forms</a>, <a href="https://wordpress.org/plugins/formidable/">Formidable Forms</a>, <a href="https://elementor.com/widgets/form-widget/">Elementor Forms</a> and <a href="https://wordpress.org/plugins/wpforms-lite/">WP Forms</a>. 
-* Version: 1.1.4
+* Description: Save form submissions to the database from <a href="https://wordpress.org/plugins/contact-form-7/">Contact Form 7</a>, <a href="https://wordpress.org/plugins/ninja-forms/">Ninja Forms</a>, <a href="https://elementor.com/widgets/form-widget/">Elementor Forms</a> and <a href="https://wordpress.org/plugins/wpforms-lite/">WP Forms</a>.
+* Version: 1.1.9
 * Requires at least: 3.8
-* Tested up to: 5.5
+* Tested up to: 5.7
 * Author URI: https://www.crmperks.com
 * Plugin URI: https://www.crmperks.com/plugins/contact-form-plugins/crm-perks-forms/
 * Author: CRM Perks
@@ -26,7 +26,7 @@ class vxcf_form {
   public static $type = "vxcf_form";
   public static $path = ''; 
 
-  public static  $version = '1.1.4';
+  public static  $version = '1.1.9';
   public static $upload_folder = 'crm_perks_uploads';
   public static $db_version='';  
   public static $base_url='';  
@@ -405,10 +405,22 @@ if(is_array($lead) && count($lead)>0){
   if(!empty(self::$user_id)){
     $main['user_id']=self::$user_id;
 }
+ $fields=vxcf_form::get_form_fields($form_id);  
+ 
+if(!empty($fields)){
+foreach($lead  as $k=>$v){
+    $type=isset($fields[$k]['type']) ? $fields[$k]['type'] :'';
+    if( in_array($type,array('textarea'))){
+    $lead[$k]=sanitize_textarea_field($v);   
+    }else{
+  $lead[$k]=$this->post($k,$lead);      
+    }    
+}
+}
   $main=apply_filters('vxcf_entries_plugin_before_saving_lead_main',$main,$lead,$entry_id);
 //var_dump($main); die();
   //set self::$form_fields_temp
- vxcf_form::get_form_fields($form_id);  
+
 $lead=apply_filters('vxcf_entries_plugin_before_saving_lead',$lead,$main); 
 $vis_id=''; 
 if($save){
@@ -510,7 +522,7 @@ $ip=$meta_info['ip'];
 }else{
 $ip=$this->get_ip();   
 }
-$info['ip']=$ip;
+$info['ip']=vxcf_form::clean($ip);
 $resolution="";
 if(isset($_POST['vx_width'])){
 $width=vxcf_form::post('vx_width');
@@ -519,24 +531,25 @@ $height=vxcf_form::post('vx_height');
 $info['screen']=$resolution;
 }
 $user_agent=!empty($meta_info['user_agent']) ? $meta_info['user_agent'] : '';
-$bro_info=self::browser_info($user_agent);
+$bro_info=self::browser_info($user_agent); 
 //get page url
 $page_url="//$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 if(isset($_REQUEST['vx_url'])){
 $page_url=vxcf_form::post('vx_url');
 }
 if(!empty($meta_info['url'])){
- $page_url=$meta_info['url'];  
+ $page_url=vxcf_form::clean($meta_info['url']);  
 }
 $page_url=substr($page_url,0,250);
-$info['url']=$page_url; 
-$info['browser']=$bro_info['name'];
-$info['os']=$bro_info['platform'];
+$info['url']=vxcf_form::clean($page_url); 
+$info['browser']=vxcf_form::clean($bro_info['name']);
+$info['os']=vxcf_form::clean($bro_info['platform']);
 if(!empty($meta_info['vis_id'])){
 $info['vis_id']=$meta_info['vis_id'];
 }else{
 $info['vis_id']=$this->vx_id();
 }
+$info['vis_id']=vxcf_form::clean($info['vis_id']);
 return $info;
 }
 public function create_entry_vf($entry_id,$entry,$form){
@@ -1547,7 +1560,7 @@ public static function display_msg($type,$message,$id=""){
  
 public function do_actions(){
      if(!is_object(self::$plugin) ){ $this->plugin_api(); }
-      if(method_exists(self::$plugin,'valid_addons')){
+      if(is_object(self::$plugin) && method_exists(self::$plugin,'valid_addons')){
        return self::$plugin->valid_addons();  
       }
     
@@ -2724,22 +2737,27 @@ $u_agent=$_SERVER['HTTP_USER_AGENT'];
 }
 
 public static function download_csv($form_id,$req=array()){
-   header('Content-disposition: attachment; filename='.date("Y-m-d",current_time('timestamp')).'.csv');
+
+header('Content-disposition: attachment; filename='.date("Y-m-d",current_time('timestamp')).'.csv');
 header("Content-Transfer-Encoding: binary");
 
     $now = gmdate("D, d M Y H:i:s");
         header("Expires: Tue, 03 Jul 2000 06:00:00 GMT");
         header("Cache-Control: max-age=0, no-cache, must-revalidate, proxy-revalidate");
         header("Last-Modified: {$now} GMT");
+        header('Content-Type: text/html; charset=UTF-8');
         // force download
         header("Content-Type: application/force-download");
         header("Content-Type: application/octet-stream");
         header("Content-Type: application/download");
   $data=vxcf_form::get_entries($form_id,'all','',$req);
   $leads=$data['result'];
+$meta=get_option(vxcf_form::$id.'_meta',array());
+$sep=','; if(!empty($meta['sep'])){ $sep=trim($meta['sep']); }
+
 $extra_keys=array('vxbrowser'=>'browser','vxurl'=>'url','vxscreen'=>'screen','vxcreated'=>'created','vxupdated'=>'updated');
   $fields=vxcf_form::$form_fields;
-//echo json_encode($fields); 
+//echo json_encode($fields);    echo json_encode($leads);
  $field_titles=array('#');
   if(is_array($fields)){
       foreach($fields as $field){
@@ -2750,7 +2768,7 @@ $extra_keys=array('vxbrowser'=>'browser','vxurl'=>'url','vxscreen'=>'screen','vx
  
   $fp = fopen('php://output', 'w');
  // fputs($fp, $bom =( chr(0xEF) . chr(0xBB) . chr(0xBF) ));
-  fputcsv($fp, $field_titles);
+  fputcsv($fp, $field_titles,$sep);
   $sno=0;
   foreach($leads as $lead_row){
       $row=!empty($lead_row['detail']) ? $lead_row['detail'] : array();
@@ -2758,7 +2776,7 @@ $extra_keys=array('vxbrowser'=>'browser','vxurl'=>'url','vxscreen'=>'screen','vx
   $_row=array($sno);
   foreach($fields as $k=>$field){
       $val=''; 
-  if(!empty($field['name']) && isset($row[$field['name'].'_field'])){
+  if(isset($field['name']) && isset($row[$field['name'].'_field'])){
       $val=maybe_unserialize($row[$field['name'].'_field']); 
   }
   if(isset($extra_keys[$k]) && isset($lead_row[$extra_keys[$k]])){
@@ -2772,16 +2790,16 @@ $extra_keys=array('vxbrowser'=>'browser','vxurl'=>'url','vxscreen'=>'screen','vx
     if(is_array($val)){
       $val=implode(' - ',$val);    
       }
-     //  if(function_exists('mb_convert_encoding')){
-     //  $val=mb_convert_encoding($val, $charset);
-     //  } 
+     /*  if(function_exists('mb_convert_encoding')){
+       $val=mb_convert_encoding($val, 'UTF-8');
+       } */
       $_row[]=$val; 
     
   }
 
   $_row[]=$lead_row['created'];
 
-  fputcsv($fp, $_row);    
+  fputcsv($fp, $_row,$sep);    
   }
   fclose($fp);
 

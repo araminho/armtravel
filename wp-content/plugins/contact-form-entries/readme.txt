@@ -1,25 +1,25 @@
-=== Contact Form Entries ===
+=== Contact Form Entries - Contact Form 7, WPforms and more ===
 Contributors: crmperks, sbazzi
 Tags: contact form 7, contact form 7 database, contact form db, save contact form, wpforms database
 Requires at least: 3.8
-Tested up to: 5.5
-Stable tag: 1.1.4
-Version: 1.1.4
+Tested up to: 5.7
+Stable tag: 1.1.9
+Version: 1.1.9
 Requires PHP: 5.3
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
-Saves Contact Form 7, CRM Perks Forms and many other contact form submissions to database.
+Saves Contact Form 7, WPforms, CRM Perks Forms and many other contact form submissions to database.
 
 == Description ==
 
-Contact Form 7 Entries Plugin automatically saves form submissions from Contact Form 7, CRM Perks Forms and many other popular contact form plugins to wordpress database when anyone submits a form. Learn more our forms builder and entries at [crmperks.com](https://www.crmperks.com/plugins/contact-form-plugins/crm-perks-forms/?utm_source=wordpress&utm_medium=directory&utm_campaign=readme)
+Contact Form 7 Entries Plugin automatically saves form submissions from Contact Form 7, WPforms, CRM Perks Forms and many other popular contact form plugins to wordpress database when anyone submits a form. Learn more our forms builder and entries at [crmperks.com](https://www.crmperks.com/plugins/contact-form-plugins/crm-perks-forms/?utm_source=wordpress&utm_medium=directory&utm_campaign=readme)
 
 == Supported Contact Forms ==
 
 * [Contact Form 7](https://wordpress.org/plugins/contact-form-7/)
 * [CRM Perks Forms](https://wordpress.org/plugins/crm-perks-forms/)
-* [WP Forms](https://wordpress.org/plugins/wpforms-lite/)
+* [WPForms](https://wordpress.org/plugins/wpforms-lite/)
 * [Elementor Forms](https://elementor.com/widgets/form-widget/) (Premium feature)
 
 == Contact form 7 entries features ==
@@ -40,6 +40,10 @@ Contact Form 7 Entries Plugin automatically saves form submissions from Contact 
 == Why we built this plugin ==
 
 Contact Form 7 is free contact form builder. This free Contact Form 7 Entries plugin adds entries management and all premium features to free wordpress contact forms including contact form 7. You can send entries data to your CRM or mailing lists.
+
+== WPforms database addon ==
+
+This Plugin saves WPforms entries into wordpress database, you can view and edit any entry. You can also export all entries as csv file.
 
 == Contact Form 7 Entries Stats ==
 
@@ -83,6 +87,7 @@ We have Premium Extensions for 20+ CRMs.[View All CRM Extensions](https://www.cr
 
 * [Contact Form Streak Plugin](https://www.crmperks.com/plugins/contact-form-plugins/contact-form-streak-plugin/?utm_medium=referral&utm_source=wordpress&utm_campaign=Entries+Readme&utm_content=WP)
 * [Contact Form Freshdesk Plugin](https://www.crmperks.com/plugins/contact-form-plugins/contact-form-freshdesk-plugin/?utm_medium=referral&utm_source=wordpress&utm_campaign=Entries+Readme&utm_content=WP)
+* [Contact Form 7 Pardot](https://www.crmperks.com/plugins/contact-form-plugins/contact-form-pardot-plugin/?utm_medium=referral&utm_source=wordpress&utm_campaign=Entries+Readme&utm_content=WP)
 
 
 
@@ -107,45 +112,6 @@ Our team provides free support at <a href="https://www.crmperks.com/contact-us/"
 
 Simply add a "GDPR Agreement" checkbox in contact form 7 and make it a required field OR stop tracking a contact form in "settings" tab. Additionally you can disable tracking cookies and user details.
 
-=  Can i install this plugin without contact form 7 =
-
-Yes, You can install it without Contact Form 7 because this plugin supports many other contact form plugins
-
-=  Which version of contact form 7 is supported by this plugin =
-
-This plugin supports all versions of Contact Form 7.
-
-=  How can i disable storing contact form 7 entries to database =
-
-It is simple, See "Track Forms" option in "settings" tab
-
-=  Can i export contact form 7 entries to CSV =
-
-Yes, you can export entries of any contact form to CSV file by clicking "Export Entries" button.
-
-= Where this plugin saves contact form submissions =
-
-This plugin saves submissions from contact form 7 and other forms plugins to local wordpress database. This plugin does NOT save contact form 7 entries to a third party or external server.
-
-= Can i reply to a lead from wordpress =
-
-Yes, you can reply to any contact form 7 submission from wordpress. Your reply will be saved as entry notes.
-
-= Can i send contact form submissions to my CRM =
-
-Yes, you can send to any CRM through our premium extensions for all popular crms.
-
-= Can i search contact form 7 submissions =
-
-Yes, You can search contact form 7 submissions by a specific field or all fields.
-
-= Contact form 7 to database extension wordpress plugin =
-
-* install any popular forms plugin like Contact form 7, CRM Perks forms etc.
-* Add form anywhere in wordpres page or post.
-* When anyone submits a form, it will be saved in wordpress database.
-* You can view all form submissions in wordpress from "CRM Entries" menu. 
-
 
 = Elementor forms database =
 
@@ -153,9 +119,6 @@ Yes, You can search contact form 7 submissions by a specific field or all fields
 * Plugin automatically saves all elementor forms entries in wordpress database.
 * You can add notes and send emails to elementor forms entries. 
 
-= How can i restrict plugin storing IP address and User Agent =
-
-You can select this in plugin settings.
 
 = WP Forms database =
 
@@ -164,18 +127,6 @@ You can select this in plugin settings.
 * You can view and edit any entry in wordpress.
 * Add Notes and send emails to any entry from wordpress.
 
-= Contact form advanced database =
-
-This contact form entries plugin not only saves contact form submissions, it has more advanced features like
-* You view and edit any entry.
-* you can dfferent colored notes.
-* supports multiple file uploads.
-
-= Store contact form 7 to database =
-
-* Simply Contact Form Entries Plugin.
-* It will automatically start saving form submissions from contact form 7 and many others.
-* You can modify, print, export entries.
 
 = Wordpress plugin contact form database =
 
@@ -183,7 +134,7 @@ This contact form entries plugin not only saves contact form submissions, it has
 * in wordpress go to "CRM Entries" menu then select your form, plugin will show all entries in table form.
 * you can star or Un-star any entry.  
 
-= WPforms database addon =
+= WPforms lite entries =
 
 * Save all WPforms submissions in wordpress database. 
 * View and edit any entry in wordpress.
@@ -203,18 +154,6 @@ from main wordpress menu select "CRM Entries" then you can view any entry.
 * Install our entries plugin for saving WPforms submissions to database. 
 * Plugin automatically saves all WPforms entries in wordpress database.
 * You can add notes and send emails to WPforms entries. 
- 
-
-= CRM Entries Plugin =
-
-When anyone submits a form on your site, plugin saves it in wordpress data. You can send it to CRM of your choice with our 20+ crm extensions.
-
-= contact form 7 to database extension wp =
-
-* Add Contact form 7 form's shorcode on any wordpress page.
-* Install Contact form Entries Plugin.
-* When anyone submits a form, it will be saved in wordpress database.
-* Go to "CRM Entries" menu, all saved form entries will be available in table form.
 
 = Save contact form 7 submissions =
 
@@ -226,6 +165,21 @@ Contact form 7 entries plugin allows you to save contact form 7 entries to local
 
 
 == Changelog ==
+
+= 1.1.9 =
+* fixed php8 issues.
+
+= 1.1.8 =
+* fixed empty name issue with wpforms.
+
+= 1.1.7 =
+* fixed xss issue reported by Gaetano Perrone.
+
+= 1.1.6 =
+* fixed xss issue.
+
+= 1.1.5 =
+* fixed "float as string" mysql error.
 
 = 1.1.4 =
 * fixed contact form 7 dropdown field.
